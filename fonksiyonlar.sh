@@ -43,24 +43,23 @@ sql_kur() {
     hata_kontrol "PostgreSQL 15 komutları için sembolik link oluşturulurken bir hata oluştu."
 }
 
-# Patroni ve gerekli paketleri kur
 patroni_kur() {
-    sudo apt -y install python3 python3-pip
-    hata_kontrol "Python3 ve pip3 kurulurken bir hata oluştu."
-    sudo apt install python3-pip python3-dev libpq-dev -y
-    hata_kontrol "Python3 ve pip3 için gerekli paketler kurulurken bir hata oluştu."
-    sudo pip3 install --upgrade pip
-    hata_kontrol "pip3 güncellenirken bir hata oluştu."
-    sudo -H pip3 install --upgrade testresources
-    hata_kontrol "testresources güncellenirken bir hata oluştu."
-    sudo -H pip3 install --upgrade setuptools
-    hata_kontrol "setuptools güncellenirken bir hata oluştu."
-    sudo -H pip3 install psycopg2
-    hata_kontrol "psycopg2 kurulurken bir hata oluştu."
-    sudo -H pip3 install patroni
-    hata_kontrol "patroni kurulurken bir hata oluştu."
-    sudo -H pip3 install python-etcd
-    hata_kontrol "python-etcd kurulurken bir hata oluştu."
+    echo "Gerekli sistem paketlerini yüklüyor..."
+    sudo apt update && sudo apt install -y python3 python3-pip python3-dev libpq-dev
+    hata_kontrol "Gerekli sistem paketleri kurulurken bir hata oluştu."
+
+    echo "Pip ve diğer Python bağımlılıklarını güncelliyor..."
+    sudo -H pip3 install --upgrade pip setuptools wheel testresources
+    hata_kontrol "Pip ve bağımlılıkları güncellenirken bir hata oluştu."
+
+    echo "psycopg2 ve Patroni'yi yüklüyor..."
+    sudo -H pip3 install psycopg2-binary patroni[etcd]
+    hata_kontrol "psycopg2 veya Patroni kurulurken bir hata oluştu."
+
+    echo "Patroni paketini yüklüyor..."
+    sudo apt install -y patroni
+    hata_kontrol "Patroni kurulurken bir hata oluştu."
+
 }
 
 # PostgreSQL konfigürasyonu yap
