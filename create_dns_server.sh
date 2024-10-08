@@ -94,7 +94,7 @@ ns      IN      A       10.207.80.22
 EOF
 
     # BIND9 servisini yeniden başlat
-    sudo systemctl restart bind9
+    service named restart
 }
 
 # Ana script

@@ -38,8 +38,7 @@ EOF
 # Keepalived servisini başlatma ve etkinleştirme
 start_keepalived() {
     echo "Keepalived servisi başlatılıyor..."
-    sudo systemctl start keepalived
-    sudo systemctl enable keepalived
+    service keepalived start
     echo "Keepalived servisi başlatıldı ve etkinleştirildi."
 }
 

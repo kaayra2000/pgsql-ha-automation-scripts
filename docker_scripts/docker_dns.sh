@@ -2,13 +2,13 @@
 
 # Parametreleri tanımla
 INTERFACE="eth0"
-VIRTUAL_IP="10.207.8.100"
+KEEPALIVED_IP="10.207.80.100"
 PRIORITY="100"
 DNS_PORT="53"
 DOCKER_FILES="../docker_files"
-CONTAINER_IP="10.207.8.15"  # Ağ alt ağıyla uyumlu hale getirildi
+CONTAINER_IP="10.207.80.15"  # Ağ alt ağıyla uyumlu hale getirildi
 DOCKERFILE_NAME="docker_dns"
-IMAGE_NAME="dns_image"  # Özel bir imaj adı kullanıldı
+IMAGE_NAME="dns_image"
 NETWORK_NAME="dns_network"
 NETWORK_SUBNET="10.207.8.0/24"
 
@@ -54,4 +54,8 @@ docker run -d --rm --privileged \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
     --cap-add=NET_ADMIN \
     $IMAGE_NAME \
-    /bin/bash -c "/usr/local/bin/create_keepalived.sh $INTERFACE $VIRTUAL_IP $PRIORITY && /usr/local/bin/create_dns_server.sh $DNS_PORT && tail -f /dev/null"
+    /bin/bash -c "/usr/local/bin/create_keepalived.sh $INTERFACE $KEEPALIVED_IP $PRIORITY && \
+                  /usr/local/bin/create_dns_server.sh $DNS_PORT && \
+                  service named start && \
+                  service keepalived start && \
+                  while true; do sleep 30; done"
