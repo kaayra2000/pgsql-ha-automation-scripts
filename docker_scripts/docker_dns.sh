@@ -47,11 +47,11 @@ else
 fi
 
 # Docker konteynerını çalıştır ve scriptleri execute et
-docker run -it --rm --privileged \
+docker run -d --rm --privileged \
     --name dns_container \
     --network $NETWORK_NAME \
     --ip $CONTAINER_IP \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
     --cap-add=NET_ADMIN \
     $IMAGE_NAME \
-    /bin/bash -c "/usr/local/bin/create_keepalived.sh $INTERFACE $VIRTUAL_IP $PRIORITY && /usr/local/bin/create_dns_server.sh $DNS_PORT"
+    /bin/bash -c "/usr/local/bin/create_keepalived.sh $INTERFACE $VIRTUAL_IP $PRIORITY && /usr/local/bin/create_dns_server.sh $DNS_PORT && tail -f /dev/null"
