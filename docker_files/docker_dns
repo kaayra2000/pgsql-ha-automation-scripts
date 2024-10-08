@@ -1,0 +1,15 @@
+FROM ubuntu:latest
+
+COPY create_keepalived.sh /usr/local/bin/
+COPY create_dns_server.sh /usr/local/bin/
+
+RUN apt-get update && apt-get install -y \
+    sudo \
+    keepalived \
+    bind9 \
+    bind9utils \
+    bind9-doc
+
+RUN chmod +x /usr/local/bin/create_keepalived.sh /usr/local/bin/create_dns_server.sh
+
+CMD ["/bin/bash"]
