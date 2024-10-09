@@ -110,7 +110,9 @@ global_defs {
 vrrp_script check_sql {
     script "$DOCKER_BINARY_PATH inspect -f '{{.State.Running}}' $SQL_CONTAINER || exit 1"
     interval 2
-    weight 2
+    weight -20
+    fall 2
+    rise 2
 }
 
 vrrp_instance VI_SQL {
@@ -131,7 +133,9 @@ vrrp_instance VI_SQL {
 vrrp_script check_dns {
     script "$DOCKER_BINARY_PATH inspect -f '{{.State.Running}}' $DNS_CONTAINER || exit 1"
     interval 2
-    weight 2
+    weight -20
+    fall 2
+    rise 2
 }
 
 vrrp_instance VI_DNS {
