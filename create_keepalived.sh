@@ -61,11 +61,28 @@ parse_arguments() {
     done
 }
 
+# keepalived_script kullanıcısını oluşturma
+create_keepalived_user() {
+    if ! id "keepalived_script" &>/dev/null; then
+        echo "keepalived_script kullanıcısı oluşturuluyor..."
+        sudo useradd -r -s /sbin/nologin keepalived_script
+        echo "keepalived_script kullanıcısı oluşturuldu."
+    else
+        echo "keepalived_script kullanıcısı zaten mevcut."
+    fi
+}
+
 # Keepalived kurulumu
 install_keepalived() {
-    echo "Keepalived kuruluyor..."
-    sudo apt-get update
-    sudo apt-get install -y keepalived
+    if ! command -v keepalived &> /dev/null
+    then
+        echo "Keepalived kuruluyor..."
+        sudo apt-get update
+        sudo apt-get install -y keepalived
+        echo "Keepalived kurulumu tamamlandı."
+    else
+        echo "Keepalived zaten kurulu."
+    fi
 }
 
 # Keepalived yapılandırması
@@ -73,6 +90,11 @@ configure_keepalived() {
     echo "Keepalived yapılandırılıyor..."
     
     cat << EOF | sudo tee /etc/keepalived/keepalived.conf
+global_defs {
+    script_user keepalived_script
+    enable_script_security
+}
+
 # SQL için VRRP yapılandırması
 vrrp_script check_sql {
     script "docker inspect -f '{{.State.Running}}' $SQL_CONTAINER"
@@ -121,14 +143,27 @@ EOF
 
 # Keepalived servisini başlatma ve etkinleştirme
 start_keepalived() {
-    echo "Keepalived servisi başlatılıyor..."
-    sudo systemctl start keepalived
-    sudo systemctl enable keepalived
-    echo "Keepalived servisi başlatıldı ve etkinleştirildi."
+    if systemctl is-active --quiet keepalived; then
+        echo "Keepalived servisi zaten çalışıyor. Yeniden başlatılıyor..."
+        sudo systemctl restart keepalived
+    else
+        echo "Keepalived servisi başlatılıyor..."
+        sudo systemctl start keepalived
+    fi
+    
+    if ! systemctl is-enabled --quiet keepalived; then
+        echo "Keepalived servisi etkinleştiriliyor..."
+        sudo systemctl enable keepalived
+    else
+        echo "Keepalived servisi zaten etkinleştirilmiş."
+    fi
+    
+    echo "Keepalived servisi başlatıldı/yeniden başlatıldı ve etkinleştirildi."
 }
 
 # Ana script
 parse_arguments "$@"
+create_keepalived_user
 install_keepalived
 configure_keepalived
 start_keepalived
