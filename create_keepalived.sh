@@ -8,7 +8,7 @@ DEFAULT_PRIORITY="100"
 DEFAULT_STATE="BACKUP"
 DEFAULT_SQL_CONTAINER="sql_container"
 DEFAULT_DNS_CONTAINER="dns_container"
-
+DOCKER_BINARY_PATH="/usr/bin/docker"
 # Argüman ayrıştırma fonksiyonu
 parse_arguments() {
     INTERFACE=$DEFAULT_INTERFACE
@@ -97,7 +97,7 @@ global_defs {
 
 # SQL için VRRP yapılandırması
 vrrp_script check_sql {
-    script "docker inspect -f '{{.State.Running}}' $SQL_CONTAINER"
+    script "$DOCKER_BINARY_PATH inspect -f '{{.State.Running}}' $SQL_CONTAINER"
     interval 2
     weight 2
 }
@@ -118,7 +118,7 @@ vrrp_instance VI_SQL {
 
 # DNS için VRRP yapılandırması
 vrrp_script check_dns {
-    script "docker inspect -f '{{.State.Running}}' $DNS_CONTAINER"
+    script "$DOCKER_BINARY_PATH inspect -f '{{.State.Running}}' $DNS_CONTAINER"
     interval 2
     weight 2
 }
