@@ -60,6 +60,17 @@ parse_arguments() {
         esac
     done
 }
+# Docker komutunu çalıştırma yetkisini kontrol etme ve ekleme
+check_and_add_docker_permissions() {
+    if ! groups keepalived_script | grep -q docker; then
+        echo "keepalived_script kullanıcısına docker grubuna ekleniyor..."
+        sudo usermod -aG docker keepalived_script
+        echo "keepalived_script kullanıcısı docker grubuna eklendi."
+    else
+        echo "keepalived_script kullanıcısı zaten docker grubunda."
+    fi
+}
+
 
 # keepalived_script kullanıcısını oluşturma
 create_keepalived_user() {
@@ -164,6 +175,7 @@ start_keepalived() {
 # Ana script
 parse_arguments "$@"
 create_keepalived_user
+check_and_add_docker_permissions
 install_keepalived
 configure_keepalived
 start_keepalived
