@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Varsayılan değerler
-DEFAULT_INTERFACE="eth0"
+DEFAULT_INTERFACE="enp0s3"
 DEFAULT_SQL_VIRTUAL_IP="10.207.80.20"
 DEFAULT_DNS_VIRTUAL_IP="10.207.80.30"
 DEFAULT_PRIORITY="100"
@@ -82,6 +82,20 @@ create_keepalived_user() {
         echo "keepalived_script kullanıcısı zaten mevcut."
     fi
 }
+get_log_path() {
+    local CONTAINER_NAME=$1
+    echo "/var/log/${CONTAINER_NAME}_check.log"
+}
+# Konteyner ayakta mı scripti oluşturma
+create_checkscript() {
+    local CONTAINER_NAME=$1
+    local LOG_FILE=$(get_log_path "${CONTAINER_NAME}")
+
+    cat << EOF
+/bin/bash -c 'echo \"User: \$(/usr/bin/whoami)\" && echo \"Groups: \$(groups)\" && sudo -n /usr/bin/docker inspect -f {{.State.Running}} ${CONTAINER_NAME}' >> /var/log/keepalived_check.log 2>&1
+EOF
+}
+
 
 # Keepalived kurulumu
 install_keepalived() {
@@ -108,7 +122,7 @@ global_defs {
 
 # SQL için VRRP yapılandırması
 vrrp_script check_sql {
-    script "$DOCKER_BINARY_PATH inspect -f '{{.State.Running}}' $SQL_CONTAINER || exit 1"
+    script "$(create_checkscript $SQL_CONTAINER)"
     interval 2
     weight -20
     fall 2
@@ -131,7 +145,7 @@ vrrp_instance VI_SQL {
 
 # DNS için VRRP yapılandırması
 vrrp_script check_dns {
-    script "$DOCKER_BINARY_PATH inspect -f '{{.State.Running}}' $DNS_CONTAINER || exit 1"
+    script "$(create_checkscript $DNS_CONTAINER)"
     interval 2
     weight -20
     fall 2
@@ -176,9 +190,74 @@ start_keepalived() {
     echo "Keepalived servisi başlatıldı/yeniden başlatıldı ve etkinleştirildi."
 }
 
+# ilgili kontrol scriptinin log dosyasını oluştur
+setup_container_log() {
+    local CONTAINER_NAME=$1
+    local LOG_FILE=$(get_log_path "${CONTAINER_NAME}")
+    
+    echo "Log dosyası kontrolü yapılıyor: ${LOG_FILE}"
+    
+    # Log dosyasının varlığını kontrol et
+    if [ ! -f "${LOG_FILE}" ]; then
+        echo "Log dosyası bulunamadı. Oluşturuluyor..."
+        sudo touch "${LOG_FILE}"
+        sudo chown keepalived_script:keepalived_script "${LOG_FILE}"
+        sudo chmod 644 "${LOG_FILE}"
+        echo "Log dosyası oluşturuldu: ${LOG_FILE}"
+    else
+        echo "Log dosyası mevcut. İzinler kontrol ediliyor..."
+        
+        # Dosya sahipliğini kontrol et
+        OWNER=$(stat -c '%U:%G' "${LOG_FILE}")
+        if [ "${OWNER}" != "keepalived_script:keepalived_script" ]; then
+            echo "Dosya sahipliği düzeltiliyor..."
+            sudo chown keepalived_script:keepalived_script "${LOG_FILE}"
+        fi
+        
+        # Dosya izinlerini kontrol et
+        PERMS=$(stat -c '%a' "${LOG_FILE}")
+        if [ "${PERMS}" != "644" ]; then
+            echo "Dosya izinleri düzeltiliyor..."
+            sudo chmod 644 "${LOG_FILE}"
+        fi
+    fi
+}
+
+
+# keepalived_script kullanıcısına sudo yetkisi verme
+configure_sudo_access() {
+    echo "Sudo erişimi yapılandırılıyor..."
+    
+    # Sudoers.d dizininin varlığını kontrol et
+    if [ ! -d "/etc/sudoers.d" ]; then
+        sudo mkdir -p /etc/sudoers.d
+        sudo chmod 750 /etc/sudoers.d
+    fi 
+    
+    # Keepalived için sudo kuralını oluştur
+    sudo bash -c 'cat > /etc/sudoers.d/keepalived << EOF
+keepalived_script ALL=(ALL) NOPASSWD: /usr/bin/docker
+EOF'
+    
+    # Dosya izinlerini ayarla
+    sudo chmod 440 /etc/sudoers.d/keepalived
+    
+    # Syntax kontrolü yap
+    if sudo visudo -c; then
+        echo "Sudo erişimi başarıyla yapılandırıldı."
+    else
+        echo "Hata: Sudo yapılandırması başarısız oldu!"
+        sudo rm -f /etc/sudoers.d/keepalived
+        return 1
+    fi
+}
+
 # Ana script
 parse_arguments "$@"
 create_keepalived_user
+setup_container_log $SQL_CONTAINER
+setup_container_log $DNS_CONTAINER
+configure_sudo_access
 check_and_add_docker_permissions
 install_keepalived
 configure_keepalived
