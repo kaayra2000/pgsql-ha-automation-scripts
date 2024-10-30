@@ -22,42 +22,42 @@ parse_arguments() {
 
     while [[ $# -gt 0 ]]; do
         case $1 in
-            --interface)
-                INTERFACE="$2"
-                shift 2
-                ;;
-            --sql-virtual-ip)
-                SQL_VIRTUAL_IP="$2"
-                shift 2
-                ;;
-            --dns-virtual-ip)
-                DNS_VIRTUAL_IP="$2"
-                shift 2
-                ;;
-            --priority)
-                PRIORITY="$2"
-                shift 2
-                ;;
-            --state)
-                if [[ "$2" != "MASTER" && "$2" != "BACKUP" ]]; then
-                    echo "Hata: State sadece MASTER veya BACKUP olabilir."
-                    exit 1
-                fi
-                STATE="$2"
-                shift 2
-                ;;
-            --sql-container)
-                SQL_CONTAINER="$2"
-                shift 2
-                ;;
-            --dns-container)
-                DNS_CONTAINER="$2"
-                shift 2
-                ;;
-            *)
-                echo "Bilinmeyen argüman: $1"
+        --interface)
+            INTERFACE="$2"
+            shift 2
+            ;;
+        --sql-virtual-ip)
+            SQL_VIRTUAL_IP="$2"
+            shift 2
+            ;;
+        --dns-virtual-ip)
+            DNS_VIRTUAL_IP="$2"
+            shift 2
+            ;;
+        --priority)
+            PRIORITY="$2"
+            shift 2
+            ;;
+        --state)
+            if [[ "$2" != "MASTER" && "$2" != "BACKUP" ]]; then
+                echo "Hata: State sadece MASTER veya BACKUP olabilir."
                 exit 1
-                ;;
+            fi
+            STATE="$2"
+            shift 2
+            ;;
+        --sql-container)
+            SQL_CONTAINER="$2"
+            shift 2
+            ;;
+        --dns-container)
+            DNS_CONTAINER="$2"
+            shift 2
+            ;;
+        *)
+            echo "Bilinmeyen argüman: $1"
+            exit 1
+            ;;
         esac
     done
 }
