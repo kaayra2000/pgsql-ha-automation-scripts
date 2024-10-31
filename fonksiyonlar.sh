@@ -1,7 +1,5 @@
 #!/bin/bash
 
-source varsayilan_degiskenler.sh
-
 hata_kontrol() {
     local HATA_ADI="${1:-"Bir hata oluştu. Program sonlandırılıyor."}"
     if [ $? -ne 0 ]; then
@@ -63,7 +61,7 @@ patroni_kur() {
 }
 
 # PostgreSQL konfigürasyonu yap
-sql_kullanici_olustur(){
+sql_kullanici_olustur() {
     # PostgreSQL superuser (postgres) şifresini değiştir
     sudo -u postgres psql -c "ALTER USER postgres PASSWORD '$POSTGRES_SIFRESI';"
     hata_kontrol "PostgreSQL superuser (postgres) şifresi değiştirilirken bir hata oluştu."
@@ -75,11 +73,11 @@ sql_kullanici_olustur(){
 }
 
 # Patroni konfigürasyonu yap
-patroni_konfigure_et(){
+patroni_konfigure_et() {
     local node1_ip="$1"
     local node2_ip="$2"
     local node_adi="$3"
-    local ETCD_IP="$4"    
+    local ETCD_IP="$4"
     patroni_yml_konfigure_et $node1_ip $node2_ip $node_adi $ETCD_IP
 
     sudo mkdir -p /data/patroni
@@ -94,7 +92,7 @@ patroni_konfigure_et(){
     patroni_servis_olustur
 }
 # Patroni yml dosyasını konfigure et
-patroni_yml_konfigure_et(){
+patroni_yml_konfigure_et() {
     local node1_ip="$1"
     local node2_ip="$2"
     local node_adi="$3"
@@ -184,12 +182,12 @@ WantedBy=multi-user.target
 EOF
     hata_kontrol "Patroni servis dosyası oluşturulurken bir hata oluştu."
 }
-postgres_patroniye_devret(){
+postgres_patroniye_devret() {
     sudo systemctl stop postgresql.service
     hata_kontrol "PostgreSQL servisi durdurulurken bir hata oluştu."
     sudo systemctl daemon-reload
     hata_kontrol "Sistem servisleri yeniden yüklenirken bir hata oluştu."
-    sudo systemctl enable patroni 
+    sudo systemctl enable patroni
     hata_kontrol "Patroni servisi etkinleştirilirken bir hata oluştu."
     sudo systemctl enable postgresql
     hata_kontrol "PostgreSQL servisi etkinleştirilirken bir hata oluştu."
@@ -245,61 +243,12 @@ ip_sifirla() {
     sudo netplan apply
 }
 
-
-ha_proxy_kur(){
-    sudo apt install haproxy -y
-    hata_kontrol "haproxy kurulurken bir hata oluştu."
-}
-
-ha_proxy_konfigure_et(){
-    local node1_ip="$1"
-    local node2_ip="$2"
-    cat <<EOF | sudo tee /etc/haproxy/haproxy.cfg
-global
-    maxconn 1000
-
-defaults
-    log global
-    mode tcp
-    retries 2
-    timeout client 30m
-    timeout connect 4s
-    timeout server 30m
-    timeout check 5s
-
-listen stats
-    mode http
-    bind $VARSAYILAN_ETCD_IP_ADRESI:$HAPROXY_BIND_PORT
-    stats enable
-    stats uri /
-
-listen postgres
-    bind *:5000
-    option httpchk
-    http-check expect status 200
-    default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions
-    server node-1 $node1_ip:$PGSQL_PORT maxconn 100 check port $HAPROXY_PORT
-    server node-2 $node2_ip:$PGSQL_PORT maxconn 100 check port $HAPROXY_PORT
-EOF
-    hata_kontrol "etcd konfigürasyonu yapılırken bir hata oluştu."
-}
-
-ha_proxy_etkinlestir(){
-    sudo systemctl start haproxy
-    hata_kontrol "haproxy servisi başlatılırken bir hata oluştu."
-    sudo systemctl enable haproxy
-    hata_kontrol "haproxy servisi etkinleştirilirken bir hata oluştu."
-    sudo systemctl restart haproxy
-    hata_kontrol "haproxy servisi yeniden başlatılırken bir hata oluştu."
-}
-
-
-etcd_kur(){
+etcd_kur() {
     sudo apt install etcd -y
     hata_kontrol "etcd kurulurken bir hata oluştu."
 }
 
-etcd_konfigure_et(){
+etcd_konfigure_et() {
     local ETCD_IP_ADRESI="$1"
     local ETCD_PORT_0="$2"
     local ETCD_PORT_1="$3"
@@ -309,11 +258,11 @@ ETCD_INITIAL_ADVERTISE_PEER_URLS=\"http://$ETCD_IP_ADRESI:$ETCD_PORT_1\"
 ETCD_INITIAL_CLUSTER=\"default=http://$ETCD_IP_ADRESI:$ETCD_PORT_1,\"
 ETCD_ADVERTISE_CLIENT_URLS=\"http://$ETCD_IP_ADRESI:$ETCD_PORT_0\"
 ETCD_INITIAL_CLUSTER_TOKEN=\"cluster1\"
-ETCD_INITIAL_CLUSTER_STATE=\"new\"" | sudo tee /etc/default/etcd > /dev/null
+ETCD_INITIAL_CLUSTER_STATE=\"new\"" | sudo tee /etc/default/etcd >/dev/null
     hata_kontrol "etcd konfigürasyonu yapılırken bir hata oluştu."
 }
 
-etcd_etkinlestir(){
+etcd_etkinlestir() {
     sudo systemctl restart etcd
     hata_kontrol "etcd servisi başlatılırken bir hata oluştu."
 

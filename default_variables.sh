@@ -17,6 +17,9 @@ DEFAULT_SQL_CONTAINER="sql_container"
 DEFAULT_DNS_CONTAINER="dns_container"
 DOCKER_BINARY_PATH="/usr/bin/docker"
 
+# Docker değişkenleri
+SHELL_PATH_IN_DOCKER="/usr/local/bin"
+
 VARSAYILAN_ARAYUZ="enp0s3"
 VARSAYILAN_NETMASK="23"
 VARSAYILAN_GATEWAY="10.40.30.1"
