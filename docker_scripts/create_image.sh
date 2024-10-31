@@ -12,6 +12,7 @@ create_image() {
     local dockerfile_path="$2"
     local dockerfile_name="$3"
     local context_path="${4:-.}"
+    local status=0 # Fonksiyonun çıkış durumunu sakla
 
     # Dockerfile'ın varlığını kontrol et
     if [ ! -f "$dockerfile_path/$dockerfile_name" ]; then
@@ -28,13 +29,26 @@ create_image() {
     if docker image inspect "$image_name" >/dev/null 2>&1; then
         read -p "Image '$image_name' already exists. Do you want to rebuild it? (y/n): " response
         if [[ "$response" =~ ^[Yy]$ ]]; then
-            docker build -t "$image_name" -f "$dockerfile_path/$dockerfile_name" "$context_path"
-            echo "Image rebuilt successfully."
+            if docker build -t "$image_name" -f "$dockerfile_path/$dockerfile_name" "$context_path"; then
+                echo "Image rebuilt successfully."
+                status=0
+            else
+                echo "Error: Image build failed." >&2
+                status=1
+            fi
         else
             echo "Using existing image."
+            status=0
         fi
     else
-        docker build -t "$image_name" -f "$dockerfile_path/$dockerfile_name" "$context_path"
-        echo "New image created successfully."
+        if docker build -t "$image_name" -f "$dockerfile_path/$dockerfile_name" "$context_path"; then
+            echo "New image created successfully."
+            status=0
+        else
+            echo "Error: Image build failed." >&2
+            status=1
+        fi
     fi
+
+    return $status
 }
