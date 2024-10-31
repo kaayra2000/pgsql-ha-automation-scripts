@@ -31,6 +31,7 @@ show_help() {
     for arg in "${!ARG_DESCRIPTIONS[@]}"; do
         printf "  %-25s %s\n" "$arg" "${ARG_DESCRIPTIONS[$arg]}"
     done
+    return 0
 }
 
 # Port numarası doğrulama
@@ -51,24 +52,27 @@ process_argument() {
     if [ -z "$arg_value" ] || [[ "$arg_value" == -* ]]; then
         echo "Hata: '$arg_key' için değer belirtilmedi" >&2
         show_help
-        exit 1
+        return 1
     fi
 
     if ! validate_port "$arg_value"; then
-        exit 1
+        return 1
     fi
 
     # ARG_KEYS dizisini tersine çevirerek config key'ini bul
     for config_key in "${!ARG_KEYS[@]}"; do
         if [ "${ARG_KEYS[$config_key]}" == "$arg_key" ]; then
             config[$config_key]="$arg_value"
-            return
+            return 0
         fi
     done
+    return 1
 }
 
 # Argümanları parse et
 parse_arguments() {
+    local status=0
+
     while [[ $# -gt 0 ]]; do
         case $1 in
         -h | --help)
@@ -80,7 +84,9 @@ parse_arguments() {
             # ARG_KEYS dizisini dolaş
             for key in "${!ARG_KEYS[@]}"; do
                 if [ "$1" == "${ARG_KEYS[$key]}" ]; then
-                    process_argument "$1" "$2"
+                    if ! process_argument "$1" "$2"; then
+                        return 1
+                    fi
                     found=true
                     shift 2
                     break
@@ -90,7 +96,7 @@ parse_arguments() {
             if ! $found; then
                 echo "Hata: Bilinmeyen argüman '$1'" >&2
                 show_help
-                exit 1
+                return 1
             fi
             ;;
         esac
@@ -100,4 +106,6 @@ parse_arguments() {
     for key in "${!config[@]}"; do
         export "$key"="${config[$key]}"
     done
+
+    return $status
 }

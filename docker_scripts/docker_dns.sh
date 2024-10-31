@@ -4,6 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/create_image.sh
 source $SCRIPT_DIR/argument_parser.sh
 source $SCRIPT_DIR/../default_variables.sh
+source $SCRIPT_DIR/../general_functions.sh
 
 # Varsayılan değerler
 DNS_PORT="53"
@@ -34,8 +35,11 @@ run_container() {
 main() {
     # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
     parse_arguments --dns-port $DNS_PORT --host-port $HOST_PORT "$@"
+    check_success "Argümanları parse ederken hata oluştu"
     create_image $IMAGE_NAME $DOCKERFILE_PATH $DOCKERFILE_NAME "$SCRIPT_DIR/.."
+    check_success "Docker imajı oluşturulurken hata oluştu"
     run_container
+    check_success "Docker konteynerı çalıştırılırken hata oluştu"
 }
 
 # Scripti çalıştır
