@@ -1,14 +1,8 @@
 #!/bin/bash
+# Scriptin bulunduğu dizini alma
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Varsayılan değerler
-DEFAULT_INTERFACE="enp0s3"
-DEFAULT_SQL_VIRTUAL_IP="10.207.80.20"
-DEFAULT_DNS_VIRTUAL_IP="10.207.80.30"
-DEFAULT_PRIORITY="100"
-DEFAULT_STATE="BACKUP"
-DEFAULT_SQL_CONTAINER="sql_container"
-DEFAULT_DNS_CONTAINER="dns_container"
-DOCKER_BINARY_PATH="/usr/bin/docker"
+source $SCRIPT_DIR/../default_variables.sh # varsayilan_degiskenler.sh dosyasındaki değişkenleri kullanmak için
 
 parse_arguments() {
     # Varsayılan değişkenleri dışa aktarma
