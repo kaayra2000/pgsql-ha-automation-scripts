@@ -4,7 +4,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/../general_functions.sh
 ha_proxy_kur() {
     sudo apt install haproxy -y
-    hata_kontrol "haproxy kurulurken bir hata oluştu."
+    check_success "haproxy kurulurken bir hata oluştu."
 }
 
 ha_proxy_konfigure_et() {
@@ -41,18 +41,19 @@ listen postgres
     server node-1 $NODE1_IP:$PGSQL_PORT maxconn 100 check port $HAPROXY_PORT
     server node-2 $NODE2_IP:$PGSQL_PORT maxconn 100 check port $HAPROXY_PORT
 EOF
-    hata_kontrol "haproxy konfigürasyonu yapılırken bir hata oluştu."
+    check_success "haproxy konfigürasyonu yapılırken bir hata oluştu."
 }
 
 ha_proxy_etkinlestir() {
-    # Konfigürasyon dosyası kontrolü
+    # Konfigürasyon dosyasını kontrol et
     sudo haproxy -c -f /etc/haproxy/haproxy.cfg
-    hata_kontrol "haproxy konfigürasyon dosyası hatalı."
+    check_success "HAProxy konfigürasyon dosyası hatalı."
 
-    sudo systemctl start haproxy
-    hata_kontrol "haproxy servisi başlatılırken bir hata oluştu."
-    sudo systemctl enable haproxy
-    hata_kontrol "haproxy servisi etkinleştirilirken bir hata oluştu."
-    sudo systemctl restart haproxy
-    hata_kontrol "haproxy servisi yeniden başlatılırken bir hata oluştu."
+    # HAProxy servisini başlat
+    sudo service haproxy start
+    check_success "HAProxy servisi başlatılırken bir hata oluştu."
+
+    # HAProxy servisini yeniden başlat (gerekirse)
+    sudo service haproxy restart
+    check_success "HAProxy servisi yeniden başlatılırken bir hata oluştu."
 }
