@@ -1,7 +1,7 @@
 #!/bin/bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source $SCRIPT_DIR/../error_control.sh
+source $SCRIPT_DIR/../general_functions.sh
 ha_proxy_kur() {
     sudo apt install haproxy -y
     hata_kontrol "haproxy kurulurken bir hata oluştu."
