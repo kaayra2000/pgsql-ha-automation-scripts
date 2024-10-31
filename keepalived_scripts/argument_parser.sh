@@ -12,13 +12,13 @@ DOCKER_BINARY_PATH="/usr/bin/docker"
 
 parse_arguments() {
     # Varsayılan değişkenleri dışa aktarma
-    export INTERFACE=$DEFAULT_INTERFACE
-    export SQL_VIRTUAL_IP=$DEFAULT_SQL_VIRTUAL_IP
-    export DNS_VIRTUAL_IP=$DEFAULT_DNS_VIRTUAL_IP
-    export PRIORITY=$DEFAULT_PRIORITY
-    export STATE=$DEFAULT_STATE
-    export SQL_CONTAINER=$DEFAULT_SQL_CONTAINER
-    export DNS_CONTAINER=$DEFAULT_DNS_CONTAINER
+    INTERFACE=$DEFAULT_INTERFACE
+    SQL_VIRTUAL_IP=$DEFAULT_SQL_VIRTUAL_IP
+    DNS_VIRTUAL_IP=$DEFAULT_DNS_VIRTUAL_IP
+    PRIORITY=$DEFAULT_PRIORITY
+    STATE=$DEFAULT_STATE
+    SQL_CONTAINER=$DEFAULT_SQL_CONTAINER
+    DNS_CONTAINER=$DEFAULT_DNS_CONTAINER
 
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -60,4 +60,13 @@ parse_arguments() {
             ;;
         esac
     done
+
+    # Varsayılan değerlerin export edilmesi
+    export INTERFACE
+    export SQL_VIRTUAL_IP
+    export DNS_VIRTUAL_IP
+    export PRIORITY
+    export STATE
+    export SQL_CONTAINER
+    export DNS_CONTAINER
 }
