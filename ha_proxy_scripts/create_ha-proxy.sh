@@ -3,7 +3,7 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/ha-proxy_setup.sh
 source $SCRIPT_DIR/argument_parser.sh # argument_parser.sh dosyasındaki fonksiyonları kullanmak için
-source $SCRIPT_DIR/validator.sh       # validator.sh dosyasındaki fonksiyonları kullanmak için
+source $SCRIPT_DIR/../general_functions.sh
 parse_arguments "$@"
 validate_ip $NODE1_IP
 validate_ip $NODE2_IP

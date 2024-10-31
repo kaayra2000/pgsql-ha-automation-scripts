@@ -1,5 +1,7 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source $SCRIPT_DIR/../general_functions.sh
 # Varsayılan değerleri ayarla
 declare -A config=(
     ["DNS_PORT"]="53"
@@ -31,16 +33,6 @@ show_help() {
     for arg in "${!ARG_DESCRIPTIONS[@]}"; do
         printf "  %-25s %s\n" "$arg" "${ARG_DESCRIPTIONS[$arg]}"
     done
-    return 0
-}
-
-# Port numarası doğrulama
-validate_port() {
-    local port=$1
-    if ! [[ "$port" =~ ^[0-9]+$ ]] || [ "$port" -lt 1 ] || [ "$port" -gt 65535 ]; then
-        echo "Hata: Geçersiz port numarası '$port'. Port 1-65535 arasında olmalıdır." >&2
-        return 1
-    fi
     return 0
 }
 
