@@ -14,7 +14,7 @@ check_integer() {
 }
 
 check_ufw_status() {
-    if ! command -v ufw &> /dev/null; then
+    if ! command -v ufw &>/dev/null; then
         echo "UFW yüklü değil. Firewall ayarları yapılmayacak."
         return 1
     fi
@@ -35,9 +35,9 @@ install_bind9() {
 configure_bind9() {
     local PORT=$1
     echo "BIND9 yapılandırılıyor..."
-    
+
     # named.conf.options dosyasını düzenle
-    cat << EOF | sudo tee /etc/bind/named.conf.options
+    cat <<EOF | sudo tee /etc/bind/named.conf.options
 options {
     directory "/var/cache/bind";
     listen-on port $PORT { any; };
@@ -51,7 +51,7 @@ options {
 EOF
 
     # named.conf.local dosyasını düzenle
-    cat << EOF | sudo tee /etc/bind/named.conf.local
+    cat <<EOF | sudo tee /etc/bind/named.conf.local
 zone "example.com" {
     type master;
     file "/etc/bind/db.example.com";
@@ -64,7 +64,7 @@ zone "server" {
 EOF
 
     # Örnek zone dosyası oluştur (example.com)
-    cat << EOF | sudo tee /etc/bind/db.example.com
+    cat <<EOF | sudo tee /etc/bind/db.example.com
 \$TTL    604800
 @       IN      SOA     example.com. admin.example.com. (
                               2         ; Serial
@@ -79,7 +79,7 @@ ns      IN      A       127.0.0.1
 EOF
 
     # Yeni zone dosyası oluştur (server)
-    cat << EOF | sudo tee /etc/bind/db.server
+    cat <<EOF | sudo tee /etc/bind/db.server
 \$TTL    604800
 @       IN      SOA     server. admin.server. (
                               2         ; Serial
@@ -110,6 +110,5 @@ check_integer "$PORT"
 
 install_bind9
 configure_bind9 "$PORT"
-open_firewall_port "$PORT"
 
 echo "DNS sunucusu $PORT portunda başarıyla kuruldu."
