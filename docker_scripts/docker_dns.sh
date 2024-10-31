@@ -11,9 +11,6 @@ IMAGE_NAME="dns_image"
 
 # Argüman listesi ve açıklamaları
 declare -A ARG_DESCRIPTIONS=(
-    ["--interface"]="Ağ arayüzü (varsayılan: eth0)"
-    ["--keepalived-ip"]="Keepalived sanal IP adresi (varsayılan: 10.207.80.100)"
-    ["--priority"]="Keepalived önceliği (varsayılan: 100)"
     ["--dns-port"]="DNS port numarası (varsayılan: 53)"
     ["--host-port"]="Host üzerinde yönlendirilecek port (varsayılan: 53)"
 )
@@ -22,40 +19,31 @@ declare -A ARG_DESCRIPTIONS=(
 parse_arguments() {
     while [[ $# -gt 0 ]]; do
         case $1 in
-            -h|--help)
-                show_help
-                exit 0
-                ;;
-            *)
-                for arg in "${!ARG_DESCRIPTIONS[@]}"; do
-                    if [[ $1 == $arg ]]; then
-                        case $arg in
-                            --interface)
-                                INTERFACE="$2"
-                                ;;
-                            --keepalived-ip)
-                                KEEPALIVED_IP="$2"
-                                ;;
-                            --priority)
-                                PRIORITY="$2"
-                                ;;
-                            --dns-port)
-                                DNS_PORT="$2"
-                                ;;
-                            --host-port)
-                                HOST_PORT="$2"
-                                ;;
-                        esac
-                        shift 2
-                        break
-                    fi
-                done
-                if [[ $# -eq 1 ]]; then
-                    echo "Hata: Bilinmeyen argüman '$1'"
-                    show_help
-                    exit 1
+        -h | --help)
+            show_help
+            exit 0
+            ;;
+        *)
+            for arg in "${!ARG_DESCRIPTIONS[@]}"; do
+                if [[ $1 == $arg ]]; then
+                    case $arg in
+                    --dns-port)
+                        DNS_PORT="$2"
+                        ;;
+                    --host-port)
+                        HOST_PORT="$2"
+                        ;;
+                    esac
+                    shift 2
+                    break
                 fi
-                ;;
+            done
+            if [[ $# -eq 1 ]]; then
+                echo "Hata: Bilinmeyen argüman '$1'"
+                show_help
+                exit 1
+            fi
+            ;;
         esac
     done
 }
