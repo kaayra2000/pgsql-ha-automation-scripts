@@ -1,11 +1,14 @@
 #!/bin/bash
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source $SCRIPT_DIR/create_image.sh
+
 # Varsayılan değerler
 DNS_PORT="53"
 HOST_PORT="53"
 
 # Sabit değerler
-DOCKER_FILES="../docker_files"
+DOCKERFILE_PATH="../docker_files"
 DOCKERFILE_NAME="docker_dns"
 DNS_CONTAINER="dns_container"
 IMAGE_NAME="dns_image"
@@ -58,22 +61,6 @@ show_help() {
     done
 }
 
-# Docker imajını oluştur
-create_image() {
-    if docker image inspect $IMAGE_NAME >/dev/null 2>&1; then
-        read -p "İmaj '$IMAGE_NAME' zaten mevcut. Yeniden oluşturmak ister misiniz? (e/h): " response
-        if [[ "$response" =~ ^[Ee]$ ]]; then
-            docker build -t $IMAGE_NAME -f $DOCKER_FILES/$DOCKERFILE_NAME ..
-            echo "İmaj yeniden oluşturuldu."
-        else
-            echo "Mevcut imaj kullanılacak."
-        fi
-    else
-        docker build -t $IMAGE_NAME -f $DOCKER_FILES/$DOCKERFILE_NAME ..
-        echo "Yeni imaj oluşturuldu."
-    fi
-}
-
 # Docker konteynerını çalıştır
 run_container() {
     docker run -d --rm --privileged \
@@ -91,7 +78,7 @@ run_container() {
 # Ana fonksiyon
 main() {
     parse_arguments "$@"
-    create_image
+    create_image $IMAGE_NAME $DOCKERFILE_PATH $DOCKERFILE_NAME "$SCRIPT_DIR/.."
     run_container
 }
 
