@@ -10,7 +10,7 @@ ha_proxy_kur() {
 ha_proxy_konfigure_et() {
     local NODE1_IP="$1"
     local NODE2_IP="$2"
-    local ETCD_IP_ADRESI="$3"
+    local ETCD_IP="$3"
     local HAPROXY_BIND_PORT="$4"
     local PGSQL_PORT="$5"
     local HAPROXY_PORT="$6"
@@ -29,7 +29,7 @@ defaults
 
 listen stats
     mode http
-    bind $ETCD_IP_ADRESI:$HAPROXY_BIND_PORT
+    bind $ETCD_IP:$HAPROXY_BIND_PORT
     stats enable
     stats uri /
 
