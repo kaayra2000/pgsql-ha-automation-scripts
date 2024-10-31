@@ -7,6 +7,7 @@ HOST_PORT="53"
 # Sabit değerler
 DOCKER_FILES="../docker_files"
 DOCKERFILE_NAME="docker_dns"
+DNS_CONTAINER="dns_container"
 IMAGE_NAME="dns_image"
 
 # Argüman listesi ve açıklamaları
@@ -76,7 +77,7 @@ create_image() {
 # Docker konteynerını çalıştır
 run_container() {
     docker run -d --rm --privileged \
-        --name dns_container \
+        --name $DNS_CONTAINER \
         -p $HOST_PORT:$DNS_PORT/tcp -p $HOST_PORT:$DNS_PORT/udp \
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \

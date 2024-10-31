@@ -1,11 +1,9 @@
 #!/bin/bash
-# Varsayılan değerler
-DEFAULT_NODE1_IP="10.207.80.21"
-DEFAULT_NODE2_IP="10.207.80.22"
-DEFAULT_ETCD_IP="10.207.80.23"
-DEFAULT_HAPROXY_BIND_PORT="7000"
-DEFAULT_PGSQL_PORT="5432"
-DEFAULT_HAPROXY_PORT="8008"
+# Scriptin bulunduğu dizini alma
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source $SCRIPT_DIR/../default_variables.sh # varsayilan_degiskenler.sh dosyasındaki değişkenleri kullanmak için
+
 # Argüman tanımlamaları
 declare -A ARG_DESCRIPTIONS=(
     ["--node1-ip"]="Birinci node IP adresi (varsayılan: $DEFAULT_NODE1_IP)"
@@ -33,7 +31,7 @@ parse_arguments() {
     NODE1_IP="$DEFAULT_NODE1_IP"
     NODE2_IP="$DEFAULT_NODE2_IP"
     ETCD_IP="$DEFAULT_ETCD_IP"
-    HAPROXY_BIND_PORT= "$DEFAULT_HAPROXY_BIND_PORT"
+    HAPROXY_BIND_PORT="$DEFAULT_HAPROXY_BIND_PORT"
     PGSQL_PORT="$DEFAULT_PGSQL_PORT"
     HAPROXY_PORT="$DEFAULT_HAPROXY_PORT"
     while [[ $# -gt 0 ]]; do
