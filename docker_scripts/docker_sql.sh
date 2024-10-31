@@ -14,6 +14,7 @@ DOCKERFILE_PATH="docker_files"
 DOCKERFILE_NAME="docker_sql"
 SQL_CONTAINER="sql_container"
 IMAGE_NAME="sql_image"
+HAPROXY_SCRIPT_FOLDER="haproxy_scripts"
 HAPROXY_SCRIPT_NAME="create_haproxy.sh"
 
 # Docker konteynerını çalıştır
@@ -24,7 +25,7 @@ run_container() {
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $IMAGE_NAME \
-        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_NAME $HAPROXY_PORT; while true; do sleep 30; done"
+        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME $HAPROXY_PORT && while true; do sleep 30; done"
 }
 # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
 parse_arguments --haproxy-port "$HAPROXY_PORT" --host-port "$HOST_PORT" "$@"

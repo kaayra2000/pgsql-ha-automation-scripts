@@ -13,3 +13,4 @@ validate_port $PGSQL_PORT
 validate_port $HAPROXY_PORT
 ha_proxy_kur
 ha_proxy_konfigure_et $NODE1_IP $NODE2_IP $ETCD_IP $HAPROXY_BIND_PORT $PGSQL_PORT $HAPROXY_PORT
+enable_haproxy

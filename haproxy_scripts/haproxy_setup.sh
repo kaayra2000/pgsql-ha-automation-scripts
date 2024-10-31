@@ -44,16 +44,16 @@ EOF
     check_success "haproxy konfigürasyonu yapılırken bir hata oluştu."
 }
 
-ha_proxy_etkinlestir() {
+enable_haproxy() {
     # Konfigürasyon dosyasını kontrol et
+    echo "HAProxy konfigürasyon dosyası kontrol ediliyor..."
     sudo haproxy -c -f /etc/haproxy/haproxy.cfg
     check_success "HAProxy konfigürasyon dosyası hatalı."
+    echo "HAProxy konfigürasyon dosyası başarıyla kontrol edildi."
 
     # HAProxy servisini başlat
+    echo "HAProxy servisi başlatılıyor..."
     sudo service haproxy start
     check_success "HAProxy servisi başlatılırken bir hata oluştu."
-
-    # HAProxy servisini yeniden başlat (gerekirse)
-    sudo service haproxy restart
-    check_success "HAProxy servisi yeniden başlatılırken bir hata oluştu."
+    echo "HAProxy servisi başarıyla başlatıldı."
 }
