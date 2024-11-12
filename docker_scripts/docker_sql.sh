@@ -22,7 +22,9 @@ source $SCRIPT_DIR/../$HAPROXY_SCRIPT_FOLDER/argument_parser.sh
 run_container() {
     docker run -d --rm --privileged \
         --name $SQL_CONTAINER \
-        -p $HOST_PORT:$HAPROXY_PORT/tcp -p $HOST_PORT:$HAPROXY_PORT/udp \
+        -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/tcp \
+        -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/udp \
+        -p $POSTGRES_BIND_PORT:$POSTGRES_BIND_PORT/tcp \
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $IMAGE_NAME \
