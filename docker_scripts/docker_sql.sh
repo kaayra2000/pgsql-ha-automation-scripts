@@ -26,9 +26,12 @@ run_container() {
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $IMAGE_NAME \
-        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME $@ \
+        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME $args_string \
         && while true; do sleep 30; done"
 }
+
+args_string="$*"
+
 # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
 sql_parser --haproxy-port "$HAPROXY_PORT" --host-port "$HOST_PORT" "$@"
 check_success "Argümanları parse ederken hata oluştu" false

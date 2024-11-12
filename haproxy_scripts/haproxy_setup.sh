@@ -10,8 +10,8 @@ ha_proxy_kur() {
 ha_proxy_konfigure_et() {
     local NODE1_IP="$1"
     local NODE2_IP="$2"
-    local ETCD_IP="$3"
-    local HAPROXY_BIND_PORT="$4"
+    local HAPROXY_BIND_PORT="$3"
+    local POSTGRES_BIND_PORT="$4"
     local PGSQL_PORT="$5"
     local HAPROXY_PORT="$6"
     cat <<EOF | sudo tee /etc/haproxy/haproxy.cfg
@@ -29,12 +29,12 @@ defaults
 
 listen stats
     mode http
-    bind $ETCD_IP:$HAPROXY_BIND_PORT
+    bind *:$HAPROXY_BIND_PORT
     stats enable
     stats uri /
 
 listen postgres
-    bind *:5000
+    bind *:$POSTGRES_BIND_PORT
     option httpchk
     http-check expect status 200
     default-server inter 3s fall 3 rise 2 on-marked-down shutdown-sessions

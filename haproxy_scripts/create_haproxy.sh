@@ -7,10 +7,9 @@ source $SCRIPT_DIR/../general_functions.sh
 parse_arguments_haproxy "$@"
 validate_ip $NODE1_IP
 validate_ip $NODE2_IP
-validate_ip $ETCD_IP
 validate_port $HAPROXY_BIND_PORT
-validate_port $PGSQL_PORT
+validate_port $POSTGRES_BIND_PORT
 validate_port $HAPROXY_PORT
 ha_proxy_kur
-ha_proxy_konfigure_et $NODE1_IP $NODE2_IP $ETCD_IP $HAPROXY_BIND_PORT $PGSQL_PORT $HAPROXY_PORT
+ha_proxy_konfigure_et $NODE1_IP $NODE2_IP $HAPROXY_BIND_PORT $POSTGRES_BIND_PORT $PGSQL_PORT $HAPROXY_PORT
 enable_haproxy
