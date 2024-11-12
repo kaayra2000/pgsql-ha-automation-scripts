@@ -37,7 +37,7 @@ show_help() {
 }
 
 # Argümanları parse et
-parse_arguments() {
+parse_arguments_haproxy() {
     # Varsayılan değerleri ayarla
     declare -A config=(
         ["NODE1_IP"]="$DEFAULT_NODE1_IP"

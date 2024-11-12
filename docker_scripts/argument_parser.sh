@@ -137,8 +137,8 @@ dns_parser() {
 sql_parser() {
     # Varsayılan değerleri ayarla
     declare -A config=(
-        ["HOST_PORT"]="5432"
-        ["HAPROXY_PORT"]="5432"
+        ["HOST_PORT"]="8404"
+        ["HAPROXY_PORT"]="8404"
     )
 
     # Argüman anahtarları
