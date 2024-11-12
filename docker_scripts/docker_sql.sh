@@ -25,11 +25,12 @@ run_container() {
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $IMAGE_NAME \
-        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME $HAPROXY_PORT && while true; do sleep 30; done"
+        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME $@ \
+        && while true; do sleep 30; done"
 }
 # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
-parse_arguments --haproxy-port "$HAPROXY_PORT" --host-port "$HOST_PORT" "$@"
-check_success "Argümanları parse ederken hata oluştu"
+sql_parser --haproxy-port "$HAPROXY_PORT" --host-port "$HOST_PORT" "$@"
+check_success "Argümanları parse ederken hata oluştu" false
 cd ..
 create_image "$IMAGE_NAME" "$DOCKERFILE_PATH" "$DOCKERFILE_NAME" "$SCRIPT_DIR/.."
 cd $SCRIPT_DIR

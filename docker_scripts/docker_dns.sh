@@ -34,7 +34,7 @@ run_container() {
 # Ana fonksiyon
 main() {
     # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
-    parse_arguments --dns-port $DNS_PORT --host-port $HOST_PORT "$@"
+    dns_parser --dns-port $DNS_PORT --host-port $HOST_PORT "$@"
     check_success "Argümanları parse ederken hata oluştu"
     create_image $IMAGE_NAME $DOCKERFILE_PATH $DOCKERFILE_NAME "$SCRIPT_DIR/.."
     check_success "Docker imajı oluşturulurken hata oluştu"
