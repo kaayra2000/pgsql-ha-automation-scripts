@@ -69,7 +69,7 @@ parse_arguments() {
         case $1 in
         -h | --help)
             show_help
-            exit 0
+            return $HELP_CODE
             ;;
         *)
             local found=false

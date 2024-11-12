@@ -1,11 +1,20 @@
 #!/bin/bash
+HELP_CODE=2
 
 check_success() {
-    local HATA_ADI="${1:-"Bir hata oluştu. Program sonlandırılıyor."}"
-    if [ $? -ne 0 ]; then
+    local EXIT_CODE=$?
+    local NEED_EXIT=${2:-true}    # Varsayılan değer "true"
+    if [ $EXIT_CODE -eq $HELP_CODE ]; then  
+        # Help komutu çalıştığında ve exit gerekli ise programı sonlandır
+        if [ "$NEED_EXIT" = "true" ]; then
+            exit 0
+        fi
+    elif [ $EXIT_CODE -ne 0 ]; then
+        local HATA_ADI="${1:-"Bir hata oluştu. Program sonlandırılıyor."}"
         echo "$HATA_ADI"
         exit 1
     fi
+    return $EXIT_CODE
 }
 
 # IP adres formatını kontrol et
