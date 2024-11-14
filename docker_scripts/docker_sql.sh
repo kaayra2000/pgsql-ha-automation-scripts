@@ -16,8 +16,11 @@ SQL_CONTAINER="sql_container"
 IMAGE_NAME="sql_image"
 HAPROXY_SCRIPT_FOLDER="haproxy_scripts"
 HAPROXY_SCRIPT_NAME="create_haproxy.sh"
+ETCD_SCRIPT_FOLDER="etcd_scripts"
+ETCD_SCRIPT_NAME="create_etcd.sh"
 
 source $SCRIPT_DIR/../$HAPROXY_SCRIPT_FOLDER/argument_parser.sh
+source $SCRIPT_DIR/../$ETCD_SCRIPT_FOLDER/argument_parser.sh
 # Docker konteynerını çalıştır
 run_container() {
     docker run -d --rm --privileged \
@@ -28,7 +31,8 @@ run_container() {
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $IMAGE_NAME \
-        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME $args_string \
+        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$ETCD_SCRIPT_FOLDER/$ETCD_SCRIPT_NAME $args_string \
+        && $SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME $args_string \
         && while true; do sleep 30; done"
 }
 

@@ -37,6 +37,120 @@ validate_port() {
     fi
 }
 
+# Sayısal değer kontrolü için fonksiyon
+validate_number() {
+    local value="$1"
+    local param_name="$2"
+    local min_value="${3:-0}"  # Opsiyonel minimum değer, varsayılan 0
+    
+    if [[ ! $value =~ ^[0-9]+$ ]]; then
+        echo "Hata: $param_name sayısal bir değer olmalıdır"
+        return 1
+    fi
+    
+    if (( value < min_value )); then
+        echo "Hata: $param_name değeri $min_value'dan büyük olmalıdır"
+        return 1
+    fi
+    
+    return 0
+}
+
+# Dizin kontrolü ve oluşturma fonksiyonu
+check_directory() {
+    local dir_path="$1"
+    local create_if_missing="${2:-true}"  # Opsiyonel parametre, varsayılan true
+    
+    if [[ ! -d "$dir_path" ]]; then
+        if [[ "$create_if_missing" == "true" ]]; then
+            echo "Uyarı: $dir_path dizini mevcut değil, oluşturuluyor..."
+            sudo mkdir -p "$dir_path"
+            if [[ $? -ne 0 ]]; then
+                echo "Hata: $dir_path dizini oluşturulamadı"
+                return 1
+            fi
+            echo "$dir_path dizini başarıyla oluşturuldu"
+        else
+            echo "Hata: $dir_path dizini mevcut değil"
+            return 1
+        fi
+    fi
+    
+    # Dizine yazma izni kontrolü
+    if [[ ! -w "$dir_path" ]]; then
+        echo "Hata: $dir_path dizinine yazma izni yok"
+        return 1
+    fi
+    
+    return 0
+}
+
+set_permissions() {
+    # Argüman sayısını kontrol et
+    if [ "$#" -lt 3 ]; then
+        echo "Hata: Eksik parametre"
+        echo "Kullanım: izin_ver <kullanıcı> <dosya_veya_dizin> <izin_numarası>"
+        return 1
+    fi
+
+    local kullanici="$1"
+    local hedef="$2"
+    local izin="$3"
+
+    # Kullanıcının varlığını kontrol et
+    if ! id "$kullanici" >/dev/null 2>&1; then
+        echo "Hata: $kullanici kullanıcısı mevcut değil"
+        return 1
+    fi
+
+    # Dosya veya dizinin varlığını kontrol et
+    if [ ! -e "$hedef" ]; then
+        echo "Hata: $hedef bulunamadı"
+        return 1
+    fi
+
+    # İzinleri değiştir
+    if ! chmod "$izin" "$hedef"; then
+        echo "Hata: İzinler değiştirilemedi"
+        return 1
+    fi
+
+    # Sahipliği değiştir
+    if ! chown "$kullanici:$kullanici" "$hedef"; then
+        echo "Hata: Sahiplik değiştirilemedi"
+        return 1
+    fi
+
+    echo "Başarılı: $hedef için izinler ve sahiplik güncellendi"
+    echo "Yeni sahip: $kullanici"
+    echo "Yeni izinler: $izin"
+    ls -l "$hedef"
+    return 0
+}
+
+
+check_user_exists() {
+    # Argüman sayısını kontrol et
+    if [ "$#" -ne 1 ]; then
+        echo "Error: Missing username parameter"
+        echo "Usage: check_user_exists <username>"
+        return 1
+    fi
+
+    local username="$1"
+
+    # Kullanıcı varlığını kontrol et
+    if id "$username" >/dev/null 2>&1; then
+        echo "Success: User '$username' exists"
+        echo "User details:"
+        id "$username"
+        return 0
+    else
+        echo "Error: User '$username' does not exist"
+        return 1
+    fi
+}
+
 ip_sifirla() {
     echo "network:
   version: 2
@@ -272,32 +386,8 @@ ip_sifirla() {
     sudo netplan apply
 }
 
-etcd_kur() {
-    sudo apt install etcd -y
-    check_success "etcd kurulurken bir hata oluştu."
-}
 
-etcd_konfigure_et() {
-    local ETCD_IP_ADRESI="$1"
-    local ETCD_PORT_0="$2"
-    local ETCD_PORT_1="$3"
-    echo -n "ETCD_LISTEN_PEER_URLS=\"http://$ETCD_IP_ADRESI:$ETCD_PORT_1,http://127.0.0.1:7001\"
-ETCD_LISTEN_CLIENT_URLS=\"http://127.0.0.1:$ETCD_PORT_0, http://$ETCD_IP_ADRESI:$ETCD_PORT_0\"
-ETCD_INITIAL_ADVERTISE_PEER_URLS=\"http://$ETCD_IP_ADRESI:$ETCD_PORT_1\"
-ETCD_INITIAL_CLUSTER=\"default=http://$ETCD_IP_ADRESI:$ETCD_PORT_1,\"
-ETCD_ADVERTISE_CLIENT_URLS=\"http://$ETCD_IP_ADRESI:$ETCD_PORT_0\"
-ETCD_INITIAL_CLUSTER_TOKEN=\"cluster1\"
-ETCD_INITIAL_CLUSTER_STATE=\"new\"" | sudo tee /etc/default/etcd >/dev/null
-    check_success "etcd konfigürasyonu yapılırken bir hata oluştu."
-}
 
-etcd_etkinlestir() {
-    sudo systemctl restart etcd
-    check_success "etcd servisi başlatılırken bir hata oluştu."
-
-    sudo systemctl enable etcd
-    check_success "etcd servisi etkinleştirilirken bir hata oluştu."
-}
 hosts_dosyasina_yaz() {
     # Dosya yolu
     local HOSTS_FILE="/etc/hosts"
