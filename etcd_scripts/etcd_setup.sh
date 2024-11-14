@@ -18,8 +18,9 @@ etcd_konfigure_et() {
     local ELECTION_TIMEOUT="$7"
     local HEARTBEAT_INTERVAL="$8"
     local DATA_DIR="$9"
+    local ETCD_CONFIG_FILE="${10}"
 
-    cat <<EOF | sudo tee /etc/etcd/etcd.conf
+    cat <<EOF | sudo tee $ETCD_CONFIG_FILE
 [Member]
 ETCD_LISTEN_PEER_URLS="http://$ETCD_IP:$ETCD_PEER_PORT,http://127.0.0.1:7001"
 ETCD_LISTEN_CLIENT_URLS="http://127.0.0.1:$ETCD_CLIENT_PORT,http://$ETCD_IP:$ETCD_CLIENT_PORT"
