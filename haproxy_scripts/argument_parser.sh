@@ -79,9 +79,13 @@ parse_arguments_haproxy() {
             shift 2
             ;;
         *)
-            echo "Hata: Bilinmeyen argüman '$1'"
-            show_help
-            exit 1
+            echo "Uyarı: Bilinmeyen argüman '$1' atlanıyor (belki docker argümanıdır)"
+            # Eğer bir sonraki parametre - ile başlamıyorsa onu da atla
+            if [[ $2 != -* ]] && [[ -n $2 ]]; then
+                shift 2
+            else
+                shift 1
+            fi
             ;;
         esac
     done
