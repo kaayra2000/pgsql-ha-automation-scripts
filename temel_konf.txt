@@ -1,2 +1,0 @@
-virtualbox şifreleri 1
-postgre kullanıcı şifreleri 123qwe

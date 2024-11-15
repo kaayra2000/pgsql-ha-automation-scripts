@@ -1,3 +1,0 @@
-1-) guest additions'u implemente et
-2-) ip konfigürasyonları vs. hepsini bir sh dosyası yapabilir hale gelsin
-3-) bu sh dosyalarını da virtual makineler ilk oluşturulurken içlerinden erişilebilir hale getir
