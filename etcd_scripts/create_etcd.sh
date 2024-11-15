@@ -64,4 +64,7 @@ if ! set_permissions "$ETCD_USER" "$ETCD_CONFIG_FILE" "600"; then
     echo "Error: Failed to set permissions for $ETCD_CONFIG_FILE"
     exit 1
 fi
-etcd_etkinlestir
+if ! etcd_etkinlestir $ETCD_CLIENT_PORT $ETCD_CONFIG_FILE; then
+    echo "Error: Failed to start etcd service"
+    exit 1
+fi

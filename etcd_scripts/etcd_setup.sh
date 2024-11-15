@@ -46,18 +46,34 @@ EOF
 }
 
 etcd_etkinlestir() {
+    local ETCD_CLIENT_PORT="$1"
+    local ETCD_CONFIG_FILE="$2"
+    
+    if [ -z "$port" ]; then
+        echo "HATA: Port numarası belirtilmedi!"
+        return 1
+    fi
+
     echo "ETCD servisi durduruluyor..."
-    pkill etcd || true
+    service etcd stop
     
     echo "ETCD servisi başlatılıyor..."
-    nohup etcd --config-file=/etc/etcd/etcd.conf.yml > /var/log/etcd.log 2>&1 &
+    service etcd start --config-file=$ETCD_CONFIG_FILE
     
-    # Kısa bir kontrol
-    if pgrep etcd >/dev/null; then
+    # Servis durumunu kontrol et
+    if service etcd status >/dev/null 2>&1; then
         echo "ETCD servisi başarıyla çalışıyor."
-        return 0
+        # API'nin çalışıp çalışmadığını kontrol et
+        if curl -s "http://127.0.0.1:${ETCD_CLIENT_PORT}/health" >/dev/null 2>&1; then
+            echo "ETCD API aktif ve sağlıklı (port: ${ETCD_CLIENT_PORT})"
+            return 0
+        else
+            echo "UYARI: ETCD servisi çalışıyor fakat API yanıt vermiyor (port: ${port})"
+            return 2
+        fi
     else
         echo "HATA: ETCD servisi başlatılamadı!"
+        service etcd status
         return 1
     fi
 }
