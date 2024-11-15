@@ -32,18 +32,18 @@ fi
 
 # Dizinler oluşturulduktan sonra kullanıcı kontrolü
 if ! check_user_exists "$ETCD_USER"; then
-    echo "Error: User $ETCD_USER does not exist. Cannot proceed."
+    echo "Hata: Kullanıcı $ETCD_USER mevcut değil. Devam edilemiyor."
     exit 1
 fi
 
 # Kullanıcı varsa, dizinlerin sahipliğini ve izinlerini ayarla
 if ! set_permissions "$ETCD_USER" "$DATA_DIR" "700"; then
-    echo "Error: Failed to set permissions for $DATA_DIR"
+    echo "Hata: $DATA_DIR için izinler ayarlanamadı."
     exit 1
 fi
 
 if ! set_permissions "$ETCD_USER" "$ETCD_CONFIG_DIR" "700"; then
-    echo "Error: Failed to set permissions for $ETCD_CONFIG_DIR"
+    echo "Hata: $ETCD_CONFIG_DIR için izinler ayarlanamadı."
     exit 1
 fi
 
@@ -61,16 +61,16 @@ etcd_konfigure_et \
     "$DATA_DIR" \
     "$ETCD_CONFIG_FILE"
 if ! set_permissions "$ETCD_USER" "$ETCD_CONFIG_FILE" "600"; then
-    echo "Error: Failed to set permissions for $ETCD_CONFIG_FILE"
+    echo "Hata: $ETCD_CONFIG_FILE için izinler ayarlanamadı."
     exit 1
 fi
 
 if ! update_daemon_args "$ETCD_CONFIG_FILE"; then
-    echo "Error: Failed to update etcd daemon arguments"
+    echo "Hata: etcd daemon argümanları güncellenemedi."
     exit 1
 fi
 
 if ! etcd_etkinlestir $ETCD_CLIENT_PORT; then
-    echo "Error: Failed to start etcd service"
+    echo "Hata: etcd servisi başlatılamadı."
     exit 1
 fi
