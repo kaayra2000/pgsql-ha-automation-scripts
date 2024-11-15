@@ -6,7 +6,7 @@ source $SCRIPT_DIR/../general_functions.sh
 HELP_CODE=2  # Yardım gösterildiğinde döneceğimiz kod
 
 # Yardım mesajını gösteren fonksiyon
-show_help() {
+show_help_docker_scripts() {
     local descriptions_name="$1"
     local -n descriptions_ref="$descriptions_name"
 
@@ -31,7 +31,7 @@ process_argument() {
 
     if [ -z "$arg_value" ] || [[ "$arg_value" == -* ]]; then
         echo "Hata: '$arg_key' için değer belirtilmedi" >&2
-        show_help "$descriptions_name"
+        show_help_docker_scripts "$descriptions_name"
         return 1
     fi
 
@@ -70,7 +70,7 @@ parse_arguments() {
     while [[ $# -gt 0 ]]; do
         case $1 in
         -h | --help)
-            show_help "$descriptions_name"
+            show_help_docker_scripts "$descriptions_name"
             return $HELP_CODE
             ;;
         *)
@@ -92,7 +92,7 @@ parse_arguments() {
                     continue
                 else
                     echo "Hata: Bilinmeyen argüman '$1'" >&2
-                    show_help "$descriptions_name"
+                    show_help_docker_scripts "$descriptions_name"
                     return 1
                 fi
             fi

@@ -41,11 +41,11 @@ run_container() {
 args_string="$*"
 
 # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
-sql_parser --haproxy-port "$HAPROXY_PORT" --host-port "$HOST_PORT" "$@"
+sql_parser --haproxy-port "$HAPROXY_PORT" --host-port "$HOST_PORT" $args_string
 check_success "Argümanları parse ederken hata oluştu" false
-parse_arguments_haproxy "$@"
-check_success "HAProxy argümanları parse ederken hata oluştu"
-parse_arguments_etcd "$@"
+parse_arguments_haproxy $args_string
+check_success "HAProxy argümanları parse ederken hata oluştu" false
+parse_arguments_etcd $args_string
 check_success "ETCD argümanları parse ederken hata oluştu"
 cd ..
 create_image "$IMAGE_NAME" "$DOCKERFILE_PATH" "$DOCKERFILE_NAME" "$SCRIPT_DIR/.."

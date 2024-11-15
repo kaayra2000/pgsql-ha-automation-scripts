@@ -151,6 +151,20 @@ check_user_exists() {
     fi
 }
 
+show_help() {
+    local script_name="$1"
+    local -n arg_descriptions="$2"
+
+    echo "${script_name} Kurulum ve Yapılandırma Scripti"
+    echo
+    echo "Kullanım: $script_name [seçenekler]"
+    echo
+    echo "Seçenekler:"
+    for arg in "${!arg_descriptions[@]}"; do
+        printf "  %-25s %s\n" "$arg" "${arg_descriptions[$arg]}"
+    done
+}
+
 ip_sifirla() {
     echo "network:
   version: 2

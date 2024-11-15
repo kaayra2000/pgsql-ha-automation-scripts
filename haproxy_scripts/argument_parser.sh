@@ -3,41 +3,30 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source $SCRIPT_DIR/../default_variables.sh
-
-# Argüman anahtarları
-declare -A ARG_KEYS=(
-    ["NODE1_IP"]="--node1-ip"
-    ["NODE2_IP"]="--node2-ip"
-    ["HAPROXY_BIND_PORT"]="--haproxy-bind-port"
-    ["PGSQL_PORT"]="--pgsql-port"
-    ["HAPROXY_PORT"]="--haproxy-port"
-    ["POSTGRES_BIND_PORT"]="--postgres-bind-port"
-)
-
-# Argüman tanımlamaları
-declare -A ARG_DESCRIPTIONS=(
-    ["${ARG_KEYS[NODE1_IP]}"]="Birinci node IP adresi (varsayılan: $DEFAULT_NODE1_IP)"
-    ["${ARG_KEYS[NODE2_IP]}"]="İkinci node IP adresi (varsayılan: $DEFAULT_NODE2_IP)"
-    ["${ARG_KEYS[HAPROXY_BIND_PORT]}"]="HAProxy bind portu (varsayılan: $DEFAULT_HAPROXY_BIND_PORT)"
-    ["${ARG_KEYS[PGSQL_PORT]}"]="PostgreSQL portu (varsayılan: $DEFAULT_PGSQL_PORT)"
-    ["${ARG_KEYS[HAPROXY_PORT]}"]="HAProxy kontrol portu (varsayılan: $DEFAULT_HAPROXY_PORT)"
-    ["${ARG_KEYS[POSTGRES_BIND_PORT]}"]="PostgreSQL bind portu (varsayılan: $DEFAULT_POSTGRES_BIND_PORT)"
-)
-
-# Yardım mesajını göster
-show_help() {
-    echo "HAProxy Kurulum ve Yapılandırma Scripti"
-    echo
-    echo "Kullanım: $0 [seçenekler]"
-    echo
-    echo "Seçenekler:"
-    for arg in "${!ARG_DESCRIPTIONS[@]}"; do
-        printf "  %-25s %s\n" "$arg" "${ARG_DESCRIPTIONS[$arg]}"
-    done
-}
+source $SCRIPT_DIR/../general_functions.sh
 
 # Argümanları parse et
 parse_arguments_haproxy() {
+    # Argüman anahtarları
+    declare -A ARG_KEYS=(
+        ["NODE1_IP"]="--node1-ip"
+        ["NODE2_IP"]="--node2-ip"
+        ["HAPROXY_BIND_PORT"]="--haproxy-bind-port"
+        ["PGSQL_PORT"]="--pgsql-port"
+        ["HAPROXY_PORT"]="--haproxy-port"
+        ["POSTGRES_BIND_PORT"]="--postgres-bind-port"
+    )
+
+    # Argüman tanımlamaları
+    declare -A ARG_DESCRIPTIONS=(
+        ["${ARG_KEYS[NODE1_IP]}"]="Birinci node IP adresi (varsayılan: $DEFAULT_NODE1_IP)"
+        ["${ARG_KEYS[NODE2_IP]}"]="İkinci node IP adresi (varsayılan: $DEFAULT_NODE2_IP)"
+        ["${ARG_KEYS[HAPROXY_BIND_PORT]}"]="HAProxy bind portu (varsayılan: $DEFAULT_HAPROXY_BIND_PORT)"
+        ["${ARG_KEYS[PGSQL_PORT]}"]="PostgreSQL portu (varsayılan: $DEFAULT_PGSQL_PORT)"
+        ["${ARG_KEYS[HAPROXY_PORT]}"]="HAProxy kontrol portu (varsayılan: $DEFAULT_HAPROXY_PORT)"
+        ["${ARG_KEYS[POSTGRES_BIND_PORT]}"]="PostgreSQL bind portu (varsayılan: $DEFAULT_POSTGRES_BIND_PORT)"
+    )
+
     # Varsayılan değerleri ayarla
     declare -A config=(
         ["NODE1_IP"]="$DEFAULT_NODE1_IP"
@@ -51,7 +40,7 @@ parse_arguments_haproxy() {
     while [[ $# -gt 0 ]]; do
         case $1 in
         -h | --help)
-            show_help
+            show_help "HAProxy" ARG_DESCRIPTIONS
             return $HELP_CODE
             ;;
         ${ARG_KEYS[NODE1_IP]})
