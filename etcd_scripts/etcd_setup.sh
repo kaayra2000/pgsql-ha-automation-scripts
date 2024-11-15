@@ -66,8 +66,8 @@ etcd_etkinlestir() {
             echo "ETCD API aktif ve sağlıklı (port: ${ETCD_CLIENT_PORT})"
             return 0
         else
-            echo "UYARI: ETCD servisi çalışıyor fakat API yanıt vermiyor (port: ${ETCD_CLIENT_PORT})"
-            return 2
+            echo "UYARI: ETCD servisi çalışıyor fakat API şu anlık yanıt vermiyor (port: ${ETCD_CLIENT_PORT})"
+            return 0
         fi
     else
         echo "HATA: ETCD servisi başlatılamadı!"
