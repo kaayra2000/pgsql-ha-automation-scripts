@@ -25,6 +25,8 @@ source $SCRIPT_DIR/../$ETCD_SCRIPT_FOLDER/argument_parser.sh
 run_container() {
     docker run -d --rm --privileged \
         --name $SQL_CONTAINER \
+        -p $ETCD_CLIENT_PORT:$ETCD_CLIENT_PORT \
+        -p $ETCD_PEER_PORT:$ETCD_PEER_PORT \
         -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/tcp \
         -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/udp \
         -p $POSTGRES_BIND_PORT:$POSTGRES_BIND_PORT/tcp \
@@ -43,6 +45,8 @@ sql_parser --haproxy-port "$HAPROXY_PORT" --host-port "$HOST_PORT" "$@"
 check_success "Argümanları parse ederken hata oluştu" false
 parse_arguments_haproxy "$@"
 check_success "HAProxy argümanları parse ederken hata oluştu"
+parse_arguments_etcd "$@"
+check_success "ETCD argümanları parse ederken hata oluştu"
 cd ..
 create_image "$IMAGE_NAME" "$DOCKERFILE_PATH" "$DOCKERFILE_NAME" "$SCRIPT_DIR/.."
 cd $SCRIPT_DIR

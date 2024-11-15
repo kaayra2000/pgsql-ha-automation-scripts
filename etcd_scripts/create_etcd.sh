@@ -5,7 +5,7 @@ source $SCRIPT_DIR/etcd_setup.sh
 source $SCRIPT_DIR/argument_parser.sh
 source $SCRIPT_DIR/../general_functions.sh
 ETCD_CONFIG_DIR="/etc/etcd"
-ETCD_CONFIG_FILE="$ETCD_CONFIG_DIR/etcd.conf"
+ETCD_CONFIG_FILE="$ETCD_CONFIG_DIR/etcd.conf.yml"
 ETCD_USER="etcd"
 parse_arguments_etcd "$@"
 # IP ve port validasyonları

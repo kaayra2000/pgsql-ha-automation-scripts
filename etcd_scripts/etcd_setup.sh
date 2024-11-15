@@ -21,42 +21,43 @@ etcd_konfigure_et() {
     local ETCD_CONFIG_FILE="${10}"
 
     cat <<EOF | sudo tee $ETCD_CONFIG_FILE
-[Member]
-ETCD_LISTEN_PEER_URLS="http://$ETCD_IP:$ETCD_PEER_PORT,http://127.0.0.1:7001"
-ETCD_LISTEN_CLIENT_URLS="http://127.0.0.1:$ETCD_CLIENT_PORT,http://$ETCD_IP:$ETCD_CLIENT_PORT"
-ETCD_DATA_DIR="$DATA_DIR"
-ETCD_NAME="$ETCD_NAME"
+# etcd.conf.yml
+name: '$ETCD_NAME'
+data-dir: '$DATA_DIR'
 
-[Clustering]
-ETCD_INITIAL_ADVERTISE_PEER_URLS="http://$ETCD_IP:$ETCD_PEER_PORT"
-ETCD_INITIAL_CLUSTER="$ETCD_NAME=http://$ETCD_IP:$ETCD_PEER_PORT"
-ETCD_ADVERTISE_CLIENT_URLS="http://$ETCD_IP:$ETCD_CLIENT_PORT"
-ETCD_INITIAL_CLUSTER_TOKEN="$CLUSTER_TOKEN"
-ETCD_INITIAL_CLUSTER_STATE="$CLUSTER_STATE"
+# Tüm interface'lerden dinle
+listen-peer-urls: 'http://0.0.0.0:$ETCD_PEER_PORT'
+listen-client-urls: 'http://0.0.0.0:$ETCD_CLIENT_PORT'
 
-[Timer]
-ETCD_ELECTION_TIMEOUT=$ELECTION_TIMEOUT
-ETCD_HEARTBEAT_INTERVAL=$HEARTBEAT_INTERVAL
+# Dışarıya duyurulacak adresler
+initial-advertise-peer-urls: 'http://$ETCD_IP:$ETCD_PEER_PORT'
+advertise-client-urls: 'http://$ETCD_IP:$ETCD_CLIENT_PORT'
 
-[Feature]
-ETCD_ENABLE_V2=true
+initial-cluster: '$ETCD_NAME=http://$ETCD_IP:$ETCD_PEER_PORT'
+initial-cluster-token: '$CLUSTER_TOKEN'
+initial-cluster-state: '$CLUSTER_STATE'
+
+election-timeout: $ELECTION_TIMEOUT
+heartbeat-interval: $HEARTBEAT_INTERVAL
+
+enable-v2: true
 EOF
     check_success "etcd konfigürasyonu yapılırken bir hata oluştu."
 }
 
 etcd_etkinlestir() {
     echo "ETCD servisi durduruluyor..."
-    sudo service etcd stop
-    check_success "etcd servisi durdurulurken bir hata oluştu."
-
-    echo "ETCD servisi yeniden başlatılıyor..."
-    sudo service etcd start
-    check_success "etcd servisi başlatılırken bir hata oluştu."
-
-    # Servisin çalışıp çalışmadığını kontrol et
-    if sudo service etcd status >/dev/null 2>&1; then
+    pkill etcd || true
+    
+    echo "ETCD servisi başlatılıyor..."
+    nohup etcd --config-file=/etc/etcd/etcd.conf.yml > /var/log/etcd.log 2>&1 &
+    
+    # Kısa bir kontrol
+    if pgrep etcd >/dev/null; then
         echo "ETCD servisi başarıyla çalışıyor."
+        return 0
     else
-        echo "UYARI: ETCD servisi başlatıldı ancak durumu kontrol edilemedi."
+        echo "HATA: ETCD servisi başlatılamadı!"
+        return 1
     fi
 }
