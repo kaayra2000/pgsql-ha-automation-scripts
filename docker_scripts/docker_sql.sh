@@ -36,9 +36,8 @@ run_container() {
         && $SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME \
         && while true; do sleep 30; done"
 }
-
 # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
-parse_all_arguments
+parse_all_arguments $@
 read_arguments $ARGUMENT_CFG_FILE
 cd ..
 create_image "$IMAGE_NAME" "$DOCKERFILE_PATH" "$DOCKERFILE_NAME" "$SCRIPT_DIR/.."
