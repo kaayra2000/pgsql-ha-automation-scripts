@@ -39,6 +39,7 @@ run_container() {
 
 # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
 parse_all_arguments
+read_arguments $ARGUMENT_CFG_FILE
 cd ..
 create_image "$IMAGE_NAME" "$DOCKERFILE_PATH" "$DOCKERFILE_NAME" "$SCRIPT_DIR/.."
 cd $SCRIPT_DIR

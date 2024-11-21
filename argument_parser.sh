@@ -1,10 +1,10 @@
 #!/bin/bash
 # Script'in bulunduğu dizini alma
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "$SCRIPT_DIR/default_variables.sh"
-source "$SCRIPT_DIR/general_functions.sh"
-ARGUMENT_CFG_FILE="$SCRIPT_DIR/arguments.cfg"
+source "$ROOT_DIR/default_variables.sh"
+source "$ROOT_DIR/general_functions.sh"
+ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 
 # Argümanları işleyen genel fonksiyon
 parse_all_arguments() {
