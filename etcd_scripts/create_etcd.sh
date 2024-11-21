@@ -8,10 +8,6 @@ ETCD_CONFIG_DIR="/etc/etcd"
 ETCD_CONFIG_FILE="$ETCD_CONFIG_DIR/etcd.conf.yml"
 ETCD_USER="etcd"
 read_arguments $ARGUMENT_CFG_FILE
-# IP ve port validasyonları
-validate_ip $ETCD_IP
-validate_port $ETCD_CLIENT_PORT
-validate_port $ETCD_PEER_PORT
 # Sayısal değer kontrolü
 if ! validate_number "$ELECTION_TIMEOUT" "Election timeout" 1000; then
     exit 1

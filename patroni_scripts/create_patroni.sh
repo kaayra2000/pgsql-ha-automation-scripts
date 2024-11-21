@@ -11,14 +11,6 @@ POSTGRES_USER="postgres"
 
 read_arguments $ARGUMENT_CFG_FILE
 
-validate_ip $NODE1_IP
-validate_ip $NODE2_IP
-validate_ip $ETCD_IP
-
-validate_port $ETCD_PORT
-validate_port $HAPROXY_PORT
-validate_port $PGSQL_PORT
-
 if ! check_directory "$PATRONI_DIR"; then
     exit 1
 fi 
