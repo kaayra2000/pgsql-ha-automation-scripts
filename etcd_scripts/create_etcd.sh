@@ -7,16 +7,8 @@ source $SCRIPT_DIR/../general_functions.sh
 ETCD_CONFIG_DIR="/etc/etcd"
 ETCD_CONFIG_FILE="$ETCD_CONFIG_DIR/etcd.conf.yml"
 ETCD_USER="etcd"
-read_arguments $ARGUMENT_CFG_FILE
+check_and_parse_arguments $ARGUMENT_CFG_FILE
 # Sayısal değer kontrolü
-if ! validate_number "$ELECTION_TIMEOUT" "Election timeout" 1000; then
-    exit 1
-fi
-
-if ! validate_number "$HEARTBEAT_INTERVAL" "Heartbeat interval" 100; then
-    exit 1
-fi
-
 # Dizin kontrolü
 if ! check_directory "$DATA_DIR"; then
     exit 1
