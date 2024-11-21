@@ -5,17 +5,6 @@ source $SCRIPT_DIR/../general_functions.sh
 
 # Patroni yapılandırma dosyasını oluşturma fonksiyonu
 patroni_yml_konfigure_et() {
-    local NODE_NAME="$1"
-    local NODE1_IP="$2"
-    local NODE2_IP="$3"
-    local ETCD_IP="$4"
-    local ETCD_PORT="$5"
-    local HAPROXY_PORT="$6"
-    local PGSQL_PORT="$7"
-    local REPLIKATOR_KULLANICI_ADI="$8"
-    local REPLICATOR_SIFRESI="$9"
-    local POSTGRES_SIFRESI="${10}"
-
     cat <<EOF | sudo tee /etc/patroni.yml
 scope: postgres
 namespace: /db/
@@ -26,7 +15,7 @@ restapi:
     connect_address: ${NODE1_IP}:${HAPROXY_PORT}
 
 etcd:
-    host: ${ETCD_IP}:${ETCD_PORT}
+    host: ${ETCD_IP}:${ETCD_CLIENT_PORT}
 
 bootstrap:
     dcs:

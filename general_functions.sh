@@ -1,6 +1,18 @@
 #!/bin/bash
 HELP_CODE=2
 
+# Argümanları dosyadan oku ve export et
+read_arguments() {
+    local input_file="$1"
+    if [ ! -f "$input_file" ]; then
+        echo "Hata: Argüman dosyası bulunamadı: $input_file"
+        exit 1
+    fi
+    while IFS='=' read -r key value; do
+        export "$key"="$value"
+    done < "$input_file"
+}
+
 check_success() {
     local EXIT_CODE=$?
     local NEED_EXIT=${2:-true}    # Varsayılan değer "true"
