@@ -6,47 +6,48 @@ source "$ROOT_DIR/default_variables.sh"
 source "$ROOT_DIR/general_functions.sh"
 ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 
-# Argümanları işleyen genel fonksiyon
+# Argümanları işleyen ana fonksiyon
 parse_all_arguments() {
-    # Define your arguments in an array
+    # Argümanları bir dizide tanımla
     declare -a ARGUMENTS=(
-        # Key                   Command-line Argument       Default Value                      Help Description
-        # HAProxy Arguments
-        "NODE1_IP"              "--node1-ip"                "$DEFAULT_NODE1_IP"                "IP address of Node 1"
-        "NODE2_IP"              "--node2-ip"                "$DEFAULT_NODE2_IP"                "IP address of Node 2"
-        "HAPROXY_BIND_PORT"     "--haproxy-bind-port"       "$DEFAULT_HAPROXY_BIND_PORT"       "HAProxy bind port"
-        "PGSQL_PORT"            "--pgsql-port"              "$DEFAULT_PGSQL_PORT"              "PostgreSQL port"
-        "HAPROXY_PORT"          "--haproxy-port"            "$DEFAULT_HAPROXY_PORT"            "HAProxy port"
-        "POSTGRES_BIND_PORT"    "--postgres-bind-port"      "$DEFAULT_POSTGRES_BIND_PORT"      "PostgreSQL bind port"
+        # Anahtar               Komut Satırı Argümanı        Varsayılan Değer                   Yardım Açıklaması
+        # HAProxy Argümanları
+        "NODE1_IP"              "--node1-ip"                "$DEFAULT_NODE1_IP"                "1. Düğümün IP adresi"
+        "NODE2_IP"              "--node2-ip"                "$DEFAULT_NODE2_IP"                "2. Düğümün IP adresi"
+        "HAPROXY_BIND_PORT"     "--haproxy-bind-port"       "$DEFAULT_HAPROXY_BIND_PORT"       "HAProxy bağlantı portu"
+        "PGSQL_PORT"            "--pgsql-port"              "$DEFAULT_PGSQL_PORT"              "PostgreSQL portu"
+        "HAPROXY_PORT"          "--haproxy-port"            "$DEFAULT_HAPROXY_PORT"            "HAProxy portu"
+        "POSTGRES_BIND_PORT"    "--postgres-bind-port"      "$DEFAULT_POSTGRES_BIND_PORT"      "PostgreSQL bağlantı portu"
 
-        # Keepalived Arguments
-        "INTERFACE"             "--interface"               "$DEFAULT_INTERFACE"               "Network interface"
-        "SQL_VIRTUAL_IP"        "--sql-virtual-ip"          "$DEFAULT_SQL_VIRTUAL_IP"          "SQL virtual IP address"
-        "DNS_VIRTUAL_IP"        "--dns-virtual-ip"          "$DEFAULT_DNS_VIRTUAL_IP"          "DNS virtual IP address"
-        "PRIORITY"              "--priority"                "$DEFAULT_PRIORITY"                "Priority for Keepalived"
-        "STATE"                 "--state"                   "$DEFAULT_STATE"                   "Initial state (MASTER/BACKUP)"
-        "SQL_CONTAINER"         "--sql-container"           "$DEFAULT_SQL_CONTAINER"           "SQL container name"
-        "DNS_CONTAINER"         "--dns-container"           "$DEFAULT_DNS_CONTAINER"           "DNS container name"
+        # Keepalived Argümanları
+        "INTERFACE"             "--interface"               "$DEFAULT_INTERFACE"               "Ağ arayüzü"
+        "SQL_VIRTUAL_IP"        "--sql-virtual-ip"          "$DEFAULT_SQL_VIRTUAL_IP"          "SQL sanal IP adresi"
+        "DNS_VIRTUAL_IP"        "--dns-virtual-ip"          "$DEFAULT_DNS_VIRTUAL_IP"          "DNS sanal IP adresi"
+        "PRIORITY"              "--priority"                "$DEFAULT_PRIORITY"                "Keepalived önceliği"
+        "STATE"                 "--state"                   "$DEFAULT_STATE"                   "Başlangıç durumu (MASTER/BACKUP)"
+        "SQL_CONTAINER"         "--sql-container"           "$DEFAULT_SQL_CONTAINER"           "SQL konteyner adı"
+        "DNS_CONTAINER"         "--dns-container"           "$DEFAULT_DNS_CONTAINER"           "DNS konteyner adı"
 
-        # Patroni Arguments
-        "NODE_NAME"             "--node-name"               "$DEFAULT_NODE_NAME"               "Name of the node"
-        "ETCD_IP"               "--etcd-ip"                 "$DEFAULT_ETCD_IP"                 "ETCD IP address"
-        "REPLIKATOR_KULLANICI_ADI" "--replicator-username"  "$DEFAULT_REPLIKATOR_KULLANICI_ADI" "Replicator username"
-        "REPLICATOR_SIFRESI"    "--replicator-password"     "$DEFAULT_REPLICATOR_SIFRESI"      "Replicator password"
-        "POSTGRES_SIFRESI"      "--postgres-password"       "$DEFAULT_POSTGRES_SIFRESI"        "Postgres password"
-        "IS_NODE_1"             "--is-node1"                "$DEFAULT_IS_NODE_1"               "Is this Node 1?"
+        # Patroni Argümanları
+        "NODE_NAME"             "--node-name"               "$DEFAULT_NODE_NAME"               "Düğüm adı"
+        "ETCD_IP"               "--etcd-ip"                 "$DEFAULT_ETCD_IP"                 "ETCD IP adresi"
+        "REPLIKATOR_KULLANICI_ADI" "--replicator-username"  "$DEFAULT_REPLIKATOR_KULLANICI_ADI" "Replikasyon kullanıcı adı"
+        "REPLICATOR_SIFRESI"    "--replicator-password"     "$DEFAULT_REPLICATOR_SIFRESI"      "Replikasyon şifresi"
+        "POSTGRES_SIFRESI"      "--postgres-password"       "$DEFAULT_POSTGRES_SIFRESI"        "Postgres şifresi"
+        "IS_NODE_1"             "--is-node1"                "$DEFAULT_IS_NODE_1"               "Bu düğüm 1. düğüm mü?"
 
-        # ETCD Arguments
-        "ETCD_CLIENT_PORT"      "--client-port"             "$DEFAULT_ETCD_CLIENT_PORT"        "ETCD client port"
-        "ETCD_PEER_PORT"        "--peer-port"               "$DEFAULT_ETCD_PEER_PORT"          "ETCD peer port"
-        "CLUSTER_TOKEN"         "--cluster-token"           "$DEFAULT_CLUSTER_TOKEN"           "Cluster token"
-        "CLUSTER_STATE"         "--cluster-state"           "$DEFAULT_CLUSTER_STATE"           "Cluster state (new/existing)"
-        "ETCD_NAME"             "--etcd-name"               "$DEFAULT_ETCD_NAME"               "Name of the ETCD node"
-        "ELECTION_TIMEOUT"      "--election-timeout"        "$DEFAULT_ELECTION_TIMEOUT"        "Election timeout"
-        "HEARTBEAT_INTERVAL"    "--heartbeat-interval"      "$DEFAULT_HEARTBEAT_INTERVAL"      "Heartbeat interval"
-        "DATA_DIR"              "--data-dir"                "$DEFAULT_DATA_DIR"                "Data directory"
+        # ETCD Argümanları
+        "ETCD_CLIENT_PORT"      "--client-port"             "$DEFAULT_ETCD_CLIENT_PORT"        "ETCD istemci portu"
+        "ETCD_PEER_PORT"        "--peer-port"               "$DEFAULT_ETCD_PEER_PORT"          "ETCD eşler arası port"
+        "CLUSTER_TOKEN"         "--cluster-token"           "$DEFAULT_CLUSTER_TOKEN"           "Küme belirteci"
+        "CLUSTER_STATE"         "--cluster-state"           "$DEFAULT_CLUSTER_STATE"           "Küme durumu (new/existing)"
+        "ETCD_NAME"             "--etcd-name"               "$DEFAULT_ETCD_NAME"               "ETCD düğüm adı"
+        "ELECTION_TIMEOUT"      "--election-timeout"        "$DEFAULT_ELECTION_TIMEOUT"        "Seçim zaman aşımı"
+        "HEARTBEAT_INTERVAL"    "--heartbeat-interval"      "$DEFAULT_HEARTBEAT_INTERVAL"      "Nabız aralığı"
+        "DATA_DIR"              "--data-dir"                "$DEFAULT_DATA_DIR"                "Veri dizini"
     )
-    # Initialize configuration associative array with default values
+
+    # Yapılandırma için ilişkisel dizi oluştur ve varsayılan değerlerle başlat
     declare -A config
     local arg_count=${#ARGUMENTS[@]}
     for ((i=0; i<$arg_count; i+=4)); do
@@ -55,7 +56,7 @@ parse_all_arguments() {
         config["$key"]="$default_value"
     done
 
-    # Parse arguments
+    # Argümanları işle
     while [[ $# -gt 0 ]]; do
         case $1 in
             -h|--help)
@@ -82,8 +83,8 @@ parse_all_arguments() {
         esac
     done
 
-    # Write variables to the config file
-    > "$ARGUMENT_CFG_FILE"  # Clear or create the file
+    # Değişkenleri yapılandırma dosyasına yaz
+    > "$ARGUMENT_CFG_FILE"  # Dosyayı temizle veya oluştur
     for key in "${!config[@]}"; do
         echo "$key=${config[$key]}" >> "$ARGUMENT_CFG_FILE"
     done
