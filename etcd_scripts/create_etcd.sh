@@ -2,12 +2,12 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source $SCRIPT_DIR/etcd_setup.sh
-source $SCRIPT_DIR/argument_parser.sh
+source $SCRIPT_DIR/../argument_parser.sh
 source $SCRIPT_DIR/../general_functions.sh
 ETCD_CONFIG_DIR="/etc/etcd"
 ETCD_CONFIG_FILE="$ETCD_CONFIG_DIR/etcd.conf.yml"
 ETCD_USER="etcd"
-parse_arguments_etcd "$@"
+read_arguments $ARGUMENT_CFG_FILE
 # IP ve port validasyonları
 validate_ip $ETCD_IP
 validate_port $ETCD_CLIENT_PORT
