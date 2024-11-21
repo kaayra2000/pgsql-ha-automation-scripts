@@ -34,4 +34,4 @@ check_success "Dizin sahipliği değiştirilirken bir hata oluştu."
 sudo chmod -R 700 $PATRONI_DIR
 check_success "Dizin izinleri değiştirilirken bir hata oluştu."
 
-patroni_yml_konfigure_et $NODE_NAME $NODE1_IP $NODE2_IP $ETCD_IP $ETCD_CLIENT_PORT $HAPROXY_PORT $PGSQL_PORT $REPLIKATOR_KULLANICI_ADI $REPLICATOR_SIFRESI $POSTGRES_SIFRESI
+patroni_yml_konfigure_et

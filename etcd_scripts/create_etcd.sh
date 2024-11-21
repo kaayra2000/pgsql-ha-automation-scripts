@@ -49,17 +49,7 @@ fi
 
 # ETCD kurulum ve konfigürasyon
 etcd_kur
-etcd_konfigure_et \
-    "$ETCD_IP" \
-    "$ETCD_CLIENT_PORT" \
-    "$ETCD_PEER_PORT" \
-    "$CLUSTER_TOKEN" \
-    "$CLUSTER_STATE" \
-    "$ETCD_NAME" \
-    "$ELECTION_TIMEOUT" \
-    "$HEARTBEAT_INTERVAL" \
-    "$DATA_DIR" \
-    "$ETCD_CONFIG_FILE"
+etcd_konfigure_et "$ETCD_CONFIG_FILE"
 if ! set_permissions "$ETCD_USER" "$ETCD_CONFIG_FILE" "600"; then
     echo "Hata: $ETCD_CONFIG_FILE için izinler ayarlanamadı."
     exit 1

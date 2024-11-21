@@ -9,17 +9,7 @@ etcd_kur() {
 }
 
 etcd_konfigure_et() {
-    local ETCD_IP="$1"
-    local ETCD_CLIENT_PORT="$2"
-    local ETCD_PEER_PORT="$3"
-    local CLUSTER_TOKEN="$4"
-    local CLUSTER_STATE="$5"
-    local ETCD_NAME="$6"
-    local ELECTION_TIMEOUT="$7"
-    local HEARTBEAT_INTERVAL="$8"
-    local DATA_DIR="$9"
-    local ETCD_CONFIG_FILE="${10}"
-
+    local ETCD_CONFIG_FILE="$1"
     cat <<EOF | sudo tee $ETCD_CONFIG_FILE
 # etcd.conf.yml
 name: '$ETCD_NAME'
