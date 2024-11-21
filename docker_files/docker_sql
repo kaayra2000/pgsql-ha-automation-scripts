@@ -44,6 +44,7 @@ COPY patroni_scripts /usr/local/bin/patroni_scripts
 COPY argument_parser.sh /usr/local/bin/
 COPY general_functions.sh /usr/local/bin/
 COPY default_variables.sh /usr/local/bin/
+COPY arguments.cfg /usr/local/bin/
 
 # Make scripts executable
 RUN chmod +x /usr/local/bin/*
