@@ -59,6 +59,41 @@ DNS_VIRTUAL_IP=10.207.80.11
 ```
 Bu durumda _SQL\_VIRTUAL\_IP_ kullanıcının verdiği değerle değişmiştir. Halihazırda dosyada mevcut olan _DNS\_VIRTUAL\_IP_ argümanı değişmemiştir. Dosyada olmayan argümanlar ise varsayılan değerlerle doldurulmuştur.
 
+## create_dns_server.sh
+
+Bu script, BIND9 DNS sunucusunu belirli bir port üzerinden kurar ve yapılandırır. Kullanıcıdan aldığı **port numarası** ile BIND9'un o portta dinlemesini sağlar. Ayrıca, gerekli yapılandırma dosyalarını oluşturur ve servisi yeniden başlatarak değişiklikleri uygular.
+
+### Özellikler
+
+- **Port Ayarı**: Kullanıcının belirttiği port numarasını kontrol ederek geçerli bir değer olup olmadığını doğrular.
+
+- **BIND9 Kurulumu**: BIND9 ve ilgili paketleri otomatik olarak kurar.
+
+- **Yapılandırma**:
+  - `named.conf.options` dosyasını düzenleyerek DNS sunucusunun genel ayarlarını yapar.
+  - `named.conf.local` dosyasını oluşturur ve zone tanımlarını ekler.
+  - Örnek zone dosyaları (`db.example.com` ve `db.server`) oluşturur.
+
+- **Servis Yönetimi**: BIND9 servisini yeniden başlatarak yeni yapılandırmaların etkin olmasını sağlar.
+
+### Kullanım
+
+```bash
+./create_dns_server.sh <port>
+```
+* \<port>: DNS sunucusunun dinleyeceği port numarası (1 ile 65535 arasında geçerli bir tam sayı olmalıdır).
+
+**Örnek:**
+```bash
+./create_dns_server.sh 5353
+```
+Bu komut, DNS sunucusunu 5353 numaralı portta çalışacak şekilde kurar ve yapılandırır.
+
+### Notlar
+* **Yetkilendirme:** Script, bazı işlemler için sudo yetkisi gerektirir.
+* **Sistem Gereksinimleri:** Ubuntu/Debian tabanlı sistemlerde çalışacak şekilde tasarlanmıştır.
+* **Güncellemeler:** Oluşturulan zone dosyalarını ve yapılandırma ayarlarını ihtiyaçlarınıza göre düzenleyebilirsiniz.
+* **Güvenlik:** Varsayılan ayarlar tüm IP adreslerinden gelen sorgulara izin verir. Güvenlik açısından allow-query gibi ayarları düzenlemeniz önerilir.
 
 # keepalived
 Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
