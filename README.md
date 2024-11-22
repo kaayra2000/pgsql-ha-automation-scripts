@@ -303,6 +303,92 @@ Bu değişkenler, diğer scriptlerde varsayılan değerleri atamak için kullan�
 
 </details>
 
+<details>
+
+<summary><strong>keepalived_scripts.sh</strong></summary>
+
+Bu script koleksiyonu, **Keepalived** servisini kurmak, yapılandırmak ve yönetmek için gerekli fonksiyonları ve yardımcı scriptleri içerir. Keepalived, yüksek erişilebilirlik ve yük devretme (failover) sağlayarak servislerin kesintisiz çalışmasını hedefler.
+
+### İçerikler
+
+1. **create_keepalived.sh**
+
+   - **Amaç**: Keepalived servisinin kurulumu ve yapılandırılması için ana script.
+   - **İşlevleri**:
+     - Gerekli diğer script dosyalarını dahil eder.
+     - Kullanıcı argümanlarını kontrol eder ve parse eder.
+     - Keepalived için gerekli kullanıcı ve izin yapılandırmalarını yapar.
+     - Keepalived servisini kurar, yapılandırır ve başlatır.
+     - İşlem tamamlandığında kullanıcıya bilgi verir.
+
+2. **container_scripts.sh**
+
+   - **Amaç**: Keepalived'in kontrol scriptlerini oluşturur.
+   - **İşlevleri**:
+     - `create_checkscript` fonksiyonu ile, belirtilen Docker konteynerinin çalışıp çalışmadığını kontrol eden bir script oluşturur.
+     - Bu script, konteynerin durumu hakkında log bilgilerini `/var/log/keepalived_check.log` dosyasına yazar.
+
+3. **keepalived_setup.sh**
+
+   - **Amaç**: Keepalived servisinin kurulumu ve yapılandırılmasını yapar.
+   - **İşlevleri**:
+     - `install_keepalived`: Keepalived paketinin sistemde kurulu olup olmadığını kontrol eder, değilse kurar.
+     - `configure_keepalived`: Keepalived için gerekli yapılandırma dosyalarını oluşturur ve VRRP instance'larını tanımlar.
+       - SQL ve DNS için ayrı VRRP instance'ları yapılandırır.
+       - Her bir instance için kontrol scriptlerini ve diğer ayarları belirler.
+     - `start_keepalived`: Keepalived servisini başlatır ve sistem başlangıcında otomatik olarak başlaması için etkinleştirir.
+
+4. **logging.sh**
+
+   - **Amaç**: Keepalived kontrol scriptlerinin loglama işlevlerini yönetir.
+   - **İşlevleri**:
+     - `get_log_path`: Belirtilen konteyner için log dosyasının yolunu döndürür.
+     - `setup_container_log`: Log dosyasının varlığını ve doğru izinlere sahip olup olmadığını kontrol eder; yoksa oluşturur ve izinleri ayarlar.
+
+5. **user_management.sh**
+
+   - **Amaç**: Keepalived'in çalışması için gerekli kullanıcı ve izin yapılandırmalarını yapar.
+   - **İşlevleri**:
+     - `create_keepalived_user`: `keepalived_script` adlı sistem kullanıcısını oluşturur.
+     - `check_and_add_docker_permissions`: `keepalived_script` kullanıcısının `docker` grubuna üye olup olmadığını kontrol eder; değilse ekler.
+     - `configure_sudo_access`: `keepalived_script` kullanıcısına `sudo` üzerinden `docker` komutlarını şifresiz çalıştırabilme izni verir.
+
+### Genel Akış
+
+- **create_keepalived.sh** scripti çalıştırıldığında:
+  - Gerekli argümanlar kontrol edilir ve parse edilir.
+  - Gerekli kullanıcı ve grup izinleri ayarlanır.
+  - Keepalived servisi kurulur ve yapılandırılır.
+  - Kontrol scriptleri ve loglama mekanizmaları oluşturulur.
+  - Keepalived servisi başlatılır ve etkinleştirilir.
+
+### Notlar
+
+- **Güvenlik**:
+  - `keepalived_script` kullanıcısına sadece gerekli izinler verilir.
+  - Sudo konfigurasyonu ile `docker` komutlarının şifresiz çalıştırılması sağlanır; bu nedenle sudoers dosyası dikkatli bir şekilde yapılandırılır.
+
+- **Loglama**:
+  - Kontrol scriptleri, konteynerlerin durumu hakkında log bilgilerini `/var/log/{CONTAINER_NAME}_check.log` dosyasına yazar.
+  - Log dosyalarının doğru sahiplik ve izinlere sahip olması sağlanır.
+
+- **Yapılandırma Dosyaları**:
+  - `/etc/keepalived/keepalived.conf` dosyası, VRRP instance'larını ve kontrol scriptlerini tanımlar.
+  - SQL ve DNS hizmetleri için ayrı VRRP instance'ları ve kontrol scriptleri yapılandırılır.
+
+- **Servis Yönetimi**:
+  - Keepalived servisi, sistem yeniden başlatıldığında otomatik olarak başlayacak şekilde etkinleştirilir.
+  - Servisin durumu kontrol edilir ve gerekirse yeniden başlatılır.
+
+### Kullanım
+
+- **Script'i Çalıştırma**:
+
+  ```bash
+  ./create_keepalived.sh [ARGÜMANLAR]
+    ```
+</details>
+
 # keepalived
 Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
 
