@@ -37,3 +37,7 @@ DEFAULT_DATA_DIR="/var/lib/etcd/default"
 
 # Docker değişkenleri
 SHELL_PATH_IN_DOCKER="/usr/local/bin"
+
+# DNS Argümanları
+DEFAULT_DNS_PORT="53"
+DEFAULT_DOCKER_FORWARD_PORT="53"

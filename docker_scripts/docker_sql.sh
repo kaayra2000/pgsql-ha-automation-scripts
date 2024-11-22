@@ -2,12 +2,9 @@
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/create_image.sh
-source $SCRIPT_DIR/argument_parser.sh
 source $SCRIPT_DIR/../default_variables.sh
+source $SCRIPT_DIR/../argument_parser.sh
 source $SCRIPT_DIR/../general_functions.sh
-# Varsayılan değerler
-HAPROXY_PORT="8404"
-HOST_PORT="8404"
 
 # Sabit değerler
 DOCKERFILE_PATH="docker_files"
@@ -19,7 +16,6 @@ HAPROXY_SCRIPT_NAME="create_haproxy.sh"
 ETCD_SCRIPT_FOLDER="etcd_scripts"
 ETCD_SCRIPT_NAME="create_etcd.sh"
 
-source $SCRIPT_DIR/../argument_parser.sh
 # Docker konteynerını çalıştır
 run_container() {
     docker run -d --rm --privileged \
@@ -36,9 +32,7 @@ run_container() {
         && $SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME \
         && while true; do sleep 30; done"
 }
-# burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
-parse_all_arguments $@
-read_arguments $ARGUMENT_CFG_FILE
+check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
 cd ..
 create_image "$IMAGE_NAME" "$DOCKERFILE_PATH" "$DOCKERFILE_NAME" "$SCRIPT_DIR/.."
 cd $SCRIPT_DIR

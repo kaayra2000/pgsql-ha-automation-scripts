@@ -11,6 +11,7 @@ parse_all_arguments() {
     # Argümanları bir dizide tanımla
     declare -a ARGUMENTS=(
         # Anahtar               Komut Satırı Argümanı        Varsayılan Değer                   Yardım Açıklaması
+
         # HAProxy Argümanları
         "NODE1_IP"              "--node1-ip"                "$DEFAULT_NODE1_IP"                "1. Düğümün IP adresi"
         "NODE2_IP"              "--node2-ip"                "$DEFAULT_NODE2_IP"                "2. Düğümün IP adresi"
@@ -27,6 +28,10 @@ parse_all_arguments() {
         "STATE"                 "--state"                   "$DEFAULT_STATE"                   "Başlangıç durumu (MASTER/BACKUP)"
         "SQL_CONTAINER"         "--sql-container"           "$DEFAULT_SQL_CONTAINER"           "SQL konteyner adı"
         "DNS_CONTAINER"         "--dns-container"           "$DEFAULT_DNS_CONTAINER"           "DNS konteyner adı"
+
+        # DNS Argümanları
+        "DNS_PORT"              "--dns-port"                "$DEFAULT_DNS_PORT"                "DNS portu"
+        "DOCKER_FORWARD_PORT"   "--docker-forward-port"     "$DEFAULT_DOCKER_FORWARD_PORT"     "Docker'a yönlendirilecek port"
 
         # Patroni Argümanları
         "NODE_NAME"             "--node-name"               "$DEFAULT_NODE_NAME"               "Düğüm adı"

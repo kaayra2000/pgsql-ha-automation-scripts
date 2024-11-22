@@ -2,6 +2,11 @@
 
 # Fonksiyonlar
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$ROOT_DIR/general_functions.sh"
+ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
+
 check_integer() {
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then
         echo "Hata: Lütfen geçerli bir port numarası girin (0-65535 arası)."
@@ -40,7 +45,7 @@ configure_bind9() {
     cat <<EOF | sudo tee /etc/bind/named.conf.options
 options {
     directory "/var/cache/bind";
-    listen-on port $PORT { any; };
+    listen-on port $DNS_PORT { any; };
     allow-query { any; };
     forwarders {
         8.8.8.8;
@@ -104,11 +109,9 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-PORT=$1
-
-check_integer "$PORT"
+check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
 
 install_bind9
-configure_bind9 "$PORT"
+configure_bind9
 
-echo "DNS sunucusu $PORT portunda başarıyla kuruldu."
+echo "DNS sunucusu $DNS_PORT portunda başarıyla kuruldu."
