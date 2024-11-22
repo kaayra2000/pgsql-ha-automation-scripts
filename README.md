@@ -305,7 +305,7 @@ Bu değişkenler, diğer scriptlerde varsayılan değerleri atamak için kullan�
 
 <details>
 
-<summary><strong>keepalived_scripts.sh</strong></summary>
+<summary><strong>keepalived_scripts</strong></summary>
 
 Bu script koleksiyonu, **Keepalived** servisini kurmak, yapılandırmak ve yönetmek için gerekli fonksiyonları ve yardımcı scriptleri içerir. Keepalived, yüksek erişilebilirlik ve yük devretme (failover) sağlayarak servislerin kesintisiz çalışmasını hedefler.
 
@@ -388,6 +388,86 @@ Bu script koleksiyonu, **Keepalived** servisini kurmak, yapılandırmak ve yöne
   ./create_keepalived.sh [ARGÜMANLAR]
     ```
 </details>
+
+<details>
+
+<summary><strong>haproxy_scripts</strong></summary>
+
+Bu script seti, **HAProxy** servisinin kurulumu, yapılandırılması ve başlatılması için gerekli fonksiyonları ve yardımcı scriptleri içerir. HAProxy, yüksek performanslı bir TCP/HTTP yük dengeleyici ve proxy sunucusudur ve bu scriptler aracılığıyla PostgreSQL hizmetlerinin yük dengelemesini sağlar.
+
+### İçerikler
+
+1. **create_haproxy.sh**
+
+   - **Amaç**: HAProxy servisinin kurulumu ve yapılandırılması için ana script.
+   - **İşlevleri**:
+     - Gerekli script dosyalarını dahil eder:
+       - `haproxy_setup.sh`: HAProxy kurulumu ve yapılandırma fonksiyonlarını içerir.
+       - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
+       - `general_functions.sh`: Genel amaçlı yardımcı fonksiyonları içerir.
+     - `check_and_parse_arguments` fonksiyonunu çağırarak kullanıcının verdiği argümanları kontrol eder ve parse eder.
+     - Aşağıdaki fonksiyonları sırasıyla çağırır:
+       - `ha_proxy_kur`: HAProxy paketini kurar.
+       - `ha_proxy_konfigure_et`: HAProxy yapılandırma dosyasını oluşturur.
+       - `enable_haproxy`: HAProxy servisinin konfigürasyonunu kontrol eder ve servisi başlatır.
+
+2. **haproxy_setup.sh**
+
+   - **Amaç**: HAProxy servisinin kurulumu, yapılandırılması ve başlatılması için gerekli fonksiyonları içerir.
+   - **İşlevleri**:
+     - **ha_proxy_kur**:
+       - HAProxy paketini sistem üzerine kurar.
+       - Kurulum sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bildirir.
+     - **ha_proxy_konfigure_et**:
+       - HAProxy için `/etc/haproxy/haproxy.cfg` yapılandırma dosyasını oluşturur.
+       - Yapılandırma dosyasında şunları tanımlar:
+         - **global** ve **defaults** ayarları: Maksimum bağlantı sayısı, log ayarları, timeout değerleri vb.
+         - **frontend stats** ve **backend stats_backend**: HAProxy istatistik arayüzü için frontend ve backend tanımları.
+           - İstatistik arayüzü belirlenen `$HAPROXY_BIND_PORT` portunda çalışır.
+         - **frontend postgres_frontend** ve **backend postgres_backend**:
+           - PostgreSQL hizmeti için frontend ve backend tanımları.
+           - `$POSTGRES_BIND_PORT` portunda gelen bağlantıları kabul eder ve backend sunucularına yönlendirir.
+           - Backend sunucuları olarak `node-1` ve `node-2` tanımlanır, bu sunucular `$NODE1_IP` ve `$NODE2_IP` adreslerinde bulunan PostgreSQL hizmetleridir.
+           - Yük dengeleme algoritması olarak `roundrobin` kullanılır.
+           - Sunucu sağlık kontrolü için `tcp-check` yapılır.
+     - **enable_haproxy**:
+       - HAProxy konfigürasyon dosyasının doğruluğunu kontrol eder.
+       - Konfigürasyon geçerliyse HAProxy servisini başlatır.
+       - Servisin başlatılması sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bildirir.
+
+### Genel Akış
+
+- **create_haproxy.sh** scripti çalıştırıldığında:
+  - Gerekli argümanları kontrol eder ve parse eder.
+  - HAProxy kurulumunu gerçekleştirir (`ha_proxy_kur`).
+  - HAProxy yapılandırma dosyasını oluşturur (`ha_proxy_konfigure_et`).
+  - HAProxy servisini başlatır ve yapılandırmayı etkinleştirir (`enable_haproxy`).
+
+### Notlar
+
+- **Bağımlılıklar**:
+  - Scriptler, diğer yardımcı script dosyalarına bağımlıdır:
+    - `argument_parser.sh`: Kullanıcıdan gelen argümanları işler.
+    - `general_functions.sh`: Genel yardımcı fonksiyonları sağlar (örneğin, `check_success` fonksiyonu).
+- **Değişkenler**:
+  - `$HAPROXY_BIND_PORT`: HAProxy'nin istatistik arayüzü için bind edildiği port.
+  - `$POSTGRES_BIND_PORT`: HAProxy'nin PostgreSQL frontend'inin dinlediği port.
+  - `$NODE1_IP` ve `$NODE2_IP`: Backend PostgreSQL sunucularının IP adresleri.
+  - `$PGSQL_PORT`: Backend PostgreSQL sunucularının dinlediği port.
+- **Yapılandırma Dosyası**:
+  - `/etc/haproxy/haproxy.cfg`: HAProxy'nin ana yapılandırma dosyasıdır ve script tarafından otomatik olarak oluşturulur.
+- **Servis Yönetimi**:
+  - HAProxy servisinin başlatılması ve konfigürasyonunun kontrolü otomatik olarak yapılır.
+  - Konfigürasyon dosyasında hata olması durumunda servis başlatılmaz ve kullanıcıya hata mesajı gösterilir.
+  
+### Kullanım
+
+- **Script'i Çalıştırma**:
+
+  ```bash
+  ./create_haproxy.sh [ARGÜMANLAR]
+    ```
+</details>    
 
 # keepalived
 Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
