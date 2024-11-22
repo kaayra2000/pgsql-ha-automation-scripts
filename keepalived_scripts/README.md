@@ -61,6 +61,7 @@ _--dns-container :_ DNS konteyner adı (Varsayılan: dns_container)
  --sql-container sql_1 \
  --dns-container dns_1
 ```
+Dikkat: interface bulunamazsa sistem başlamaz.
 
 ## Sistem Gereksinimleri
 
