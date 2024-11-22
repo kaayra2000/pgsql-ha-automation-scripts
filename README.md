@@ -2,6 +2,64 @@
 
 Bu depo temel olarak PostgreSQL'in yüksek erişilebilirlik mimarisini ve dns sunucusunun yine yüksek erişilebilirlik mimarisini shell scriptler ile otomatik olarak oluşturmayı hedeflemektedir. İçerisinde haproxy, etcd, patroni, keepalived, postgresql ve bind9 servislerini barındırmaktadır. Bu servislerin bir kısmı docker konteynırlarında çalıştırılmaktadır.
 
+# Dosya içerikleri
+
+## argument_parser.sh
+
+Bu script, verilen argümanları parse eder ve kullanıcının vermediği argümanlara varsayılan değerler atar. Sonuç olarak, bu argümanlar diğer dosyalarda kullanılmak üzere `_arguments.cfg_` dosyasına yazılır. İki durum söz konusudur:
+
+### Durumlar
+
+1. **_arguments.cfg_ dosyası yoksa**: Kullanıcının vermediği argümanlar yerine varsayılan değerler atanır.
+2. **_arguments.cfg_ dosyası varsa**: Kullanıcının vermediği argümanlar değiştirilmeden dosyada aynen kalır. Eğer dosyada eksik argümanlar varsa, eksik olan argümanlar varsayılan değerlerle doldurulur.
+
+### 2. Durum İçin Örnek Senaryo
+
+Dosyanın içeriği şu şekilde olsun:
+
+```bash
+SQL_VIRTUAL_IP=10.207.80.10
+DNS_VIRTUAL_IP=10.207.80.11
+```
+Parser'a şu argümanlar verildiğinde:
+
+```bash
+./argument_parser.sh --sql-virtual-ip 10.207.90.21
+```
+Dosyanın içeriği şu şekilde olacaktır:
+
+```bash
+SQL_VIRTUAL_IP=10.207.90.21
+ELECTION_TIMEOUT=5000
+NODE2_IP=10.207.80.11
+REPLIKATOR_KULLANICI_ADI=replicator
+PRIORITY=100
+INTERFACE=et123456
+IS_NODE_1=true
+HAPROXY_BIND_PORT=7000
+DNS_CONTAINER=dns_1
+ETCD_NAME=etcd1
+POSTGRES_SIFRESI=postgres_pass
+ETCD_CLIENT_PORT=2379
+HEARTBEAT_INTERVAL=1000
+ETCD_IP=10.207.80.20
+NODE_NAME=pg_node1
+PGSQL_PORT=5432
+CLUSTER_STATE=new
+DATA_DIR=/var/lib/etcd/default
+CLUSTER_TOKEN=cluster1
+ETCD_PEER_PORT=2380
+POSTGRES_BIND_PORT=5000
+HAPROXY_PORT=8008
+REPLICATOR_SIFRESI=replicator_pass
+SQL_CONTAINER=sql_1
+NODE1_IP=10.207.80.10
+STATE=BACKUP
+DNS_VIRTUAL_IP=10.207.80.11
+```
+Bu durumda _SQL\_VIRTUAL\_IP_ kullanıcının verdiği değerle değişmiştir. Halihazırda dosyada mevcut olan _DNS\_VIRTUAL\_IP_ argümanı değişmemiştir. Dosyada olmayan argümanlar ise varsayılan değerlerle doldurulmuştur.
+
+
 # keepalived
 Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
 
