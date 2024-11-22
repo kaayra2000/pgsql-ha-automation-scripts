@@ -103,6 +103,146 @@ Bu komut, DNS sunucusunu 5353 numaralı portta çalışacak şekilde kurar ve ya
 
 </details>
 
+<details>
+
+<summary><strong>general_functions.sh</strong></summary>
+
+Bu script, diğer bash scriptlerinde kullanılmak üzere genel amaçlı yardımcı fonksiyonları içerir. Bu fonksiyonlar, argümanların kontrolü, IP ve port doğrulama, izin ayarlama, kullanıcı varlığını kontrol etme ve yardım mesajları gösterme gibi işlemleri kolaylaştırır.
+
+### Fonksiyonlar
+
+#### check_and_parse_arguments
+
+```bash
+check_and_parse_arguments() {
+    # Argüman dosyasının varlığını kontrol eder ve gerekli fonksiyonları çağırır
+}
+```
+* **Amaç:** Argüman dosyasının varlığını kontrol eder. Eğer dosya yoksa, argümanları parse eder ve gerekli işlemleri yapar. Ardından, argümanları dosyadan okuyarak ortam değişkenleri olarak ayarlar.
+
+#### read_arguments
+
+```bash
+read_arguments() {
+    # Argümanları dosyadan okur ve export eder
+}
+```
+* **Amaç:** Verilen dosyadan argümanları okuyarak ortam değişkenleri olarak export eder.
+
+#### check_success
+
+```bash
+check_success() {
+    # Önceki komutun başarı durumunu kontrol eder
+}
+```
+* **Amaç:** Önceki komutun başarılı olup olmadığını kontrol eder. Hata durumunda uygun hata mesajını gösterir ve gerekirse scriptin çalışmasını sonlandırır.
+
+#### validate_ip
+
+```bash
+validate_ip() {
+    # IP adres formatını kontrol eder
+}
+```
+
+* **Amaç:** Verilen IP adresinin geçerli bir formatta olup olmadığını kontrol eder.
+
+#### validate_port
+
+```bash
+validate_port() {
+    # Port numarasının geçerli olup olmadığını kontrol eder
+}
+```
+
+* **Amaç:** Verilen port numarasının 1 ile 65535 arasında geçerli bir sayı olup olmadığını kontrol eder.
+
+#### validate_number
+
+```bash
+validate_number() {
+    # Sayısal değeri kontrol eder
+}
+```
+
+* **Amaç:** Verilen değerin sayısal bir değer olup olmadığını ve isteğe bağlı olarak belirli bir minimum değerden büyük olup olmadığını kontrol eder.
+
+#### check_directory
+
+```bash
+check_directory() {
+    # Dizin varlığını ve yazılabilirliğini kontrol eder
+}
+```
+
+* **Amaç:** Verilen dizinin varlığını ve yazma iznini kontrol eder. Eğer dizin mevcut değilse ve izin verilmişse oluşturur.
+
+#### set_permissions
+
+```bash
+set_permissions() {
+    # Dosya veya dizin izinlerini ve sahipliğini ayarlar
+}
+```
+
+* **Amaç:** Belirtilen dosya veya dizin için kullanıcıya ait izinleri ve sahipliği ayarlar.
+
+#### check_user_exists
+
+```bash
+check_user_exists() {
+    # Kullanıcının varlığını kontrol eder
+}
+```
+
+* **Amaç:** Verilen kullanıcının sistemde mevcut olup olmadığını kontrol eder.
+
+#### show_help
+
+```bash
+show_help() {
+    # Yardım mesajını gösterir
+}
+```
+
+* **Amaç:** Scriptin kullanımını ve argüman açıklamalarını formatlı bir şekilde ekrana yazdırır.
+
+#### show_argument_help
+
+```bash
+show_argument_help() {
+    # Argüman yardımını gösterir
+}
+```
+
+* **Amaç:** Argüman listesini ve açıklamalarını düzenli bir formatta kullanıcıya gösterir.
+
+### Kullanım
+Bu script, diğer scriptlerin içine dahil edilerek fonksiyonların kullanılmasını sağlar. Başka bir script içinde aşağıdaki şekilde kullanılabilir:
+
+```bash
+#!/bin/bash
+
+# general_functions.sh dosyasını dahil et
+source /path/to/general_functions.sh
+
+# Örnek fonksiyon kullanımı
+validate_ip "192.168.1.1"
+check_user_exists "kullaniciadi"
+set_permissions "kullaniciadi" "/var/www" "755"
+```
+
+### Notlar
+
+* Dikkat edilmesi gereken noktalar:
+  * Fonksiyonlar hata durumunda genellikle bir hata mesajı yazdırır ve scriptin çalışmasını exit 1 ile sonlandırır.
+  * check_and_parse_arguments fonksiyonu, argüman dosyasının varlığını kontrol eder ve argümanları parse eder. Bu fonksiyonun doğru çalışması için gerekli parametrelerin doğru sırada ve eksiksiz verilmesi gerekir.
+  * set_permissions ve check_user_exists fonksiyonları, sistem üzerinde değişiklik yapar ve uygun yetkilere ihtiyaç duyabilir.
+
+</details>
+
+
 # keepalived
 Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
 
