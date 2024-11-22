@@ -56,7 +56,17 @@ parse_all_arguments() {
         config["$key"]="$default_value"
     done
 
-    # Argümanları işle
+    # Eğer ARGUMENT_CFG_FILE dosyası varsa, içindeki değerleri oku ve config dizisini güncelle
+    if [ -f "$ARGUMENT_CFG_FILE" ]; then
+        while IFS='=' read -r key value; do
+            # Sadece tanımlanan anahtarları güncelle
+            if [[ -n "${config["$key"]}" ]]; then
+                config["$key"]="$value"
+            fi
+        done < "$ARGUMENT_CFG_FILE"
+    fi
+
+    # Argümanları işle ve config dizisini güncelle
     while [[ $# -gt 0 ]]; do
         case $1 in
             -h|--help)
