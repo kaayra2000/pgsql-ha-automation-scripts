@@ -38,7 +38,6 @@ install_bind9() {
 }
 
 configure_bind9() {
-    local PORT=$1
     echo "BIND9 yapılandırılıyor..."
 
     # named.conf.options dosyasını düzenle
@@ -103,11 +102,6 @@ EOF
 }
 
 # Ana script
-
-if [ $# -ne 1 ]; then
-    echo "Kullanım: $0 <port>"
-    exit 1
-fi
 
 check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
 
