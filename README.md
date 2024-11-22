@@ -243,6 +243,66 @@ set_permissions "kullaniciadi" "/var/www" "755"
 </details>
 
 
+<details>
+
+<summary><strong>default_variables.sh</strong></summary>
+
+Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanımlayan değişkenleri içerir. Bu değişkenler, HAProxy, PostgreSQL, Patroni, Keepalived, ETCD ve Docker ile ilgili ayarların kolayca yönetilmesini sağlar.
+
+### Özellikler
+
+- **HAProxy Değişkenleri**:
+  - `DEFAULT_NODE1_IP`: İlk node'un IP adresi. Varsayılan değer: `"10.207.80.10"`
+  - `DEFAULT_NODE2_IP`: İkinci node'un IP adresi. Varsayılan değer: `"10.207.80.11"`
+  - `DEFAULT_HAPROXY_BIND_PORT`: HAProxy'nin bağlanacağı port. Varsayılan değer: `"7000"`
+  - `DEFAULT_HAPROXY_PORT`: HAProxy'nin dinleyeceği port. Varsayılan değer: `"8008"`
+
+- **PostgreSQL ve Patroni Değişkenleri**:
+  - `DEFAULT_NODE_NAME`: Node adı. Varsayılan değer: `"pg_node1"`
+  - `DEFAULT_PGSQL_PORT`: PostgreSQL'in dinlediği port. Varsayılan değer: `"5432"`
+  - `DEFAULT_POSTGRES_BIND_PORT`: PostgreSQL'in bağlanacağı port. Varsayılan değer: `"5000"`
+  - `DEFAULT_REPLIKATOR_KULLANICI_ADI`: Replikasyon için kullanılacak kullanıcı adı. Varsayılan değer: `"replicator"`
+  - `DEFAULT_REPLICATOR_SIFRESI`: Replikasyon kullanıcısının şifresi. Varsayılan değer: `"replicator_pass"`
+  - `DEFAULT_POSTGRES_SIFRESI`: PostgreSQL veritabanı kullanıcısının şifresi. Varsayılan değer: `"postgres_pass"`
+  - `DEFAULT_IS_NODE_1`: Node'un birinci node olup olmadığını belirten değer. Varsayılan değer: `"true"`
+
+- **Keepalived Değişkenleri**:
+  - `DEFAULT_INTERFACE`: Ağ arayüzü adı. Varsayılan değer: `"enp0s3"`
+  - `DEFAULT_SQL_VIRTUAL_IP`: SQL için sanal IP adresi. Varsayılan değer: `"10.207.80.20"`
+  - `DEFAULT_DNS_VIRTUAL_IP`: DNS için sanal IP adresi. Varsayılan değer: `"10.207.80.30"`
+  - `DEFAULT_PRIORITY`: Keepalived öncelik değeri. Varsayılan değer: `"100"`
+  - `DEFAULT_STATE`: Keepalived durumunu belirtir (`MASTER` veya `BACKUP`). Varsayılan değer: `"BACKUP"`
+  - `DEFAULT_SQL_CONTAINER`: SQL için Docker container adı. Varsayılan değer: `"sql_container"`
+  - `DEFAULT_DNS_CONTAINER`: DNS için Docker container adı. Varsayılan değer: `"dns_container"`
+  - `DOCKER_BINARY_PATH`: Docker binary dosyasının yolu. Varsayılan değer: `"/usr/bin/docker"`
+
+- **ETCD Varsayılan Değerleri**:
+  - `DEFAULT_ETCD_IP`: ETCD'nin IP adresi. Varsayılan olarak `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
+  - `DEFAULT_ETCD_CLIENT_PORT`: ETCD istemci portu. Varsayılan değer: `"2379"`
+  - `DEFAULT_ETCD_PEER_PORT`: ETCD peer portu. Varsayılan değer: `"2380"`
+  - `DEFAULT_CLUSTER_TOKEN`: ETCD cluster token değeri. Varsayılan değer: `"cluster1"`
+  - `DEFAULT_CLUSTER_STATE`: ETCD cluster durumu. Varsayılan değer: `"new"`
+  - `DEFAULT_ETCD_NAME`: ETCD node adı. Varsayılan değer: `"etcd1"`
+  - `DEFAULT_ELECTION_TIMEOUT`: ETCD seçim zaman aşımı değeri (ms). Varsayılan değer: `"5000"`
+  - `DEFAULT_HEARTBEAT_INTERVAL`: ETCD kalp atışı aralığı (ms). Varsayılan değer: `"1000"`
+  - `DEFAULT_DATA_DIR`: ETCD veri dizini yolu. Varsayılan değer: `"/var/lib/etcd/default"`
+
+- **Docker Değişkenleri**:
+  - `SHELL_PATH_IN_DOCKER`: Docker container içinde shell komutlarının bulunduğu dizin. Varsayılan değer: `"/usr/local/bin"`
+
+### Kullanım
+
+Bu değişkenler, diğer scriptlerde varsayılan değerleri atamak için kullanılır. Eğer kullanıcı tarafından bir değer belirtilmemişse, ilgili değişken bu dosyadaki varsayılan değeri alır. Böylece, sistem yapılandırması daha tutarlı ve yönetilebilir hale gelir.
+
+### Notlar
+
+- Değişken isimleri büyük harflerle ve `DEFAULT_` önekiyle tanımlanmıştır.
+- `DEFAULT_ETCD_IP` değişkeni, `DEFAULT_SQL_VIRTUAL_IP` değerini kullanarak ETCD IP adresini otomatik olarak ayarlar.
+- Bu dosya, sistem yöneticilerinin varsayılan ayarları merkezi bir yerden kontrol etmelerini sağlar.
+- İhtiyaç duyulması halinde, bu varsayılan değerler güncellenebilir veya genişletilebilir.
+
+</details>
+
 # keepalived
 Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
 
