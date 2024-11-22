@@ -2,47 +2,34 @@
 
 ## Dosyalar ve İşlevleri
 
-### 1. create_keepalived.sh
+### create_keepalived.sh
 
 - Ana kontrol scripti
 - Diğer tüm scriptleri import eder
 - Sırasıyla tüm kurulum adımlarını çalıştırır
 - Keepalived kurulumunu ve yapılandırmasını yönetir
 
-### 2. argument_parser.sh
-
-- Parametre işleme scripti
-- Varsayılan değerleri tanımlar:
-  - DEFAULT_INTERFACE="enp0s3"
-  - DEFAULT_SQL_VIRTUAL_IP="10.207.80.20"
-  - DEFAULT_DNS_VIRTUAL_IP="10.207.80.30"
-  - DEFAULT_PRIORITY="100"
-  - DEFAULT_STATE="BACKUP"
-  - DEFAULT_SQL_CONTAINER="sql_container"
-  - DEFAULT_DNS_CONTAINER="dns_container"
-- Komut satırı parametrelerini işler
-
-### 3. container_scripts.sh
+### container_scripts.sh
 
 - Konteyner kontrol scripti
 - Docker konteynerlerinin durumunu kontrol eden scriptleri oluşturur
 - Konteyner durum kontrollerini loglar
 
-### 4. keepalived_setup.sh
+### keepalived_setup.sh
 
 - Keepalived kurulum ve yapılandırma scripti
 - Keepalived paketini kurar
 - Keepalived yapılandırma dosyasını oluşturur
 - Servisi başlatır ve etkinleştirir
 
-### 5. logging.sh
+### logging.sh
 
 - Loglama yönetim scripti
 - Log dosyalarını oluşturur
 - Log dosyası izinlerini ayarlar
 - Log dosyası sahipliklerini yapılandırır
 
-### 6. user_management.sh
+### user_management.sh
 
 - Kullanıcı yönetim scripti
 - keepalived_script kullanıcısını oluşturur
