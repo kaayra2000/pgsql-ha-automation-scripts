@@ -9,7 +9,6 @@ source $SCRIPT_DIR/../general_functions.sh
 # Sabit değerler
 DOCKERFILE_PATH="../docker_files"
 DOCKERFILE_NAME="docker_dns"
-DNS_CONTAINER="dns_container"
 IMAGE_NAME="dns_image"
 SHELL_SCRIPT_NAME="create_dns_server.sh"
 

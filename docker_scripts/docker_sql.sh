@@ -9,7 +9,6 @@ source $SCRIPT_DIR/../general_functions.sh
 # Sabit değerler
 DOCKERFILE_PATH="docker_files"
 DOCKERFILE_NAME="docker_sql"
-SQL_CONTAINER="sql_container"
 IMAGE_NAME="sql_image"
 HAPROXY_SCRIPT_FOLDER="haproxy_scripts"
 HAPROXY_SCRIPT_NAME="create_haproxy.sh"
