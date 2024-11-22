@@ -469,6 +469,111 @@ Bu script seti, **HAProxy** servisinin kurulumu, yapılandırılması ve başlat
     ```
 </details>    
 
+<details>
+
+<summary><strong>etcd_scripts</strong></summary>
+
+Bu script seti, **etcd** servisinin kurulumu, yapılandırılması ve başlatılması için gerekli fonksiyonları ve yardımcı scriptleri içerir. etcd, dağıtık sistemlerde yüksek erişilebilirlik ve tutarlılık sağlayan bir anahtar-değer depolama sistemidir ve bu scriptler aracılığıyla etcd servisini kolayca yönetebilirsiniz.
+
+### İçerikler
+
+1. **create_etcd.sh**
+
+   - **Amaç**: etcd servisinin kurulumu ve yapılandırılması için ana script.
+   - **İşlevleri**:
+     - Gerekli diğer script dosyalarını dahil eder:
+       - `etcd_setup.sh`: etcd'nin kurulumu ve yapılandırılması için fonksiyonları içerir.
+       - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
+       - `general_functions.sh`: Genel amaçlı yardımcı fonksiyonları içerir.
+     - `check_and_parse_arguments` fonksiyonunu çağırarak kullanıcının verdiği argümanları kontrol eder ve parse eder.
+     - Kullanıcı tarafından belirtilen veya varsayılan değerlerin kullanıldığı değişkenleri kontrol eder ve gerekli dizinlerin mevcut olup olmadığını kontrol eder; yoksa oluşturur.
+     - `check_user_exists` fonksiyonu ile etcd için gerekli kullanıcının sistemde mevcut olup olmadığını kontrol eder.
+     - Dizinlerin ve konfigürasyon dosyalarının sahipliğini ve izinlerini ayarlar:
+       - `set_permissions` fonksiyonu ile `$DATA_DIR` ve `$ETCD_CONFIG_DIR` dizinlerinin sahipliğini ve izinlerini etcd kullanıcısına göre ayarlar.
+     - etcd kurulumu ve yapılandırmasını gerçekleştirir:
+       - `etcd_kur` fonksiyonu ile etcd paketini kurar.
+       - `etcd_konfigure_et` fonksiyonu ile etcd konfigürasyon dosyasını oluşturur.
+       - Konfigürasyon dosyasının sahipliğini ve izinlerini ayarlar.
+       - `update_daemon_args` fonksiyonu ile etcd servisinin başlangıç argümanlarını günceller, böylece servis belirtilen konfigürasyon dosyasını kullanır.
+     - etcd servisini başlatır ve durumunu kontrol eder:
+       - `etcd_etkinlestir` fonksiyonu ile etcd servisini başlatır ve API'nin çalışıp çalışmadığını kontrol eder.
+     - İşlem sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bilgilendirir.
+
+2. **etcd_setup.sh**
+
+   - **Amaç**: etcd servisinin kurulumu, yapılandırılması ve başlatılması için gerekli fonksiyonları içerir.
+   - **İşlevleri**:
+     - **etcd_kur**:
+       - etcd paketini sistem üzerine kurar.
+       - Kurulum sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bildirir.
+     - **etcd_konfigure_et**:
+       - etcd için YAML formatında konfigürasyon dosyasını oluşturur.
+       - Konfigürasyon dosyasında şunları tanımlar:
+         - Sunucu adı (`name`), veri dizini (`data-dir`), dinlenecek adresler ve portlar (`listen-peer-urls`, `listen-client-urls`), duyurulacak adresler (`initial-advertise-peer-urls`, `advertise-client-urls`), cluster bilgileri (`initial-cluster`, `initial-cluster-token`, `initial-cluster-state`), zaman aşımı değerleri (`election-timeout`, `heartbeat-interval`) ve diğer ayarlar.
+       - Oluşturulan konfigürasyon dosyasında oluşabilecek hataları kontrol eder.
+     - **update_daemon_args**:
+       - etcd servisini başlatırken kullanılacak argümanları günceller.
+       - `/etc/init.d/etcd` dosyasındaki `DAEMON_ARGS` satırını, oluşturulan konfigürasyon dosyasını kullanacak şekilde günceller veya ekler.
+     - **etcd_etkinlestir**:
+       - etcd servisini durdurur ve yeniden başlatır.
+       - Servisin durumu ve API'nin çalışıp çalışmadığını kontrol eder.
+       - Servis başlatılamazsa veya API yanıt vermiyorsa kullanıcıya hata mesajı gösterir.
+
+### Genel Akış
+
+- **create_etcd.sh** scripti çalıştırıldığında:
+  - Gerekli argümanları kontrol eder ve parse eder.
+  - Gerekli dizinleri kontrol eder ve oluşturur.
+  - etcd kullanıcısının mevcut olduğunu kontrol eder ve gerekli izinleri ayarlar.
+  - etcd kurulumunu gerçekleştirir (`etcd_kur`).
+  - etcd yapılandırma dosyasını oluşturur (`etcd_konfigure_et`).
+  - etcd servisinin başlangıç argümanlarını günceller (`update_daemon_args`).
+  - etcd servisini başlatır ve API'nin durumunu kontrol eder (`etcd_etkinlestir`).
+
+### Notlar
+
+- **Bağımlılıklar**:
+  - Scriptler, diğer yardımcı script dosyalarına bağımlıdır:
+    - `argument_parser.sh`: Kullanıcıdan gelen argümanları işler.
+    - `general_functions.sh`: Genel yardımcı fonksiyonları sağlar (örneğin, `check_success`, `check_user_exists`, `set_permissions` gibi).
+- **Değişkenler**:
+  - `$ETCD_CONFIG_DIR`: etcd konfigürasyon dosyalarının bulunduğu dizin (`/etc/etcd`).
+  - `$ETCD_CONFIG_FILE`: etcd ana konfigürasyon dosyasının tam yolu.
+  - `$DATA_DIR`: etcd'nin veri depolama dizini.
+  - `$ETCD_USER`: etcd servisini çalıştıracak kullanıcı adı (`etcd`).
+  - `$ETCD_IP`, `$ETCD_CLIENT_PORT`, `$ETCD_PEER_PORT`: etcd'nin dinleyeceği IP adresi ve portlar.
+  - `$ETCD_NAME`: etcd node adı.
+  - `$CLUSTER_TOKEN`, `$CLUSTER_STATE`: etcd cluster bilgileri.
+  - `$ELECTION_TIMEOUT`, `$HEARTBEAT_INTERVAL`: etcd zaman aşımı ayarları.
+- **Yapılandırma Dosyası**:
+  - etcd için oluşturulan `etcd.conf.yml` dosyası, etcd servisinin çalışma parametrelerini belirler.
+- **Servis Yönetimi**:
+  - etcd servisi, sistem servis yöneticisi aracılığıyla (`service etcd start/stop/status`) kontrol edilir.
+  - Servisin başarıyla başlatılıp başlatılmadığı ve API'nin çalışıp çalışmadığı kontrol edilir.
+
+### Kullanım
+
+- **Script'i Çalıştırma**:
+
+  ```bash
+  ./create_etcd.sh [ARGÜMANLAR]
+    ```
+- **Örnek Argümanlar:**
+    - --etcd-ip: etcd sunucusunun dinleyeceği IP adresi.
+    - --etcd-name: etcd node adı.
+    - --data-dir: etcd veri dizini.
+    - --etcd-client-port: etcd istemci portu.
+    - --etcd-peer-port: etcd peer portu.
+    - Diğer gerekli argümanlar argument_parser.sh tarafından yönetilir.
+
+- **Gereksinimler:**
+    * Scriptlerin başarılı bir şekilde çalışması için gerekli paketlerin ve izinlerin sağlanması gerekir.
+    * etcd kullanıcısının sistemde mevcut olması gerekir; yoksa oluşturulmalıdır.
+    * Scriptler Ubuntu/Debian tabanlı sistemler için tasarlanmıştır.
+
+</details>
+
+
 # keepalived
 Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
 
