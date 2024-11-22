@@ -4,14 +4,14 @@
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Diğer scriptleri import etme
-source "$SCRIPT_DIR/argument_parser.sh"
+source "$SCRIPT_DIR/../argument_parser.sh"
 source "$SCRIPT_DIR/user_management.sh"
 source "$SCRIPT_DIR/logging.sh"
 source "$SCRIPT_DIR/keepalived_setup.sh"
 source "$SCRIPT_DIR/container_scripts.sh"
 
 # Ana akış
-parse_arguments "$@"
+check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
 create_keepalived_user
 setup_container_log $SQL_CONTAINER
 setup_container_log $DNS_CONTAINER

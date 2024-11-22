@@ -60,7 +60,7 @@ _--dns-virtual-ip :_ DNS sanal IP adresi (Varsayılan: 10.207.80.30)
 _--priority :_ Öncelik değeri (Varsayılan: 100)
 _--state : Durum (MASTER/BACKUP) (Varsayılan: BACKUP)
 _--sql-container :_ SQL konteyner adı (Varsayılan: sql_container)
-_--dns-container :\* DNS konteyner adı (Varsayılan: dns_container)
+_--dns-container :_ DNS konteyner adı (Varsayılan: dns_container)
 
 ## Örnek Kullanım
 

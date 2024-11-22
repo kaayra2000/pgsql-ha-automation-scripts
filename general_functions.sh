@@ -10,8 +10,8 @@ check_and_parse_arguments() {
         parse_all_arguments "$@"
     else
         echo "Argüman dosyası bulundu: $ARGUMENT_CFG_FILE"
-        read_arguments "$ARGUMENT_CFG_FILE"
     fi
+    read_arguments "$ARGUMENT_CFG_FILE"
 }
 
 # Argümanları dosyadan oku ve export et
