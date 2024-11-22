@@ -111,14 +111,14 @@ Bu script, diğer bash scriptlerinde kullanılmak üzere genel amaçlı yardımc
 
 ### Fonksiyonlar
 
-#### check_and_parse_arguments
+#### parse_and_read_arguments
 
 ```bash
-check_and_parse_arguments() {
-    # Argüman dosyasının varlığını kontrol eder ve gerekli fonksiyonları çağırır
+parse_and_read_arguments() {
+    # Argümanları parçalar, dosyaya yazar ve dosyadan okur
 }
 ```
-* **Amaç:** Argüman dosyasının varlığını kontrol eder. Eğer dosya yoksa, argümanları parse eder ve gerekli işlemleri yapar. Ardından, argümanları dosyadan okuyarak ortam değişkenleri olarak ayarlar.
+* **Amaç:** Verilen argümanları parse ederek `_arguments.cfg_` dosyasına yazar ve dosyadan okur.
 
 #### read_arguments
 
@@ -237,7 +237,7 @@ set_permissions "kullaniciadi" "/var/www" "755"
 
 * Dikkat edilmesi gereken noktalar:
   * Fonksiyonlar hata durumunda genellikle bir hata mesajı yazdırır ve scriptin çalışmasını exit 1 ile sonlandırır.
-  * check_and_parse_arguments fonksiyonu, argüman dosyasının varlığını kontrol eder ve argümanları parse eder. Bu fonksiyonun doğru çalışması için gerekli parametrelerin doğru sırada ve eksiksiz verilmesi gerekir.
+  * parse_and_read_arguments fonksiyonu, argümanları dosyaya yazdığı için scriptin başında çağrılmalıdır.
   * set_permissions ve check_user_exists fonksiyonları, sistem üzerinde değişiklik yapar ve uygun yetkilere ihtiyaç duyabilir.
 
 </details>
@@ -405,7 +405,7 @@ Bu script seti, **HAProxy** servisinin kurulumu, yapılandırılması ve başlat
        - `haproxy_setup.sh`: HAProxy kurulumu ve yapılandırma fonksiyonlarını içerir.
        - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
        - `general_functions.sh`: Genel amaçlı yardımcı fonksiyonları içerir.
-     - `check_and_parse_arguments` fonksiyonunu çağırarak kullanıcının verdiği argümanları kontrol eder ve parse eder.
+     - `parse_and_read_arguments` fonksiyonunu çağırarak kullanıcının verdiği argümanları kontrol eder ve parse eder.
      - Aşağıdaki fonksiyonları sırasıyla çağırır:
        - `ha_proxy_kur`: HAProxy paketini kurar.
        - `ha_proxy_konfigure_et`: HAProxy yapılandırma dosyasını oluşturur.
@@ -485,7 +485,7 @@ Bu script seti, **etcd** servisinin kurulumu, yapılandırılması ve başlatıl
        - `etcd_setup.sh`: etcd'nin kurulumu ve yapılandırılması için fonksiyonları içerir.
        - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
        - `general_functions.sh`: Genel amaçlı yardımcı fonksiyonları içerir.
-     - `check_and_parse_arguments` fonksiyonunu çağırarak kullanıcının verdiği argümanları kontrol eder ve parse eder.
+     - `parse_and_read_arguments` fonksiyonunu çağırarak kullanıcının verdiği argümanları kontrol eder ve parse eder.
      - Kullanıcı tarafından belirtilen veya varsayılan değerlerin kullanıldığı değişkenleri kontrol eder ve gerekli dizinlerin mevcut olup olmadığını kontrol eder; yoksa oluşturur.
      - `check_user_exists` fonksiyonu ile etcd için gerekli kullanıcının sistemde mevcut olup olmadığını kontrol eder.
      - Dizinlerin ve konfigürasyon dosyalarının sahipliğini ve izinlerini ayarlar:

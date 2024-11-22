@@ -2,15 +2,8 @@
 HELP_CODE=2
 
 # Argüman dosyasının varlığını kontrol edip gerekli fonksiyonları çağıran fonksiyon
-check_and_parse_arguments() {
-    local ARGUMENT_CFG_FILE="$1"
-    shift 1
-    if [ -z "$ARGUMENT_CFG_FILE" ] || [ ! -f "$ARGUMENT_CFG_FILE" ]; then
-        echo "Argüman dosyası bulunamadı veya belirtilmedi. Argümanlar parse ediliyor..."
-        parse_all_arguments "$@"
-    else
-        echo "Argüman dosyası bulundu: $ARGUMENT_CFG_FILE"
-    fi
+parse_and_read_arguments() {
+    parse_all_arguments "$@"
     read_arguments "$ARGUMENT_CFG_FILE"
 }
 

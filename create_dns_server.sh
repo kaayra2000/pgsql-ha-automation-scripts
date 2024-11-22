@@ -103,7 +103,7 @@ EOF
 
 # Ana script
 
-check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
+parse_and_read_arguments "$@"
 
 install_bind9
 configure_bind9

@@ -32,7 +32,7 @@ run_container() {
         && $SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME \
         && while true; do sleep 30; done"
 }
-check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
+parse_and_read_arguments "$@"
 cd ..
 create_image "$IMAGE_NAME" "$DOCKERFILE_PATH" "$DOCKERFILE_NAME" "$SCRIPT_DIR/.."
 cd $SCRIPT_DIR

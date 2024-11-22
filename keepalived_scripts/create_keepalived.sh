@@ -11,7 +11,7 @@ source "$SCRIPT_DIR/keepalived_setup.sh"
 source "$SCRIPT_DIR/container_scripts.sh"
 
 # Ana akış
-check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
+parse_and_read_arguments "$@"
 create_keepalived_user
 setup_container_log $SQL_CONTAINER
 setup_container_log $DNS_CONTAINER

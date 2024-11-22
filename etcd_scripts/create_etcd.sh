@@ -7,7 +7,7 @@ source $SCRIPT_DIR/../general_functions.sh
 ETCD_CONFIG_DIR="/etc/etcd"
 ETCD_CONFIG_FILE="$ETCD_CONFIG_DIR/etcd.conf.yml"
 ETCD_USER="etcd"
-check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
+parse_and_read_arguments "$@"
 # Sayısal değer kontrolü
 # Dizin kontrolü
 if ! check_directory "$DATA_DIR"; then

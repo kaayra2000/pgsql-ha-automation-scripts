@@ -30,7 +30,7 @@ run_container() {
 # Ana fonksiyon
 main() {
     # burada kullanıcıdan alınan argümanlar varsayılan argümanları ezeceği için problem yok
-    check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
+    parse_and_read_arguments "$@"
     create_image $IMAGE_NAME $DOCKERFILE_PATH $DOCKERFILE_NAME "$SCRIPT_DIR/.."
     check_success "Docker imajı oluşturulurken hata oluştu"
     run_container

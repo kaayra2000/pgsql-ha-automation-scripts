@@ -9,7 +9,7 @@ DATA_DIR="/data"
 PATRONI_DIR="$DATA_DIR/patroni"
 POSTGRES_USER="postgres"
 
-check_and_parse_arguments $ARGUMENT_CFG_FILE "$@"
+parse_and_read_arguments "$@"
 
 
 if ! check_directory "$PATRONI_DIR"; then
