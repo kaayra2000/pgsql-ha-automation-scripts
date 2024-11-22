@@ -573,6 +573,130 @@ Bu script seti, **etcd** servisinin kurulumu, yapılandırılması ve başlatıl
 
 </details>
 
+<details>
+
+<summary><strong>docker_scripts</strong></summary>
+
+Bu script seti, Docker imajları ve konteynerleri oluşturmak, yapılandırmak ve çalıştırmak için gerekli fonksiyonları ve yardımcı scriptleri içerir. Bu scriptler aracılığıyla, DNS ve SQL hizmetleri için özel Docker konteynerleri oluşturabilir ve yönetebilirsiniz.
+
+### İçerikler
+
+1. **docker_dns.sh**
+
+   - **Amaç**: DNS hizmeti için Docker imajı oluşturur ve konteyneri çalıştırır.
+   - **İşlevleri**:
+     - Gerekli scriptleri ve değişkenleri dahil eder:
+       - `create_image.sh`: Docker imajı oluşturmak için fonksiyonları içerir.
+       - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
+       - `default_variables.sh`, `general_functions.sh`: Genel amaçlı değişkenleri ve fonksiyonları içerir.
+     - Varsayılan değerleri ve sabitleri tanımlar:
+       - `DNS_PORT`, `HOST_PORT`: DNS hizmeti için konteyner içi ve host port numaraları.
+       - `DOCKERFILE_PATH`, `DOCKERFILE_NAME`: Dockerfile'ın yolu ve adı.
+       - `DNS_CONTAINER`, `IMAGE_NAME`: Docker konteyneri ve imajı için isimler.
+       - `SHELL_SCRIPT_NAME`: Konteyner içinde çalıştırılacak scriptin adı (`create_dns_server.sh`).
+     - `dns_parser` fonksiyonu ile kullanıcıdan gelen argümanları işler.
+     - `create_image` fonksiyonunu çağırarak DNS hizmeti için Docker imajını oluşturur.
+     - `run_container` fonksiyonu ile Docker konteynerini çalıştırır.
+       - Konteyner çalıştırılırken gerekli port yönlendirmelerini ve yetkileri ayarlar.
+       - Konteyner içinde DNS sunucusunu ve Keepalived'i başlatır.
+   
+2. **docker_sql.sh**
+
+   - **Amaç**: SQL (PostgreSQL) ve HAProxy hizmetleri için Docker imajı oluşturur ve konteyneri çalıştırır.
+   - **İşlevleri**:
+     - Gerekli scriptleri ve değişkenleri dahil eder:
+       - `create_image.sh`: Docker imajı oluşturmak için fonksiyonları içerir.
+       - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
+       - `default_variables.sh`, `general_functions.sh`: Genel amaçlı değişkenleri ve fonksiyonları içerir.
+     - Varsayılan değerleri ve sabitleri tanırlar:
+       - `HAPROXY_PORT`, `HOST_PORT`: HAProxy için konteyner içi ve host port numaraları.
+       - `DOCKERFILE_PATH`, `DOCKERFILE_NAME`: Dockerfile'ın yolu ve adı.
+       - `SQL_CONTAINER`, `IMAGE_NAME`: Docker konteyneri ve imajı için isimler.
+       - `HAPROXY_SCRIPT_FOLDER`, `HAPROXY_SCRIPT_NAME`: Konteyner içinde çalıştırılacak HAProxy scriptinin yolu ve adı.
+       - `ETCD_SCRIPT_FOLDER`, `ETCD_SCRIPT_NAME`: Konteyner içinde çalıştırılacak etcd scriptinin yolu ve adı.
+     - `parse_all_arguments` fonksiyonu ile kullanıcıdan gelen argümanları işler.
+     - `create_image` fonksiyonunu çağırarak SQL ve HAProxy hizmetleri için Docker imajını oluşturur.
+     - `run_container` fonksiyonu ile Docker konteynerini çalıştırır.
+       - Konteyner çalıştırılırken gerekli port yönlendirmelerini ve yetkileri ayarlar.
+       - Konteyner içinde etcd ve HAProxy servislerini başlatır.
+
+3. **create_image.sh**
+
+   - **Amaç**: Belirtilen Dockerfile ve bağlam (context) kullanılarak Docker imajı oluşturur.
+   - **İşlevleri**:
+     - `create_image` fonksiyonu ile Docker imajının mevcut olup olmadığını kontrol eder.
+     - İmaj mevcutsa, kullanıcıya yeniden oluşturmak isteyip istemediğini sorar.
+     - Docker imajını oluşturur veya yeniden oluşturur.
+     - Oluşturma işlemi sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bildirir.
+
+4. **argument_parser.sh**
+
+   - **Amaç**: Docker scriptleri için kullanıcıdan gelen argümanları parse eder ve doğrular.
+   - **İşlevleri**:
+     - `dns_parser` ve `sql_parser` fonksiyonları ile ilgili argümanları işler.
+       - Argümanları varsayılan değerlerle birleştirir.
+       - Argümanların geçerliliğini kontrol eder (örneğin, port numaralarının doğruluğu).
+     - `process_argument` ve `parse_arguments` yardımcı fonksiyonları ile genel argüman işleme işlemlerini gerçekleştirir.
+     - Yardım mesajlarını gösterir ve kullanıcının doğru şekilde yönlendirilmesini sağlar.
+
+### Genel Akış
+
+- **DNS Hizmeti için**:
+  - `docker_dns.sh` scripti çalıştırılır.
+  - Kullanıcıdan gelen argümanlar parse edilir.
+  - Docker imajı oluşturulur (`dns_image`).
+  - Docker konteyneri başlatılır (`dns_container`), gerekli servisler çalıştırılır.
+
+- **SQL ve HAProxy Hizmeti için**:
+  - `docker_sql.sh` scripti çalıştırılır.
+  - Kullanıcıdan gelen argümanlar parse edilir.
+  - Docker imajı oluşturulur (`sql_image`).
+  - Docker konteyneri başlatılır (`sql_container`), etcd ve HAProxy servisleri çalıştırılır.
+
+### Notlar
+
+- **Bağımlılıklar**:
+  - Bu scriptler, diğer yardımcı script dosyalarına ve Dockerfile'lara bağımlıdır.
+  - `create_image.sh` genel amaçlı Docker imajı oluşturma fonksiyonlarını içerir ve diğer scriptler tarafından kullanılır.
+  - `argument_parser.sh` kullanıcı argümanlarını işlemek için kullanılır ve scriptlerin esnekliğini artırır.
+
+- **Değişkenler ve Sabitler**:
+  - Scriptler içinde kullanılan port numaraları, konteyner ve imaj isimleri gibi değerler tanımlanmıştır ve gerektiğinde kullanıcı argümanları ile değiştirilebilir.
+
+- **Güvenlik ve Yetkiler**:
+  - Docker konteynerleri çalıştırılırken `--privileged` ve `--cap-add=NET_ADMIN` gibi seçenekler kullanılır.
+  - Bu nedenle, scriptleri çalıştırırken dikkatli olunmalı ve gerekli izinlere sahip olunduğundan emin olunmalıdır.
+
+- **Konteyner İçindeki İşlemler**:
+  - Konteynerler başlatıldığında, ilgili servisleri çalıştırmak için belirli scriptler çağrılır.
+  - Örneğin, `docker_dns.sh` içinde `create_dns_server.sh` scripti konteyner içinde çalıştırılır ve DNS sunucusu kurulur.
+
+- **Loglama ve Hata Yönetimi**:
+  - `check_success` fonksiyonu ile her adımın başarılı olup olmadığı kontrol edilir.
+  - Oluşabilecek hatalar kullanıcıya bildirilir ve gerekli önlemler alınabilir.
+
+### Kullanım
+
+- **DNS Hizmeti için**:
+
+  ```bash
+  ./docker_dns.sh [--host-port <HOST_PORT>] [--dns-port <DNS_PORT>]
+    ```
+
+- **SQL ve HAProxy Hizmeti için**:
+    
+    ```bash
+    ./docker_sql.sh [--host-port <HOST_PORT>] [--haproxy-port <HAPROXY_PORT>]
+    ```
+    - --host-port: Host üzerinde yönlendirilecek port (varsayılan: 8404).
+    - --haproxy-port: HAProxy hizmetinin dinleyeceği port (varsayılan: 8404).
+- **Örnek**:
+    ```bash
+    ./docker_dns.sh --host-port 1053 --dns-port 53
+    ./docker_sql.sh --host-port 8500 --haproxy-port 8404
+    ```
+
+</details>
 
 # keepalived
 Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
