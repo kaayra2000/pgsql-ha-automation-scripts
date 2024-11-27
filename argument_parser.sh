@@ -31,7 +31,7 @@ parse_all_arguments() {
 
         # DNS Argümanları
         "DNS_PORT"                  "--dns-port"                         "$DEFAULT_DNS_PORT"                    "DNS portu"
-        "DOCKER_FORWARD_PORT"       "--docker-forward-port"              "$DEFAULT_DOCKER_FORWARD_PORT"         "Docker'a yönlendirilecek port"
+        "DNS_DOCKER_FORWARD_PORT"   "--dns-docker-forward-port"          "$DEFAULT_DNS_DOCKER_FORWARD_PORT"     "Docker'a yönlendirilecek port"
 
         # Patroni Argümanları
         "NODE_NAME"                 "--node-name"                        "$DEFAULT_NODE_NAME"                   "Düğüm adı"
