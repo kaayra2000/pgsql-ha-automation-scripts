@@ -6,10 +6,10 @@ source "$ROOT_DIR/default_variables.sh"
 source "$ROOT_DIR/general_functions.sh"
 ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 
-# Argümanları işleyen ana fonksiyon
-parse_all_arguments() {
+# Argümanları tanımlayan fonksiyon
+define_arguments() {
     # Argümanları bir dizide tanımla
-    declare -a ARGUMENTS=(
+    ARGUMENTS=(
         # Anahtar                   Komut Satırı Argümanı                Varsayılan Değer                       Yardım Açıklaması
 
         # HAProxy Argümanları
@@ -34,7 +34,7 @@ parse_all_arguments() {
         "DNS_DOCKER_FORWARD_PORT"   "--dns-docker-forward-port"          "$DEFAULT_DNS_DOCKER_FORWARD_PORT"     "Docker'a yönlendirilecek port"
 
         # Patroni Argümanları
-        "PATRONI_NODE_NAME"         "--patroni-node-name"                "$DEFAULT_PATRONI_NODE_NAME"                   "Düğüm adı"
+        "PATRONI_NODE_NAME"         "--patroni-node-name"                "$DEFAULT_PATRONI_NODE_NAME"           "Düğüm adı"
         "ETCD_IP"                   "--etcd-ip"                          "$DEFAULT_ETCD_IP"                     "ETCD IP adresi"
         "REPLIKATOR_KULLANICI_ADI"  "--replicator-username"              "$DEFAULT_REPLIKATOR_KULLANICI_ADI"    "Replikasyon kullanıcı adı"
         "REPLICATOR_SIFRESI"        "--replicator-password"              "$DEFAULT_REPLICATOR_SIFRESI"          "Replikasyon şifresi"
@@ -45,23 +45,27 @@ parse_all_arguments() {
         "ETCD_CLIENT_PORT"          "--etcd-client-port"                 "$DEFAULT_ETCD_CLIENT_PORT"            "ETCD istemci portu"
         "ETCD_PEER_PORT"            "--etcd-peer-port"                   "$DEFAULT_ETCD_PEER_PORT"              "ETCD eşler arası port"
         "ETCD_CLUSTER_TOKEN"        "--etcd-cluster-token"               "$DEFAULT_ETCD_CLUSTER_TOKEN"          "Küme belirteci"
-        "ETCD_CLUSTER_KEEPALIVED_STATE"        "--etcd-cluster-state"               "$DEFAULT_ETCD_CLUSTER_KEEPALIVED_STATE"          "Küme durumu (new/existing)"
+        "ETCD_CLUSTER_KEEPALIVED_STATE" "--etcd-cluster-state"           "$DEFAULT_ETCD_CLUSTER_KEEPALIVED_STATE" "Küme durumu (new/existing)"
         "ETCD_NAME"                 "--etcd-name"                        "$DEFAULT_ETCD_NAME"                   "ETCD düğüm adı"
         "ETCD_ELECTION_TIMEOUT"     "--etcd-election-timeout"            "$DEFAULT_ETCD_ELECTION_TIMEOUT"       "Seçim zaman aşımı"
         "ETCD_HEARTBEAT_INTERVAL"   "--etcd-heartbeat-interval"          "$DEFAULT_ETCD_HEARTBEAT_INTERVAL"     "Nabız aralığı"
         "ETCD_DATA_DIR"             "--etcd-data-dir"                    "$DEFAULT_ETCD_DATA_DIR"               "Veri dizini"
     )
+}
 
-    # Yapılandırma için ilişkisel dizi oluştur ve varsayılan değerlerle başlat
-    declare -A config
+# Config değişkenini varsayılan değerlerle başlatan fonksiyon
+initialize_config() {
+    declare -gA config
     local arg_count=${#ARGUMENTS[@]}
-    for ((i=0; i<$arg_count; i+=4)); do
+    for ((i=0; i<arg_count; i+=4)); do
         local key="${ARGUMENTS[i]}"
         local default_value="${ARGUMENTS[i+2]}"
         config["$key"]="$default_value"
     done
+}
 
-    # Eğer ARGUMENT_CFG_FILE dosyası varsa, içindeki değerleri oku ve config dizisini güncelle
+# Mevcut yapılandırma dosyasını okuyan fonksiyon
+read_config_file() {
     if [ -f "$ARGUMENT_CFG_FILE" ]; then
         while IFS='=' read -r key value; do
             # Sadece tanımlanan anahtarları güncelle
@@ -70,8 +74,11 @@ parse_all_arguments() {
             fi
         done < "$ARGUMENT_CFG_FILE"
     fi
+}
 
-    # Argümanları işle ve config dizisini güncelle
+# Komut satırı argümanlarını işleyen fonksiyon
+process_command_line_arguments() {
+    local arg_count=${#ARGUMENTS[@]}
     while [[ $# -gt 0 ]]; do
         case $1 in
             -h|--help)
@@ -80,7 +87,7 @@ parse_all_arguments() {
                 ;;
             *)
                 local found=false
-                for ((i=0; i<$arg_count; i+=4)); do
+                for ((i=0; i<arg_count; i+=4)); do
                     local key="${ARGUMENTS[i]}"
                     local flag="${ARGUMENTS[i+1]}"
                     if [ "$1" == "$flag" ]; then
@@ -97,83 +104,131 @@ parse_all_arguments() {
                 ;;
         esac
     done
+}
 
-    # Değişkenleri yapılandırma dosyasına yaz
-    > "$ARGUMENT_CFG_FILE"  # Dosyayı temizle veya oluştur
+# Config değişkenini yapılandırma dosyasına yazan fonksiyon
+write_config_to_file() {
     for key in "${!config[@]}"; do
-        echo "$key=${config[$key]}" >> "$ARGUMENT_CFG_FILE"
+        update_config_file "$key" "$ARGUMENT_CFG_FILE" "${config[$key]}"
     done
+}
+
+# Anahtarın dosyada olup olmadığını kontrol eden fonksiyon
+key_exists_in_file() {
+    local key="$1"
+    local filename="$2"
+
+    if grep -q "^$key=" "$filename"; then
+        return 0  # Anahtar bulundu
+    else
+        return 1  # Anahtar bulunamadı
+    fi
+}
+
+# Anahtar değeri yapılandırma dosyasına ekleyen veya güncelleyen fonksiyon
+update_config_file() {
+    local key="$1"
+    local filename="$2"
+    local value="$3"
+
+    # Eğer dosya yoksa, oluştur
+    touch "$filename"
+
+    if key_exists_in_file "$key" "$filename"; then
+        # Anahtar mevcut, değeri güncelle
+        sed -i "s|^$key=.*|$key=$value|" "$filename"
+    else
+        # Anahtar yok, dosyanın sonuna ekle
+        echo "$key=$value" >> "$filename"
+    fi
+}
+
+# Tüm işlemleri yürüten ana fonksiyon
+parse_all_arguments() {
+    define_arguments
+    initialize_config
+    read_config_file
+    process_command_line_arguments "$@"
+    write_config_to_file
     write_constants_to_file
 }
 
 
-write_constants_to_file() {
-    # Tüm sabitleri bir diziye atıyoruz
-    constants=("SQL_DOCKERFILE_NAME=docker_sql"
-               "SQL_IMAGE_NAME=sql_image"
-               "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"
-               "HAPROXY_SCRIPT_NAME=create_haproxy.sh"
-               "ETCD_SCRIPT_FOLDER=etcd_scripts"
-               "ETCD_SCRIPT_NAME=create_etcd.sh"
-               "DOCKERFILE_PATH=../docker_files"
-               "DNS_DOCKERFILE_NAME=docker_dns"
-               "DNS_IMAGE_NAME=dns_image"
-               "DNS_SHELL_SCRIPT_NAME=create_dns_server.sh"
-               "ETCD_CONFIG_DIR=/etc/etcd"
-               "ETCD_CONFIG_FILE=$ETCD_CONFIG_DIR/etcd.conf.yml"
-               "ETCD_USER=etcd"
-               "PATRONI_DATA_DIR=/data"
-               "PATRONI_DIR=$PATRONI_DATA_DIR/patroni"
-               "POSTGRES_USER=postgres"
+# Sabitleri tanımlayan fonksiyon
+define_constants() {
+    constants=(
+        "SQL_DOCKERFILE_NAME=docker_sql"
+        "SQL_IMAGE_NAME=sql_image"
+        "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"
+        "HAPROXY_SCRIPT_NAME=create_haproxy.sh"
+        "ETCD_SCRIPT_FOLDER=etcd_scripts"
+        "ETCD_SCRIPT_NAME=create_etcd.sh"
+        "DOCKERFILE_PATH=../docker_files"
+        "DNS_DOCKERFILE_NAME=docker_dns"
+        "DNS_IMAGE_NAME=dns_image"
+        "DNS_SHELL_SCRIPT_NAME=create_dns_server.sh"
+        "ETCD_CONFIG_DIR=/etc/etcd"
+        "ETCD_CONFIG_FILE=$ETCD_CONFIG_DIR/etcd.conf.yml"
+        "ETCD_USER=etcd"
+        "PATRONI_DATA_DIR=/data"
+        "PATRONI_DIR=$PATRONI_DATA_DIR/patroni"
+        "POSTGRES_USER=postgres"
     )
+}
 
-    cfg_file=$ARGUMENT_CFG_FILE
-    overwrite_all=false
-    question_asked=false
-    constants_present=false
+# Sabitleri yapılandırma dosyasına yazan fonksiyon
+write_constants_to_file() {
+    local cfg_file="$ARGUMENT_CFG_FILE"
 
-    # Dosya yoksa, tüm sabitleri yaz
+    define_constants
+
+    # Eğer dosya yoksa, tüm sabitleri yaz
     if [ ! -f "$cfg_file" ]; then
-        printf "%s\n" "${constants[@]}" > "$cfg_file"
+        for const in "${constants[@]}"; do
+            key=$(echo "$const" | cut -d'=' -f1)
+            value=$(echo "$const" | cut -d'=' -f2-)
+            echo "$key=$value" >> "$cfg_file"
+        done
         echo "Sabitler \"$cfg_file\" dosyasına yazıldı."
     else
-        # Dosya varsa, sabitlerin dosyada olup olmadığını kontrol et
+        # Dosya varsa, kullanıcıdan üstüne yazma izni al
+        local overwrite_all=false
+        local constants_present=false
+
         for const in "${constants[@]}"; do
-            name=$(echo "$const" | cut -d'=' -f1)
-            if grep -q "^$name=" "$cfg_file"; then
+            key=$(echo "$const" | cut -d'=' -f1)
+            if key_exists_in_file "$key" "$cfg_file"; then
                 constants_present=true
                 break
             fi
         done
 
-        if $constants_present && ! $question_asked; then
-            read -p "Bazı sabitler zaten mevcut. Üstlerine yazılsın mı? (e/h/y/n): " cevap
-            if [[ "$cevap" =~ ^[eEyY]$ ]]; then
+        if $constants_present; then
+            read -p "Bazı sabitler zaten mevcut. Üstlerine yazılsın mı? (e/h): " cevap
+            if [[ "$cevap" =~ ^[eE]$ ]]; then
                 overwrite_all=true
-            elif [[ "$cevap" =~ ^[hHnN]$ ]]; then
+            elif [[ "$cevap" =~ ^[hH]$ ]]; then
                 overwrite_all=false
             else
                 echo "Geçersiz giriş, varsayılan olarak 'hayır' seçildi."
                 overwrite_all=false
             fi
-            question_asked=true
         else
             overwrite_all=true
         fi
 
         # Her sabiti işleyelim
         for const in "${constants[@]}"; do
-            name=$(echo "$const" | cut -d'=' -f1)
+            key=$(echo "$const" | cut -d'=' -f1)
             value=$(echo "$const" | cut -d'=' -f2-)
-            if grep -q "^$name=" "$cfg_file"; then
+            if key_exists_in_file "$key" "$cfg_file"; then
                 if $overwrite_all; then
-                    # Sabiti güncelle
-                    sed -i "s|^$name=.*|$name=$value|" "$cfg_file"
+                    update_config_file "$key" "$cfg_file" "$value"
                 fi
                 # overwrite_all false ise, hiçbir şey yapma
             else
                 # Sabit dosyada yoksa, ekle
-                echo "$name=$value" >> "$cfg_file"
+                echo "$key=$value" >> "$cfg_file"
             fi
         done
 
