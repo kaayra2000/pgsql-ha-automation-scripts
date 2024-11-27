@@ -17,7 +17,7 @@ if ! check_user_exists "$POSTGRES_USER"; then
     exit 1
 fi
 
-sudo chown -R $POSTGRES_USER:$POSTGRES_USER $DATA_DIR
+sudo chown -R $POSTGRES_USER:$POSTGRES_USER $PATRONI_DATA_DIR
 check_success "Dizin sahipliği değiştirilirken bir hata oluştu."
 
 sudo chmod -R 700 $PATRONI_DIR

@@ -48,7 +48,7 @@ ETCD_IP=10.207.80.20
 PATRONI_NODE_NAME=pg_node1
 PGSQL_PORT=5432
 ETCD_CLUSTER_KEEPALIVED_STATE=new
-DATA_DIR=/var/lib/etcd/default
+ETCD_DATA_DIR=/var/lib/etcd/default
 ETCD_CLUSTER_TOKEN=cluster1
 ETCD_PEER_PORT=2380
 PGSQL_BIND_PORT=5000
@@ -285,7 +285,7 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
   - `DEFAULT_ETCD_NAME`: ETCD node adı. Varsayılan değer: `"etcd1"`
   - `DEFAULT_ETCD_ELECTION_TIMEOUT`: ETCD seçim zaman aşımı değeri (ms). Varsayılan değer: `"5000"`
   - `DEFAULT_ETCD_HEARTBEAT_INTERVAL`: ETCD kalp atışı aralığı (ms). Varsayılan değer: `"1000"`
-  - `DEFAULT_DATA_DIR`: ETCD veri dizini yolu. Varsayılan değer: `"/var/lib/etcd/default"`
+  - `DEFAULT_ETCD_DATA_DIR`: ETCD veri dizini yolu. Varsayılan değer: `"/var/lib/etcd/default"`
 
 - **Docker Değişkenleri**:
   - `SHELL_PATH_IN_DOCKER`: Docker container içinde shell komutlarının bulunduğu dizin. Varsayılan değer: `"/usr/local/bin"`
@@ -489,7 +489,7 @@ Bu script seti, **etcd** servisinin kurulumu, yapılandırılması ve başlatıl
      - Kullanıcı tarafından belirtilen veya varsayılan değerlerin kullanıldığı değişkenleri kontrol eder ve gerekli dizinlerin mevcut olup olmadığını kontrol eder; yoksa oluşturur.
      - `check_user_exists` fonksiyonu ile etcd için gerekli kullanıcının sistemde mevcut olup olmadığını kontrol eder.
      - Dizinlerin ve konfigürasyon dosyalarının sahipliğini ve izinlerini ayarlar:
-       - `set_permissions` fonksiyonu ile `$DATA_DIR` ve `$ETCD_CONFIG_DIR` dizinlerinin sahipliğini ve izinlerini etcd kullanıcısına göre ayarlar.
+       - `set_permissions` fonksiyonu ile `$ETCD_DATA_DIR` ve `$ETCD_CONFIG_DIR` dizinlerinin sahipliğini ve izinlerini etcd kullanıcısına göre ayarlar.
      - etcd kurulumu ve yapılandırmasını gerçekleştirir:
        - `etcd_kur` fonksiyonu ile etcd paketini kurar.
        - `etcd_konfigure_et` fonksiyonu ile etcd konfigürasyon dosyasını oluşturur.
@@ -539,7 +539,7 @@ Bu script seti, **etcd** servisinin kurulumu, yapılandırılması ve başlatıl
 - **Değişkenler**:
   - `$ETCD_CONFIG_DIR`: etcd konfigürasyon dosyalarının bulunduğu dizin (`/etc/etcd`).
   - `$ETCD_CONFIG_FILE`: etcd ana konfigürasyon dosyasının tam yolu.
-  - `$DATA_DIR`: etcd'nin veri depolama dizini.
+  - `$ETCD_DATA_DIR`: etcd'nin veri depolama dizini.
   - `$ETCD_USER`: etcd servisini çalıştıracak kullanıcı adı (`etcd`).
   - `$ETCD_IP`, `$ETCD_CLIENT_PORT`, `$ETCD_PEER_PORT`: etcd'nin dinleyeceği IP adresi ve portlar.
   - `$ETCD_NAME`: etcd node adı.

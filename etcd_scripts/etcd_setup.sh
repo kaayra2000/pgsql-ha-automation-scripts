@@ -13,7 +13,7 @@ etcd_konfigure_et() {
     cat <<EOF | sudo tee $ETCD_CONFIG_FILE
 # etcd.conf.yml
 name: '$ETCD_NAME'
-data-dir: '$DATA_DIR'
+data-dir: '$ETCD_DATA_DIR'
 
 # Tüm interface'lerden dinle
 listen-peer-urls: 'http://0.0.0.0:$ETCD_PEER_PORT'

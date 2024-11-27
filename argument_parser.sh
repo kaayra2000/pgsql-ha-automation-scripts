@@ -49,7 +49,7 @@ parse_all_arguments() {
         "ETCD_NAME"                 "--etcd-name"                        "$DEFAULT_ETCD_NAME"                   "ETCD düğüm adı"
         "ETCD_ELECTION_TIMEOUT"     "--etcd-election-timeout"            "$DEFAULT_ETCD_ELECTION_TIMEOUT"       "Seçim zaman aşımı"
         "ETCD_HEARTBEAT_INTERVAL"   "--etcd-heartbeat-interval"          "$DEFAULT_ETCD_HEARTBEAT_INTERVAL"     "Nabız aralığı"
-        "ETCD_DATA_DIR"             "--etcd-data-dir"                    "$DEFAULT_DATA_DIR"                    "Veri dizini"
+        "ETCD_DATA_DIR"             "--etcd-data-dir"                    "$DEFAULT_ETCD_DATA_DIR"               "Veri dizini"
     )
 
     # Yapılandırma için ilişkisel dizi oluştur ve varsayılan değerlerle başlat
@@ -122,8 +122,8 @@ write_constants_to_file() {
                "ETCD_CONFIG_DIR=/etc/etcd"
                "ETCD_CONFIG_FILE=$ETCD_CONFIG_DIR/etcd.conf.yml"
                "ETCD_USER=etcd"
-               "DATA_DIR=/data"
-               "PATRONI_DIR=$DATA_DIR/patroni"
+               "PATRONI_DATA_DIR=/data"
+               "PATRONI_DIR=$PATRONI_DATA_DIR/patroni"
                "POSTGRES_USER=postgres"
     )
 
