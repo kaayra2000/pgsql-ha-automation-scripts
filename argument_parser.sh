@@ -51,7 +51,6 @@ parse_all_arguments() {
         "ETCD_HEARTBEAT_INTERVAL"   "--etcd-heartbeat-interval"          "$DEFAULT_ETCD_HEARTBEAT_INTERVAL"     "Nabız aralığı"
         "ETCD_DATA_DIR"             "--etcd-data-dir"                    "$DEFAULT_DATA_DIR"                    "Veri dizini"
     )
-}
 
     # Yapılandırma için ilişkisel dizi oluştur ve varsayılan değerlerle başlat
     declare -A config
