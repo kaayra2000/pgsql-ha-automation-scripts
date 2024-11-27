@@ -103,4 +103,80 @@ parse_all_arguments() {
     for key in "${!config[@]}"; do
         echo "$key=${config[$key]}" >> "$ARGUMENT_CFG_FILE"
     done
+    write_constants_to_file
+}
+
+
+write_constants_to_file() {
+    # Tüm sabitleri bir diziye atıyoruz
+    constants=("SQL_DOCKERFILE_NAME=docker_sql"
+               "SQL_IMAGE_NAME=sql_image"
+               "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"
+               "HAPROXY_SCRIPT_NAME=create_haproxy.sh"
+               "ETCD_SCRIPT_FOLDER=etcd_scripts"
+               "ETCD_SCRIPT_NAME=create_etcd.sh"
+               "DOCKERFILE_PATH=../docker_files"
+               "DNS_DOCKERFILE_NAME=docker_dns"
+               "DNS_IMAGE_NAME=dns_image"
+               "DNS_SHELL_SCRIPT_NAME=create_dns_server.sh"
+               "ETCD_CONFIG_DIR=/etc/etcd"
+               "ETCD_CONFIG_FILE=$ETCD_CONFIG_DIR/etcd.conf.yml"
+               "ETCD_USER=etcd"
+               "DATA_DIR=/data"
+               "PATRONI_DIR=$DATA_DIR/patroni"
+               "POSTGRES_USER=postgres"
+    )
+
+    cfg_file=$ARGUMENT_CFG_FILE
+    overwrite_all=false
+    question_asked=false
+    constants_present=false
+
+    # Dosya yoksa, tüm sabitleri yaz
+    if [ ! -f "$cfg_file" ]; then
+        printf "%s\n" "${constants[@]}" > "$cfg_file"
+        echo "Sabitler \"$cfg_file\" dosyasına yazıldı."
+    else
+        # Dosya varsa, sabitlerin dosyada olup olmadığını kontrol et
+        for const in "${constants[@]}"; do
+            name=$(echo "$const" | cut -d'=' -f1)
+            if grep -q "^$name=" "$cfg_file"; then
+                constants_present=true
+                break
+            fi
+        done
+
+        if $constants_present && ! $question_asked; then
+            read -p "Bazı sabitler zaten mevcut. Üstlerine yazılsın mı? (e/h/y/n): " cevap
+            if [[ "$cevap" =~ ^[eEyY]$ ]]; then
+                overwrite_all=true
+            elif [[ "$cevap" =~ ^[hHnN]$ ]]; then
+                overwrite_all=false
+            else
+                echo "Geçersiz giriş, varsayılan olarak 'hayır' seçildi."
+                overwrite_all=false
+            fi
+            question_asked=true
+        else
+            overwrite_all=true
+        fi
+
+        # Her sabiti işleyelim
+        for const in "${constants[@]}"; do
+            name=$(echo "$const" | cut -d'=' -f1)
+            value=$(echo "$const" | cut -d'=' -f2-)
+            if grep -q "^$name=" "$cfg_file"; then
+                if $overwrite_all; then
+                    # Sabiti güncelle
+                    sed -i "s|^$name=.*|$name=$value|" "$cfg_file"
+                fi
+                # overwrite_all false ise, hiçbir şey yapma
+            else
+                # Sabit dosyada yoksa, ekle
+                echo "$name=$value" >> "$cfg_file"
+            fi
+        done
+
+        echo "Sabitler \"$cfg_file\" dosyasına kaydedildi."
+    fi
 }
