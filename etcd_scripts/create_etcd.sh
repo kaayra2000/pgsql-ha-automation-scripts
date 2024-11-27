@@ -10,7 +10,7 @@ ETCD_USER="etcd"
 parse_and_read_arguments "$@"
 # Sayısal değer kontrolü
 # Dizin kontrolü
-if ! check_directory "$DATA_DIR"; then
+if ! check_directory "$ETCD_DATA_DIR"; then
     exit 1
 fi
 
@@ -25,8 +25,8 @@ if ! check_user_exists "$ETCD_USER"; then
 fi
 
 # Kullanıcı varsa, dizinlerin sahipliğini ve izinlerini ayarla
-if ! set_permissions "$ETCD_USER" "$DATA_DIR" "700"; then
-    echo "Hata: $DATA_DIR için izinler ayarlanamadı."
+if ! set_permissions "$ETCD_USER" "$ETCD_DATA_DIR" "700"; then
+    echo "Hata: $ETCD_DATA_DIR için izinler ayarlanamadı."
     exit 1
 fi
 

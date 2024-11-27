@@ -32,7 +32,7 @@ Dosyanın içeriği şu şekilde olacaktır:
 
 ```bash
 SQL_VIRTUAL_IP=10.207.90.21
-ELECTION_TIMEOUT=5000
+ETCD_ELECTION_TIMEOUT=5000
 NODE2_IP=10.207.80.11
 REPLIKATOR_KULLANICI_ADI=replicator
 PRIORITY=100
@@ -43,13 +43,13 @@ DNS_CONTAINER=dns_1
 ETCD_NAME=etcd1
 POSTGRES_SIFRESI=postgres_pass
 ETCD_CLIENT_PORT=2379
-HEARTBEAT_INTERVAL=1000
+ETCD_HEARTBEAT_INTERVAL=1000
 ETCD_IP=10.207.80.20
 NODE_NAME=pg_node1
 PGSQL_PORT=5432
-CLUSTER_STATE=new
+ETCD_CLUSTER_STATE=new
 DATA_DIR=/var/lib/etcd/default
-CLUSTER_TOKEN=cluster1
+ETCD_CLUSTER_TOKEN=cluster1
 ETCD_PEER_PORT=2380
 POSTGRES_BIND_PORT=5000
 HAPROXY_PORT=8008
@@ -280,11 +280,11 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
   - `DEFAULT_ETCD_IP`: ETCD'nin IP adresi. Varsayılan olarak `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
   - `DEFAULT_ETCD_CLIENT_PORT`: ETCD istemci portu. Varsayılan değer: `"2379"`
   - `DEFAULT_ETCD_PEER_PORT`: ETCD peer portu. Varsayılan değer: `"2380"`
-  - `DEFAULT_CLUSTER_TOKEN`: ETCD cluster token değeri. Varsayılan değer: `"cluster1"`
-  - `DEFAULT_CLUSTER_STATE`: ETCD cluster durumu. Varsayılan değer: `"new"`
+  - `DEFAULT_ETCD_CLUSTER_TOKEN`: ETCD cluster token değeri. Varsayılan değer: `"cluster1"`
+  - `DEFAULT_ETCD_CLUSTER_STATE`: ETCD cluster durumu. Varsayılan değer: `"new"`
   - `DEFAULT_ETCD_NAME`: ETCD node adı. Varsayılan değer: `"etcd1"`
-  - `DEFAULT_ELECTION_TIMEOUT`: ETCD seçim zaman aşımı değeri (ms). Varsayılan değer: `"5000"`
-  - `DEFAULT_HEARTBEAT_INTERVAL`: ETCD kalp atışı aralığı (ms). Varsayılan değer: `"1000"`
+  - `DEFAULT_ETCD_ELECTION_TIMEOUT`: ETCD seçim zaman aşımı değeri (ms). Varsayılan değer: `"5000"`
+  - `DEFAULT_ETCD_HEARTBEAT_INTERVAL`: ETCD kalp atışı aralığı (ms). Varsayılan değer: `"1000"`
   - `DEFAULT_DATA_DIR`: ETCD veri dizini yolu. Varsayılan değer: `"/var/lib/etcd/default"`
 
 - **Docker Değişkenleri**:
@@ -543,8 +543,8 @@ Bu script seti, **etcd** servisinin kurulumu, yapılandırılması ve başlatıl
   - `$ETCD_USER`: etcd servisini çalıştıracak kullanıcı adı (`etcd`).
   - `$ETCD_IP`, `$ETCD_CLIENT_PORT`, `$ETCD_PEER_PORT`: etcd'nin dinleyeceği IP adresi ve portlar.
   - `$ETCD_NAME`: etcd node adı.
-  - `$CLUSTER_TOKEN`, `$CLUSTER_STATE`: etcd cluster bilgileri.
-  - `$ELECTION_TIMEOUT`, `$HEARTBEAT_INTERVAL`: etcd zaman aşımı ayarları.
+  - `$ETCD_CLUSTER_TOKEN`, `$ETCD_CLUSTER_STATE`: etcd cluster bilgileri.
+  - `$ETCD_ELECTION_TIMEOUT`, `$ETCD_HEARTBEAT_INTERVAL`: etcd zaman aşımı ayarları.
 - **Yapılandırma Dosyası**:
   - etcd için oluşturulan `etcd.conf.yml` dosyası, etcd servisinin çalışma parametrelerini belirler.
 - **Servis Yönetimi**:

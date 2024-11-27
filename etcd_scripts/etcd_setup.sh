@@ -24,11 +24,11 @@ initial-advertise-peer-urls: 'http://$ETCD_IP:$ETCD_PEER_PORT'
 advertise-client-urls: 'http://$ETCD_IP:$ETCD_CLIENT_PORT'
 
 initial-cluster: '$ETCD_NAME=http://$ETCD_IP:$ETCD_PEER_PORT'
-initial-cluster-token: '$CLUSTER_TOKEN'
-initial-cluster-state: '$CLUSTER_STATE'
+initial-cluster-token: '$ETCD_CLUSTER_TOKEN'
+initial-cluster-state: '$ETCD_CLUSTER_STATE'
 
-election-timeout: $ELECTION_TIMEOUT
-heartbeat-interval: $HEARTBEAT_INTERVAL
+election-timeout: $ETCD_ELECTION_TIMEOUT
+heartbeat-interval: $ETCD_HEARTBEAT_INTERVAL
 
 enable-v2: true
 EOF

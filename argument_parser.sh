@@ -10,47 +10,48 @@ ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 parse_all_arguments() {
     # Argümanları bir dizide tanımla
     declare -a ARGUMENTS=(
-        # Anahtar               Komut Satırı Argümanı        Varsayılan Değer                   Yardım Açıklaması
+        # Anahtar                   Komut Satırı Argümanı                Varsayılan Değer                       Yardım Açıklaması
 
         # HAProxy Argümanları
-        "NODE1_IP"              "--node1-ip"                "$DEFAULT_NODE1_IP"                "1. Düğümün IP adresi"
-        "NODE2_IP"              "--node2-ip"                "$DEFAULT_NODE2_IP"                "2. Düğümün IP adresi"
-        "HAPROXY_BIND_PORT"     "--haproxy-bind-port"       "$DEFAULT_HAPROXY_BIND_PORT"       "HAProxy bağlantı portu"
-        "PGSQL_PORT"            "--pgsql-port"              "$DEFAULT_PGSQL_PORT"              "PostgreSQL portu"
-        "HAPROXY_PORT"          "--haproxy-port"            "$DEFAULT_HAPROXY_PORT"            "HAProxy portu"
-        "POSTGRES_BIND_PORT"    "--postgres-bind-port"      "$DEFAULT_POSTGRES_BIND_PORT"      "PostgreSQL bağlantı portu"
+        "NODE1_IP"                  "--node1-ip"                         "$DEFAULT_NODE1_IP"                    "1. Düğümün IP adresi"
+        "NODE2_IP"                  "--node2-ip"                         "$DEFAULT_NODE2_IP"                    "2. Düğümün IP adresi"
+        "HAPROXY_BIND_PORT"         "--haproxy-bind-port"                "$DEFAULT_HAPROXY_BIND_PORT"           "HAProxy bağlantı portu"
+        "PGSQL_PORT"                "--pgsql-port"                       "$DEFAULT_PGSQL_PORT"                  "PostgreSQL portu"
+        "HAPROXY_PORT"              "--haproxy-port"                     "$DEFAULT_HAPROXY_PORT"                "HAProxy portu"
+        "POSTGRES_BIND_PORT"        "--postgres-bind-port"               "$DEFAULT_POSTGRES_BIND_PORT"          "PostgreSQL bağlantı portu"
 
         # Keepalived Argümanları
-        "INTERFACE"             "--interface"               "$DEFAULT_INTERFACE"               "Ağ arayüzü"
-        "SQL_VIRTUAL_IP"        "--sql-virtual-ip"          "$DEFAULT_SQL_VIRTUAL_IP"          "SQL sanal IP adresi"
-        "DNS_VIRTUAL_IP"        "--dns-virtual-ip"          "$DEFAULT_DNS_VIRTUAL_IP"          "DNS sanal IP adresi"
-        "PRIORITY"              "--priority"                "$DEFAULT_PRIORITY"                "Keepalived önceliği"
-        "STATE"                 "--state"                   "$DEFAULT_STATE"                   "Başlangıç durumu (MASTER/BACKUP)"
-        "SQL_CONTAINER"         "--sql-container"           "$DEFAULT_SQL_CONTAINER"           "SQL konteyner adı"
-        "DNS_CONTAINER"         "--dns-container"           "$DEFAULT_DNS_CONTAINER"           "DNS konteyner adı"
+        "INTERFACE"                 "--interface"                        "$DEFAULT_INTERFACE"                   "Ağ arayüzü"
+        "SQL_VIRTUAL_IP"            "--sql-virtual-ip"                   "$DEFAULT_SQL_VIRTUAL_IP"              "SQL sanal IP adresi"
+        "DNS_VIRTUAL_IP"            "--dns-virtual-ip"                   "$DEFAULT_DNS_VIRTUAL_IP"              "DNS sanal IP adresi"
+        "PRIORITY"                  "--priority"                         "$DEFAULT_PRIORITY"                    "Keepalived önceliği"
+        "STATE"                     "--state"                            "$DEFAULT_STATE"                       "Başlangıç durumu (MASTER/BACKUP)"
+        "SQL_CONTAINER"             "--sql-container"                    "$DEFAULT_SQL_CONTAINER"               "SQL konteyner adı"
+        "DNS_CONTAINER"             "--dns-container"                    "$DEFAULT_DNS_CONTAINER"               "DNS konteyner adı"
 
         # DNS Argümanları
-        "DNS_PORT"              "--dns-port"                "$DEFAULT_DNS_PORT"                "DNS portu"
-        "DOCKER_FORWARD_PORT"   "--docker-forward-port"     "$DEFAULT_DOCKER_FORWARD_PORT"     "Docker'a yönlendirilecek port"
+        "DNS_PORT"                  "--dns-port"                         "$DEFAULT_DNS_PORT"                    "DNS portu"
+        "DOCKER_FORWARD_PORT"       "--docker-forward-port"              "$DEFAULT_DOCKER_FORWARD_PORT"         "Docker'a yönlendirilecek port"
 
         # Patroni Argümanları
-        "NODE_NAME"             "--node-name"               "$DEFAULT_NODE_NAME"               "Düğüm adı"
-        "ETCD_IP"               "--etcd-ip"                 "$DEFAULT_ETCD_IP"                 "ETCD IP adresi"
-        "REPLIKATOR_KULLANICI_ADI" "--replicator-username"  "$DEFAULT_REPLIKATOR_KULLANICI_ADI" "Replikasyon kullanıcı adı"
-        "REPLICATOR_SIFRESI"    "--replicator-password"     "$DEFAULT_REPLICATOR_SIFRESI"      "Replikasyon şifresi"
-        "POSTGRES_SIFRESI"      "--postgres-password"       "$DEFAULT_POSTGRES_SIFRESI"        "Postgres şifresi"
-        "IS_NODE_1"             "--is-node1"                "$DEFAULT_IS_NODE_1"               "Bu düğüm 1. düğüm mü?"
+        "NODE_NAME"                 "--node-name"                        "$DEFAULT_NODE_NAME"                   "Düğüm adı"
+        "ETCD_IP"                   "--etcd-ip"                          "$DEFAULT_ETCD_IP"                     "ETCD IP adresi"
+        "REPLIKATOR_KULLANICI_ADI"  "--replicator-username"              "$DEFAULT_REPLIKATOR_KULLANICI_ADI"    "Replikasyon kullanıcı adı"
+        "REPLICATOR_SIFRESI"        "--replicator-password"              "$DEFAULT_REPLICATOR_SIFRESI"          "Replikasyon şifresi"
+        "POSTGRES_SIFRESI"          "--postgres-password"                "$DEFAULT_POSTGRES_SIFRESI"            "Postgres şifresi"
+        "IS_NODE_1"                 "--is-node1"                         "$DEFAULT_IS_NODE_1"                   "Bu düğüm 1. düğüm mü?"
 
         # ETCD Argümanları
-        "ETCD_CLIENT_PORT"      "--client-port"             "$DEFAULT_ETCD_CLIENT_PORT"        "ETCD istemci portu"
-        "ETCD_PEER_PORT"        "--peer-port"               "$DEFAULT_ETCD_PEER_PORT"          "ETCD eşler arası port"
-        "CLUSTER_TOKEN"         "--cluster-token"           "$DEFAULT_CLUSTER_TOKEN"           "Küme belirteci"
-        "CLUSTER_STATE"         "--cluster-state"           "$DEFAULT_CLUSTER_STATE"           "Küme durumu (new/existing)"
-        "ETCD_NAME"             "--etcd-name"               "$DEFAULT_ETCD_NAME"               "ETCD düğüm adı"
-        "ELECTION_TIMEOUT"      "--election-timeout"        "$DEFAULT_ELECTION_TIMEOUT"        "Seçim zaman aşımı"
-        "HEARTBEAT_INTERVAL"    "--heartbeat-interval"      "$DEFAULT_HEARTBEAT_INTERVAL"      "Nabız aralığı"
-        "DATA_DIR"              "--data-dir"                "$DEFAULT_DATA_DIR"                "Veri dizini"
+        "ETCD_CLIENT_PORT"          "--etcd-client-port"                 "$DEFAULT_ETCD_CLIENT_PORT"            "ETCD istemci portu"
+        "ETCD_PEER_PORT"            "--etcd-peer-port"                   "$DEFAULT_ETCD_PEER_PORT"              "ETCD eşler arası port"
+        "ETCD_CLUSTER_TOKEN"        "--etcd-cluster-token"               "$DEFAULT_ETCD_CLUSTER_TOKEN"          "Küme belirteci"
+        "ETCD_CLUSTER_STATE"        "--etcd-cluster-state"               "$DEFAULT_ETCD_CLUSTER_STATE"          "Küme durumu (new/existing)"
+        "ETCD_NAME"                 "--etcd-name"                        "$DEFAULT_ETCD_NAME"                   "ETCD düğüm adı"
+        "ETCD_ELECTION_TIMEOUT"     "--etcd-election-timeout"            "$DEFAULT_ETCD_ELECTION_TIMEOUT"       "Seçim zaman aşımı"
+        "ETCD_HEARTBEAT_INTERVAL"   "--etcd-heartbeat-interval"          "$DEFAULT_ETCD_HEARTBEAT_INTERVAL"     "Nabız aralığı"
+        "ETCD_DATA_DIR"             "--etcd-data-dir"                    "$DEFAULT_DATA_DIR"                    "Veri dizini"
     )
+}
 
     # Yapılandırma için ilişkisel dizi oluştur ve varsayılan değerlerle başlat
     declare -A config
