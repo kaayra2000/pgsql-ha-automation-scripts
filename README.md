@@ -51,7 +51,7 @@ ETCD_CLUSTER_STATE=new
 DATA_DIR=/var/lib/etcd/default
 ETCD_CLUSTER_TOKEN=cluster1
 ETCD_PEER_PORT=2380
-POSTGRES_BIND_PORT=5000
+PGSQL_BIND_PORT=5000
 HAPROXY_PORT=8008
 REPLICATOR_SIFRESI=replicator_pass
 SQL_CONTAINER=sql_1
@@ -260,7 +260,7 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
 - **PostgreSQL ve Patroni Değişkenleri**:
   - `DEFAULT_NODE_NAME`: Node adı. Varsayılan değer: `"pg_node1"`
   - `DEFAULT_PGSQL_PORT`: PostgreSQL'in dinlediği port. Varsayılan değer: `"5432"`
-  - `DEFAULT_POSTGRES_BIND_PORT`: PostgreSQL'in bağlanacağı port. Varsayılan değer: `"5000"`
+  - `DEFAULT_PGSQL_BIND_PORT`: PostgreSQL'in bağlanacağı port. Varsayılan değer: `"5000"`
   - `DEFAULT_REPLIKATOR_KULLANICI_ADI`: Replikasyon için kullanılacak kullanıcı adı. Varsayılan değer: `"replicator"`
   - `DEFAULT_REPLICATOR_SIFRESI`: Replikasyon kullanıcısının şifresi. Varsayılan değer: `"replicator_pass"`
   - `DEFAULT_POSTGRES_SIFRESI`: PostgreSQL veritabanı kullanıcısının şifresi. Varsayılan değer: `"postgres_pass"`
@@ -426,7 +426,7 @@ Bu script seti, **HAProxy** servisinin kurulumu, yapılandırılması ve başlat
            - İstatistik arayüzü belirlenen `$HAPROXY_BIND_PORT` portunda çalışır.
          - **frontend postgres_frontend** ve **backend postgres_backend**:
            - PostgreSQL hizmeti için frontend ve backend tanımları.
-           - `$POSTGRES_BIND_PORT` portunda gelen bağlantıları kabul eder ve backend sunucularına yönlendirir.
+           - `$PGSQL_BIND_PORT` portunda gelen bağlantıları kabul eder ve backend sunucularına yönlendirir.
            - Backend sunucuları olarak `node-1` ve `node-2` tanımlanır, bu sunucular `$NODE1_IP` ve `$NODE2_IP` adreslerinde bulunan PostgreSQL hizmetleridir.
            - Yük dengeleme algoritması olarak `roundrobin` kullanılır.
            - Sunucu sağlık kontrolü için `tcp-check` yapılır.
@@ -451,7 +451,7 @@ Bu script seti, **HAProxy** servisinin kurulumu, yapılandırılması ve başlat
     - `general_functions.sh`: Genel yardımcı fonksiyonları sağlar (örneğin, `check_success` fonksiyonu).
 - **Değişkenler**:
   - `$HAPROXY_BIND_PORT`: HAProxy'nin istatistik arayüzü için bind edildiği port.
-  - `$POSTGRES_BIND_PORT`: HAProxy'nin PostgreSQL frontend'inin dinlediği port.
+  - `$PGSQL_BIND_PORT`: HAProxy'nin PostgreSQL frontend'inin dinlediği port.
   - `$NODE1_IP` ve `$NODE2_IP`: Backend PostgreSQL sunucularının IP adresleri.
   - `$PGSQL_PORT`: Backend PostgreSQL sunucularının dinlediği port.
 - **Yapılandırma Dosyası**:

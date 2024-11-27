@@ -18,7 +18,7 @@ parse_all_arguments() {
         "HAPROXY_BIND_PORT"         "--haproxy-bind-port"                "$DEFAULT_HAPROXY_BIND_PORT"           "HAProxy bağlantı portu"
         "PGSQL_PORT"                "--pgsql-port"                       "$DEFAULT_PGSQL_PORT"                  "PostgreSQL portu"
         "HAPROXY_PORT"              "--haproxy-port"                     "$DEFAULT_HAPROXY_PORT"                "HAProxy portu"
-        "POSTGRES_BIND_PORT"        "--postgres-bind-port"               "$DEFAULT_POSTGRES_BIND_PORT"          "PostgreSQL bağlantı portu"
+        "PGSQL_BIND_PORT"           "--pgsql-bind-port"                  "$DEFAULT_PGSQL_BIND_PORT"             "PostgreSQL bağlantı portu"
 
         # Keepalived Argümanları
         "INTERFACE"                 "--interface"                        "$DEFAULT_INTERFACE"                   "Ağ arayüzü"

@@ -23,7 +23,7 @@ run_container() {
         -p $ETCD_PEER_PORT:$ETCD_PEER_PORT \
         -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/tcp \
         -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/udp \
-        -p $POSTGRES_BIND_PORT:$POSTGRES_BIND_PORT/tcp \
+        -p $PGSQL_BIND_PORT:$PGSQL_BIND_PORT/tcp \
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $IMAGE_NAME \

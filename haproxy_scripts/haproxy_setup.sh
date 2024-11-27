@@ -41,7 +41,7 @@ backend stats_backend
     stats uri /
 
 frontend postgres_frontend
-    bind 0.0.0.0:$POSTGRES_BIND_PORT
+    bind 0.0.0.0:$PGSQL_BIND_PORT
     default_backend postgres_backend
 
 backend postgres_backend
