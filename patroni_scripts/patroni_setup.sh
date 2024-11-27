@@ -8,7 +8,7 @@ patroni_yml_konfigure_et() {
     cat <<EOF | sudo tee /etc/patroni.yml
 scope: postgres
 namespace: /db/
-name: $NODE_NAME
+name: $PATRONI_NODE_NAME
 
 restapi:
     listen: ${NODE1_IP}:${HAPROXY_PORT}

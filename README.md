@@ -45,7 +45,7 @@ POSTGRES_SIFRESI=postgres_pass
 ETCD_CLIENT_PORT=2379
 ETCD_HEARTBEAT_INTERVAL=1000
 ETCD_IP=10.207.80.20
-NODE_NAME=pg_node1
+PATRONI_NODE_NAME=pg_node1
 PGSQL_PORT=5432
 ETCD_CLUSTER_KEEPALIVED_STATE=new
 DATA_DIR=/var/lib/etcd/default
@@ -258,7 +258,7 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
   - `DEFAULT_HAPROXY_PORT`: HAProxy'nin dinleyeceği port. Varsayılan değer: `"8008"`
 
 - **PostgreSQL ve Patroni Değişkenleri**:
-  - `DEFAULT_NODE_NAME`: Node adı. Varsayılan değer: `"pg_node1"`
+  - `DEFAULT_PATRONI_NODE_NAME`: Node adı. Varsayılan değer: `"pg_node1"`
   - `DEFAULT_PGSQL_PORT`: PostgreSQL'in dinlediği port. Varsayılan değer: `"5432"`
   - `DEFAULT_PGSQL_BIND_PORT`: PostgreSQL'in bağlanacağı port. Varsayılan değer: `"5000"`
   - `DEFAULT_REPLIKATOR_KULLANICI_ADI`: Replikasyon için kullanılacak kullanıcı adı. Varsayılan değer: `"replicator"`
