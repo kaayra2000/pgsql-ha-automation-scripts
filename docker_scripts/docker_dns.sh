@@ -15,7 +15,7 @@ SHELL_SCRIPT_NAME="create_dns_server.sh"
 # Docker konteynerını çalıştır
 run_container() {
     docker run -d --rm --privileged \
-        --name $DNS_CONTAINER \
+        --name $DNS_CONTAINER_NAME \
         -p $DOCKER_FORWARD_PORT:$DNS_PORT/tcp -p $DOCKER_FORWARD_PORT:$DNS_PORT/udp \
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \

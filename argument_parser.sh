@@ -21,13 +21,13 @@ parse_all_arguments() {
         "PGSQL_BIND_PORT"           "--pgsql-bind-port"                  "$DEFAULT_PGSQL_BIND_PORT"             "PostgreSQL bağlantı portu"
 
         # Keepalived Argümanları
-        "INTERFACE"                 "--interface"                        "$DEFAULT_INTERFACE"                   "Ağ arayüzü"
+        "KEEPALIVED_INTERFACE"      "--keepalived-interface"             "$DEFAULT_KEEPALIVED_INTERFACE"        "Ağ arayüzü"
         "SQL_VIRTUAL_IP"            "--sql-virtual-ip"                   "$DEFAULT_SQL_VIRTUAL_IP"              "SQL sanal IP adresi"
         "DNS_VIRTUAL_IP"            "--dns-virtual-ip"                   "$DEFAULT_DNS_VIRTUAL_IP"              "DNS sanal IP adresi"
-        "PRIORITY"                  "--priority"                         "$DEFAULT_PRIORITY"                    "Keepalived önceliği"
-        "STATE"                     "--state"                            "$DEFAULT_STATE"                       "Başlangıç durumu (MASTER/BACKUP)"
-        "SQL_CONTAINER"             "--sql-container"                    "$DEFAULT_SQL_CONTAINER"               "SQL konteyner adı"
-        "DNS_CONTAINER"             "--dns-container"                    "$DEFAULT_DNS_CONTAINER"               "DNS konteyner adı"
+        "KEEPALIVED_PRIORITY"       "--keepalived-priority"              "$DEFAULT_KEEPALIVED_PRIORITY"         "Keepalived önceliği"
+        "KEEPALIVED_STATE"          "--keepalived-state"                 "$DEFAULT_KEEPALIVED_STATE"            "Başlangıç durumu (MASTER/BACKUP)"
+        "SQL_CONTAINER_NAME"        "--sql-container-name"               "$DEFAULT_SQL_CONTAINER_NAME"          "SQL konteyner adı"
+        "DNS_CONTAINER_NAME"        "--dns-container-name"               "$DEFAULT_DNS_CONTAINER_NAME"          "DNS konteyner adı"
 
         # DNS Argümanları
         "DNS_PORT"                  "--dns-port"                         "$DEFAULT_DNS_PORT"                    "DNS portu"
@@ -45,7 +45,7 @@ parse_all_arguments() {
         "ETCD_CLIENT_PORT"          "--etcd-client-port"                 "$DEFAULT_ETCD_CLIENT_PORT"            "ETCD istemci portu"
         "ETCD_PEER_PORT"            "--etcd-peer-port"                   "$DEFAULT_ETCD_PEER_PORT"              "ETCD eşler arası port"
         "ETCD_CLUSTER_TOKEN"        "--etcd-cluster-token"               "$DEFAULT_ETCD_CLUSTER_TOKEN"          "Küme belirteci"
-        "ETCD_CLUSTER_STATE"        "--etcd-cluster-state"               "$DEFAULT_ETCD_CLUSTER_STATE"          "Küme durumu (new/existing)"
+        "ETCD_CLUSTER_KEEPALIVED_STATE"        "--etcd-cluster-state"               "$DEFAULT_ETCD_CLUSTER_KEEPALIVED_STATE"          "Küme durumu (new/existing)"
         "ETCD_NAME"                 "--etcd-name"                        "$DEFAULT_ETCD_NAME"                   "ETCD düğüm adı"
         "ETCD_ELECTION_TIMEOUT"     "--etcd-election-timeout"            "$DEFAULT_ETCD_ELECTION_TIMEOUT"       "Seçim zaman aşımı"
         "ETCD_HEARTBEAT_INTERVAL"   "--etcd-heartbeat-interval"          "$DEFAULT_ETCD_HEARTBEAT_INTERVAL"     "Nabız aralığı"

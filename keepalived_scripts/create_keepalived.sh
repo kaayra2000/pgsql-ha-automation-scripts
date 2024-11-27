@@ -13,8 +13,8 @@ source "$SCRIPT_DIR/container_scripts.sh"
 # Ana akış
 parse_and_read_arguments "$@"
 create_keepalived_user
-setup_container_log $SQL_CONTAINER
-setup_container_log $DNS_CONTAINER
+setup_container_log $SQL_CONTAINER_NAME
+setup_container_log $DNS_CONTAINER_NAME
 configure_sudo_access
 check_and_add_docker_permissions
 install_keepalived

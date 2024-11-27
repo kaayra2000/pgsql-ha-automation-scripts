@@ -25,7 +25,7 @@ advertise-client-urls: 'http://$ETCD_IP:$ETCD_CLIENT_PORT'
 
 initial-cluster: '$ETCD_NAME=http://$ETCD_IP:$ETCD_PEER_PORT'
 initial-cluster-token: '$ETCD_CLUSTER_TOKEN'
-initial-cluster-state: '$ETCD_CLUSTER_STATE'
+initial-cluster-state: '$ETCD_CLUSTER_KEEPALIVED_STATE'
 
 election-timeout: $ETCD_ELECTION_TIMEOUT
 heartbeat-interval: $ETCD_HEARTBEAT_INTERVAL

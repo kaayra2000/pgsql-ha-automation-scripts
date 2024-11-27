@@ -24,7 +24,7 @@ global_defs {
 
 # SQL için VRRP yapılandırması
 vrrp_script check_sql {
-    script "$(create_checkscript $SQL_CONTAINER)"
+    script "$(create_checkscript $SQL_CONTAINER_NAME)"
     interval 2
     weight -20
     fall 2
@@ -32,10 +32,10 @@ vrrp_script check_sql {
 }
 
 vrrp_instance VI_SQL {
-    state $STATE
-    interface $INTERFACE
+    state $KEEPALIVED_STATE
+    interface $KEEPALIVED_INTERFACE
     virtual_router_id 52
-    priority $PRIORITY
+    priority $KEEPALIVED_PRIORITY
     advert_int 1
     virtual_ipaddress {
         $SQL_VIRTUAL_IP
@@ -47,7 +47,7 @@ vrrp_instance VI_SQL {
 
 # DNS için VRRP yapılandırması
 vrrp_script check_dns {
-    script "$(create_checkscript $DNS_CONTAINER)"
+    script "$(create_checkscript $DNS_CONTAINER_NAME)"
     interval 2
     weight -20
     fall 2
@@ -55,10 +55,10 @@ vrrp_script check_dns {
 }
 
 vrrp_instance VI_DNS {
-    state $STATE
-    interface $INTERFACE
+    state $KEEPALIVED_STATE
+    interface $KEEPALIVED_INTERFACE
     virtual_router_id 53
-    priority $PRIORITY
+    priority $KEEPALIVED_PRIORITY
     advert_int 1
     virtual_ipaddress {
         $DNS_VIRTUAL_IP

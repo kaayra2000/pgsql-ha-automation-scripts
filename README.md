@@ -35,11 +35,11 @@ SQL_VIRTUAL_IP=10.207.90.21
 ETCD_ELECTION_TIMEOUT=5000
 NODE2_IP=10.207.80.11
 REPLIKATOR_KULLANICI_ADI=replicator
-PRIORITY=100
-INTERFACE=et123456
+KEEPALIVED_PRIORITY=100
+KEEPALIVED_INTERFACE=et123456
 IS_NODE_1=true
 HAPROXY_BIND_PORT=7000
-DNS_CONTAINER=dns_1
+DNS_CONTAINER_NAME=dns_1
 ETCD_NAME=etcd1
 POSTGRES_SIFRESI=postgres_pass
 ETCD_CLIENT_PORT=2379
@@ -47,16 +47,16 @@ ETCD_HEARTBEAT_INTERVAL=1000
 ETCD_IP=10.207.80.20
 NODE_NAME=pg_node1
 PGSQL_PORT=5432
-ETCD_CLUSTER_STATE=new
+ETCD_CLUSTER_KEEPALIVED_STATE=new
 DATA_DIR=/var/lib/etcd/default
 ETCD_CLUSTER_TOKEN=cluster1
 ETCD_PEER_PORT=2380
 PGSQL_BIND_PORT=5000
 HAPROXY_PORT=8008
 REPLICATOR_SIFRESI=replicator_pass
-SQL_CONTAINER=sql_1
+SQL_CONTAINER_NAME=sql_1
 NODE1_IP=10.207.80.10
-STATE=BACKUP
+KEEPALIVED_STATE=BACKUP
 DNS_VIRTUAL_IP=10.207.80.11
 ```
 Bu durumda _SQL\_VIRTUAL\_IP_ kullanıcının verdiği değerle değişmiştir. Halihazırda dosyada mevcut olan _DNS\_VIRTUAL\_IP_ argümanı değişmemiştir. Dosyada olmayan argümanlar ise varsayılan değerlerle doldurulmuştur.
@@ -267,13 +267,13 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
   - `DEFAULT_IS_NODE_1`: Node'un birinci node olup olmadığını belirten değer. Varsayılan değer: `"true"`
 
 - **Keepalived Değişkenleri**:
-  - `DEFAULT_INTERFACE`: Ağ arayüzü adı. Varsayılan değer: `"enp0s3"`
+  - `DEFAULT_KEEPALIVED_INTERFACE`: Ağ arayüzü adı. Varsayılan değer: `"enp0s3"`
   - `DEFAULT_SQL_VIRTUAL_IP`: SQL için sanal IP adresi. Varsayılan değer: `"10.207.80.20"`
   - `DEFAULT_DNS_VIRTUAL_IP`: DNS için sanal IP adresi. Varsayılan değer: `"10.207.80.30"`
-  - `DEFAULT_PRIORITY`: Keepalived öncelik değeri. Varsayılan değer: `"100"`
-  - `DEFAULT_STATE`: Keepalived durumunu belirtir (`MASTER` veya `BACKUP`). Varsayılan değer: `"BACKUP"`
-  - `DEFAULT_SQL_CONTAINER`: SQL için Docker container adı. Varsayılan değer: `"sql_container"`
-  - `DEFAULT_DNS_CONTAINER`: DNS için Docker container adı. Varsayılan değer: `"dns_container"`
+  - `DEFAULT_KEEPALIVED_PRIORITY`: Keepalived öncelik değeri. Varsayılan değer: `"100"`
+  - `DEFAULT_KEEPALIVED_STATE`: Keepalived durumunu belirtir (`MASTER` veya `BACKUP`). Varsayılan değer: `"BACKUP"`
+  - `DEFAULT_SQL_CONTAINER_NAME`: SQL için Docker container adı. Varsayılan değer: `"sql_container"`
+  - `DEFAULT_DNS_CONTAINER_NAME`: DNS için Docker container adı. Varsayılan değer: `"dns_container"`
   - `DOCKER_BINARY_PATH`: Docker binary dosyasının yolu. Varsayılan değer: `"/usr/bin/docker"`
 
 - **ETCD Varsayılan Değerleri**:
@@ -281,7 +281,7 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
   - `DEFAULT_ETCD_CLIENT_PORT`: ETCD istemci portu. Varsayılan değer: `"2379"`
   - `DEFAULT_ETCD_PEER_PORT`: ETCD peer portu. Varsayılan değer: `"2380"`
   - `DEFAULT_ETCD_CLUSTER_TOKEN`: ETCD cluster token değeri. Varsayılan değer: `"cluster1"`
-  - `DEFAULT_ETCD_CLUSTER_STATE`: ETCD cluster durumu. Varsayılan değer: `"new"`
+  - `DEFAULT_ETCD_CLUSTER_KEEPALIVED_STATE`: ETCD cluster durumu. Varsayılan değer: `"new"`
   - `DEFAULT_ETCD_NAME`: ETCD node adı. Varsayılan değer: `"etcd1"`
   - `DEFAULT_ETCD_ELECTION_TIMEOUT`: ETCD seçim zaman aşımı değeri (ms). Varsayılan değer: `"5000"`
   - `DEFAULT_ETCD_HEARTBEAT_INTERVAL`: ETCD kalp atışı aralığı (ms). Varsayılan değer: `"1000"`
@@ -543,7 +543,7 @@ Bu script seti, **etcd** servisinin kurulumu, yapılandırılması ve başlatıl
   - `$ETCD_USER`: etcd servisini çalıştıracak kullanıcı adı (`etcd`).
   - `$ETCD_IP`, `$ETCD_CLIENT_PORT`, `$ETCD_PEER_PORT`: etcd'nin dinleyeceği IP adresi ve portlar.
   - `$ETCD_NAME`: etcd node adı.
-  - `$ETCD_CLUSTER_TOKEN`, `$ETCD_CLUSTER_STATE`: etcd cluster bilgileri.
+  - `$ETCD_CLUSTER_TOKEN`, `$ETCD_CLUSTER_KEEPALIVED_STATE`: etcd cluster bilgileri.
   - `$ETCD_ELECTION_TIMEOUT`, `$ETCD_HEARTBEAT_INTERVAL`: etcd zaman aşımı ayarları.
 - **Yapılandırma Dosyası**:
   - etcd için oluşturulan `etcd.conf.yml` dosyası, etcd servisinin çalışma parametrelerini belirler.
@@ -592,7 +592,7 @@ Bu script seti, Docker imajları ve konteynerleri oluşturmak, yapılandırmak v
      - Varsayılan değerleri ve sabitleri tanımlar:
        - `DNS_PORT`, `HOST_PORT`: DNS hizmeti için konteyner içi ve host port numaraları.
        - `DOCKERFILE_PATH`, `DOCKERFILE_NAME`: Dockerfile'ın yolu ve adı.
-       - `DNS_CONTAINER`, `IMAGE_NAME`: Docker konteyneri ve imajı için isimler.
+       - `DNS_CONTAINER_NAME`, `IMAGE_NAME`: Docker konteyneri ve imajı için isimler.
        - `SHELL_SCRIPT_NAME`: Konteyner içinde çalıştırılacak scriptin adı (`create_dns_server.sh`).
      - `dns_parser` fonksiyonu ile kullanıcıdan gelen argümanları işler.
      - `create_image` fonksiyonunu çağırarak DNS hizmeti için Docker imajını oluşturur.
@@ -611,7 +611,7 @@ Bu script seti, Docker imajları ve konteynerleri oluşturmak, yapılandırmak v
      - Varsayılan değerleri ve sabitleri tanırlar:
        - `HAPROXY_PORT`, `HOST_PORT`: HAProxy için konteyner içi ve host port numaraları.
        - `DOCKERFILE_PATH`, `DOCKERFILE_NAME`: Dockerfile'ın yolu ve adı.
-       - `SQL_CONTAINER`, `IMAGE_NAME`: Docker konteyneri ve imajı için isimler.
+       - `SQL_CONTAINER_NAME`, `IMAGE_NAME`: Docker konteyneri ve imajı için isimler.
        - `HAPROXY_SCRIPT_FOLDER`, `HAPROXY_SCRIPT_NAME`: Konteyner içinde çalıştırılacak HAProxy scriptinin yolu ve adı.
        - `ETCD_SCRIPT_FOLDER`, `ETCD_SCRIPT_NAME`: Konteyner içinde çalıştırılacak etcd scriptinin yolu ve adı.
      - `parse_all_arguments` fonksiyonu ile kullanıcıdan gelen argümanları işler.

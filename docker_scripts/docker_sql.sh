@@ -18,7 +18,7 @@ ETCD_SCRIPT_NAME="create_etcd.sh"
 # Docker konteynerını çalıştır
 run_container() {
     docker run -d --rm --privileged \
-        --name $SQL_CONTAINER \
+        --name $SQL_CONTAINER_NAME \
         -p $ETCD_CLIENT_PORT:$ETCD_CLIENT_PORT \
         -p $ETCD_PEER_PORT:$ETCD_PEER_PORT \
         -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/tcp \
