@@ -172,10 +172,20 @@ show_argument_help() {
     echo
     echo "Seçenekler:"
 
+    declare -A options
+
     local arg_count=${#arg_array[@]}
     for ((i=0; i<$arg_count; i+=4)); do
         local flag="${arg_array[i+1]}"
         local description="${arg_array[i+3]}"
-        printf "  %-25s %s\n" "$flag" "$description"
+        options["$flag"]="$description"
+    done
+
+    # Seçenekleri bayraklara göre alfabetik olarak sıralama
+    IFS=$'\n' sorted_flags=($(sort <<<"${!options[*]}"))
+    unset IFS
+
+    for flag in "${sorted_flags[@]}"; do
+        printf "  %-25s %s\n" "$flag" "${options[$flag]}"
     done
 }
