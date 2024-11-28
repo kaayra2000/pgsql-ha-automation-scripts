@@ -53,7 +53,7 @@ define_arguments() {
     )
 }
 
-# Config değişkenini varsayılan değerlerle başlatan fonksiyon
+# Config değişkenini varsayılan değerlerle anahtar-değer çifti olarak başlatan fonksiyon
 initialize_config() {
     declare -gA config
     local arg_count=${#ARGUMENTS[@]}
@@ -64,7 +64,7 @@ initialize_config() {
     done
 }
 
-# Mevcut yapılandırma dosyasını okuyan fonksiyon
+# Mevcut yapılandırma dosyasını okuyup config değişkenindeki varsayılan değerlerin yerine yazan fonksiyon
 read_config_file() {
     if [ -f "$ARGUMENT_CFG_FILE" ]; then
         while IFS='=' read -r key value; do
@@ -76,7 +76,11 @@ read_config_file() {
     fi
 }
 
-# Komut satırı argümanlarını işleyen fonksiyon
+
+<<COMMENT
+    Komut satırı argümanlarını işleyen fonksiyon (anahtar-değer çiftlerini config değişkenine atar)
+    beklenen argüman formatı --argüman_adı argüman_değeri şeklindedir.
+COMMENT
 process_command_line_arguments() {
     local arg_count=${#ARGUMENTS[@]}
     while [[ $# -gt 0 ]]; do
@@ -106,36 +110,24 @@ process_command_line_arguments() {
     done
 }
 
-# Config değişkenini yapılandırma dosyasına yazan fonksiyon
+# Config değişkenini yapılandırma dosyasına yazan fonksiyon (anahtar dosyada varsa varolan değeri günceller yoksa ekler)
 write_config_to_file() {
     for key in "${!config[@]}"; do
         update_config_file "$key" "$ARGUMENT_CFG_FILE" "${config[$key]}"
     done
 }
-
-# Anahtar ve değerin dosyada olup olmadığını kontrol eden fonksiyon
+# Anahtar-değer çiftinin dosyada olup olmadığını kontrol eder.
 value_exists_in_file() {
     local key="$1"
     local filename="$2"
     local value="$3"
-
-    if grep -q "^$key=$value\$" "$filename"; then
-        return 0  # Anahtar-değer çifti bulundu
-    else
-        return 1  # Anahtar-değer çifti bulunamadı
-    fi
+    grep -q "^$key=$value\$" "$filename"
 }
-
-# Anahtarın dosyada olup olmadığını kontrol eden fonksiyon
+# Anahtarın dosyada olup olmadığını kontrol eder.
 key_exists_in_file() {
     local key="$1"
     local filename="$2"
-
-    if grep -q "^$key=" "$filename"; then
-        return 0  # Anahtar bulundu
-    else
-        return 1  # Anahtar bulunamadı
-    fi
+    grep -q "^$key=" "$filename"
 }
 
 # Anahtar değeri yapılandırma dosyasına ekleyen veya güncelleyen fonksiyon
@@ -152,7 +144,7 @@ update_config_file() {
         sed -i "s|^$key=.*|$key=$value|" "$filename"
     else
         # Anahtar yok, dosyanın sonuna ekle
-        echo "$key=$value" >> "$filename"
+        append_constant_to_file "$key" "$value" "$filename"
     fi
 }
 
@@ -167,7 +159,7 @@ parse_all_arguments() {
 }
 
 
-# Sabitleri tanımlayan fonksiyon
+# Sabitleri tanımlar.
 define_constants() {
     constants=(
         "SQL_DOCKERFILE_NAME=docker_sql"
@@ -189,71 +181,124 @@ define_constants() {
     )
 }
 
-# Sabitleri yapılandırma dosyasına yazan fonksiyon
+# Ana fonksiyon: Sabitleri dosyaya yazar.
 write_constants_to_file() {
     local cfg_file="$ARGUMENT_CFG_FILE"
 
     define_constants
 
-    # Eğer dosya yoksa, tüm sabitleri yaz
     if [ ! -f "$cfg_file" ]; then
-        for const in "${constants[@]}"; do
-            key=$(echo "$const" | cut -d'=' -f1)
-            value=$(echo "$const" | cut -d'=' -f2-)
-            echo "$key=$value" >> "$cfg_file"
-            echo "Sabit '$key' eklendi: Değer='$value'"
-        done
-        echo "Sabitler \"$cfg_file\" dosyasına yazıldı."
+        write_all_constants_to_file "$cfg_file"
     else
-        # Dosya varsa, kullanıcıdan üstüne yazma izni al
-        local overwrite_all=false
-        local constants_present=false
+        process_existing_config_file "$cfg_file"
+    fi
+}
 
-        for const in "${constants[@]}"; do
-            key=$(echo "$const" | cut -d'=' -f1)
-            if key_exists_in_file "$key" "$cfg_file"; then
-                constants_present=true
-                break
+# Tüm sabitleri dosyaya yazar.
+write_all_constants_to_file() {
+    local cfg_file="$1"
+
+    for const in "${constants[@]}"; do
+        local key=$(extract_key "$const")
+        local value=$(extract_value "$const")
+        echo "$key=$value" >> "$cfg_file"
+    done
+    echo "Sabitler \"$cfg_file\" dosyasına yazıldı."
+}
+
+# Mevcut yapılandırma dosyasını işler.
+process_existing_config_file() {
+    local cfg_file="$1"
+    local overwrite_all=false
+
+    if check_existing_constants "$cfg_file"; then
+        overwrite_all=$(prompt_overwrite_confirmation)
+    else
+        overwrite_all=true
+    fi
+
+    handle_constants "$cfg_file" "$overwrite_all"
+    echo "Sabitler \"$cfg_file\" dosyasına kaydedildi."
+}
+
+# Sabitlerden anahtarı çıkarır.
+extract_key() {
+    local const="$1"
+    echo "$const" | cut -d'=' -f1
+}
+
+# Sabitlerden değeri çıkarır.
+extract_value() {
+    local const="$1"
+    echo "$const" | cut -d'=' -f2-
+}
+
+# Dosyada mevcut olan sabitleri kontrol eder.
+check_existing_constants() {
+    local cfg_file="$1"
+    for const in "${constants[@]}"; do
+        local key=$(extract_key "$const")
+        local value=$(extract_value "$const")
+        if key_exists_in_file "$key" "$cfg_file"; then
+            if ! value_exists_in_file "$key" "$cfg_file" "$value"; then
+                # Anahtar mevcut ve değer farklı
+                return 0  # true
             fi
-        done
+            # Değer aynıysa bir şey yapma, devam et
+        fi
+    done
+    return 1  # false
+}
 
-        if $constants_present; then
-            read -p "Bazı sabitler zaten mevcut. Üstlerine yazılsın mı? (e/h): " cevap
-            if [[ "$cevap" =~ ^[eE]$ ]]; then
-                overwrite_all=true
-            elif [[ "$cevap" =~ ^[hH]$ ]]; then
-                overwrite_all=false
-            else
-                echo "Geçersiz giriş, varsayılan olarak 'hayır' seçildi."
-                overwrite_all=false
+# Kullanıcıdan üzerine yazma izni alır.
+prompt_overwrite_confirmation() {
+    local cevap
+    read -p "Bazı sabitler zaten mevcut. Üstlerine yazılsın mı? (e/h): " cevap
+    if [[ "$cevap" =~ ^[eE]$ ]]; then
+        echo true
+    elif [[ "$cevap" =~ ^[hH]$ ]]; then
+        echo false
+    else
+        echo "Geçersiz giriş, varsayılan olarak 'hayır' seçildi."
+        echo false
+    fi
+}
+
+# Sabitleri işler ve dosyaya yazar.
+handle_constants() {
+    local cfg_file="$1"
+    local overwrite_all="$2"
+
+    for const in "${constants[@]}"; do
+        local key=$(extract_key "$const")
+        local value=$(extract_value "$const")
+        if key_exists_in_file "$key" "$cfg_file"; then
+            if $overwrite_all; then
+                update_constant_if_needed "$key" "$value" "$cfg_file"
             fi
         else
-            overwrite_all=true
+            append_constant_to_file "$key" "$value" "$cfg_file"
         fi
+    done
+}
 
-        # Her sabiti işleyelim
-        for const in "${constants[@]}"; do
-            key=$(echo "$const" | cut -d'=' -f1)
-            value=$(echo "$const" | cut -d'=' -f2-)
-            if key_exists_in_file "$key" "$cfg_file"; then
-                if $overwrite_all; then
-                    if ! value_exists_in_file "$key" "$cfg_file" "$value"; then
-                        # Eğer değer farklıysa, eski değeri al, sabiti güncelle ve değişikliği ekrana yazdır
-                        # Eski değeri al
-                        old_value=$(grep "^$key=" "$cfg_file" | cut -d'=' -f2-)
-                        # Sabiti güncelle
-                        update_config_file "$key" "$cfg_file" "$value"
-                        # Değişikliği ekrana yazdır
-                        echo "Sabit '$key' güncellendi: Eski Değer='$old_value', Yeni Değer='$value'"
-                    fi
-                fi
-                # overwrite_all false ise, hiçbir şey yapma
-            else
-                # Sabit dosyada yoksa, ekle
-                echo "$key=$value" >> "$cfg_file"
-            fi
-        done
+# Anahtar dosyada varsa ve değer farklıysa günceller.
+update_constant_if_needed() {
+    local key="$1"
+    local value="$2"
+    local cfg_file="$3"
 
-        echo "Sabitler \"$cfg_file\" dosyasına kaydedildi."
+    if ! value_exists_in_file "$key" "$cfg_file" "$value"; then
+        local old_value=$(grep "^$key=" "$cfg_file" | cut -d'=' -f2-)
+        update_config_file "$key" "$cfg_file" "$value"
+        echo "Sabit '$key' güncellendi: Eski Değer='$old_value', Yeni Değer='$value'"
     fi
+}
+
+# Sabiti dosyaya ekler.
+append_constant_to_file() {
+    local key="$1"
+    local value="$2"
+    local cfg_file="$3"
+    echo "$key=$value" >> "$cfg_file"
 }
