@@ -6,6 +6,29 @@ source "$ROOT_DIR/default_variables.sh"
 source "$ROOT_DIR/general_functions.sh"
 ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 
+
+# Sabitleri tanımlar.
+define_constants() {
+    constants=(
+        "SQL_DOCKERFILE_NAME=docker_sql"                    # docker oluşturulmak için temel alınan SQL Dockerfile adı
+        "SQL_IMAGE_NAME=sql_image"                          # docker ps çıktısında gözükecek SQL Docker imajı adı
+        "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"             # haproxy scriptlerini içeren klasör adı
+        "HAPROXY_SCRIPT_NAME=create_haproxy.sh"             # haproxy'yi ayağa kaldırmak için kullanılan script adı
+        "ETCD_SCRIPT_FOLDER=etcd_scripts"                   # etcd scriptlerini içeren klasör adı
+        "ETCD_SCRIPT_NAME=create_etcd.sh"                   # etcd'yi ayağa kaldırmak için kullanılan script adı
+        "DOCKERFILE_PATH=../docker_files"                   # dockerfile'ların bulunduğu klasörün göreceli yolu
+        "DNS_DOCKERFILE_NAME=docker_dns"                    # docker oluşturulmak için temel alınan DNS Dockerfile adı
+        "DNS_IMAGE_NAME=dns_image"                          # docker ps çıktısında gözükecek DNS Docker imajı adı
+        "DNS_SHELL_SCRIPT_NAME=create_dns_server.sh"        # DNS sunucusunu ayağa kaldırmak için kullanılan script adı
+        "ETCD_CONFIG_DIR=/etc/etcd"                         # etcd konfigürasyon dosyasının bulunması gereken klasör
+        "ETCD_CONFIG_FILE=$ETCD_CONFIG_DIR/etcd.conf.yml"   # etcd konfigürasyon dosyasının tam yolu
+        "ETCD_USER=etcd"                                    # işletim sisteminde bulunacak olan etcd kullanıcısının adı
+        "PATRONI_DATA_DIR=/data"                            # patroni verilerinin tutulacağı dizin
+        "PATRONI_DIR=$PATRONI_DATA_DIR/patroni"             # patroni'nin çalıştığı dizin
+        "POSTGRES_USER=postgres"                            # işletim sisteminde bulunacak olan postgres kullanıcısının adı
+    )
+}
+
 # Argümanları tanımlayan fonksiyon
 define_arguments() {
     # Argümanları bir dizide tanımla
@@ -13,43 +36,43 @@ define_arguments() {
         # Anahtar                   Komut Satırı Argümanı                Varsayılan Değer                       Yardım Açıklaması
 
         # HAProxy Argümanları
-        "NODE1_IP"                  "--node1-ip"                         "$DEFAULT_NODE1_IP"                    "1. Düğümün IP adresi"
-        "NODE2_IP"                  "--node2-ip"                         "$DEFAULT_NODE2_IP"                    "2. Düğümün IP adresi"
-        "HAPROXY_BIND_PORT"         "--haproxy-bind-port"                "$DEFAULT_HAPROXY_BIND_PORT"           "HAProxy bağlantı portu"
-        "PGSQL_PORT"                "--pgsql-port"                       "$DEFAULT_PGSQL_PORT"                  "PostgreSQL portu"
-        "HAPROXY_PORT"              "--haproxy-port"                     "$DEFAULT_HAPROXY_PORT"                "HAProxy portu"
-        "PGSQL_BIND_PORT"           "--pgsql-bind-port"                  "$DEFAULT_PGSQL_BIND_PORT"             "PostgreSQL bağlantı portu"
+        "NODE1_IP"                  "--node1-ip"                         "$DEFAULT_NODE1_IP"                    "HAProxy'nin yönlendireceği ilk PostgreSQL düğümünün IP adresi"
+        "NODE2_IP"                  "--node2-ip"                         "$DEFAULT_NODE2_IP"                    "HAProxy'nin yönlendireceği ikinci PostgreSQL düğümünün IP adresi"
+        "HAPROXY_BIND_PORT"         "--haproxy-bind-port"                "$DEFAULT_HAPROXY_BIND_PORT"           "HAProxy'nin durum ve istatistik sayfasının HTTP üzerinden erişileceği port"
+        "PGSQL_PORT"                "--pgsql-port"                       "$DEFAULT_PGSQL_PORT"                  "Arka uç PostgreSQL düğümlerinin çalıştığı port"
+        "HAPROXY_PORT"              "--haproxy-port"                     "$DEFAULT_HAPROXY_PORT"                "HAProxy'nin gelen PostgreSQL bağlantıları için dinlediği port"
+        "PGSQL_BIND_PORT"           "--pgsql-bind-port"                  "$DEFAULT_PGSQL_BIND_PORT"             "HAProxy'nin PostgreSQL istemci bağlantıları için dinlediği port"
 
         # Keepalived Argümanları
-        "KEEPALIVED_INTERFACE"      "--keepalived-interface"             "$DEFAULT_KEEPALIVED_INTERFACE"        "Ağ arayüzü"
-        "SQL_VIRTUAL_IP"            "--sql-virtual-ip"                   "$DEFAULT_SQL_VIRTUAL_IP"              "SQL sanal IP adresi"
-        "DNS_VIRTUAL_IP"            "--dns-virtual-ip"                   "$DEFAULT_DNS_VIRTUAL_IP"              "DNS sanal IP adresi"
-        "KEEPALIVED_PRIORITY"       "--keepalived-priority"              "$DEFAULT_KEEPALIVED_PRIORITY"         "Keepalived önceliği"
-        "KEEPALIVED_STATE"          "--keepalived-state"                 "$DEFAULT_KEEPALIVED_STATE"            "Başlangıç durumu (MASTER/BACKUP)"
-        "SQL_CONTAINER_NAME"        "--sql-container-name"               "$DEFAULT_SQL_CONTAINER_NAME"          "SQL konteyner adı"
-        "DNS_CONTAINER_NAME"        "--dns-container-name"               "$DEFAULT_DNS_CONTAINER_NAME"          "DNS konteyner adı"
+        "KEEPALIVED_INTERFACE"      "--keepalived-interface"             "$DEFAULT_KEEPALIVED_INTERFACE"        "Keepalived'in VRRP iletişimi için kullanacağı ağ arayüzü (örn: eth0)"
+        "SQL_VIRTUAL_IP"            "--sql-virtual-ip"                   "$DEFAULT_SQL_VIRTUAL_IP"              "Keepalived tarafından yönetilen PostgreSQL servisi için sanal IP adresi"
+        "DNS_VIRTUAL_IP"            "--dns-virtual-ip"                   "$DEFAULT_DNS_VIRTUAL_IP"              "Keepalived tarafından yönetilen DNS servisi için sanal IP adresi"
+        "KEEPALIVED_PRIORITY"       "--keepalived-priority"              "$DEFAULT_KEEPALIVED_PRIORITY"         "Keepalived için öncelik değeri; daha yüksek değer, master seçiminde daha yüksek öncelik anlamına gelir (tamsayı)"
+        "KEEPALIVED_STATE"          "--keepalived-state"                 "$DEFAULT_KEEPALIVED_STATE"            "Düğümün Keepalived VRRP içindeki başlangıç durumu ('MASTER' veya 'BACKUP')"
+        "SQL_CONTAINER_NAME"        "--sql-container-name"               "$DEFAULT_SQL_CONTAINER_NAME"          "Keepalived'in izlediği SQL (PostgreSQL) konteynerinin adı"
+        "DNS_CONTAINER_NAME"        "--dns-container-name"               "$DEFAULT_DNS_CONTAINER_NAME"          "Keepalived'in izlediği DNS konteynerinin adı"
 
         # DNS Argümanları
-        "DNS_PORT"                  "--dns-port"                         "$DEFAULT_DNS_PORT"                    "DNS portu"
-        "DNS_DOCKER_FORWARD_PORT"   "--dns-docker-forward-port"          "$DEFAULT_DNS_DOCKER_FORWARD_PORT"     "Docker'a yönlendirilecek port"
+        "DNS_PORT"                  "--dns-port"                         "$DEFAULT_DNS_PORT"                    "DNS servisi için dinleme portu"
+        "DNS_DOCKER_FORWARD_PORT"   "--dns-docker-forward-port"          "$DEFAULT_DNS_DOCKER_FORWARD_PORT"     "DNS Docker konteynerine yönlendirilecek ana makine portu"
 
         # Patroni Argümanları
-        "PATRONI_NODE_NAME"         "--patroni-node-name"                "$DEFAULT_PATRONI_NODE_NAME"           "Düğüm adı"
-        "ETCD_IP"                   "--etcd-ip"                          "$DEFAULT_ETCD_IP"                     "ETCD IP adresi"
-        "REPLIKATOR_KULLANICI_ADI"  "--replicator-username"              "$DEFAULT_REPLIKATOR_KULLANICI_ADI"    "Replikasyon kullanıcı adı"
-        "REPLICATOR_SIFRESI"        "--replicator-password"              "$DEFAULT_REPLICATOR_SIFRESI"          "Replikasyon şifresi"
-        "POSTGRES_SIFRESI"          "--postgres-password"                "$DEFAULT_POSTGRES_SIFRESI"            "Postgres şifresi"
-        "IS_NODE_1"                 "--is-node1"                         "$DEFAULT_IS_NODE_1"                   "Bu düğüm 1. düğüm mü?"
+        "PATRONI_NODE_NAME"         "--patroni-node-name"                "$DEFAULT_PATRONI_NODE_NAME"           "Patroni küme yapılandırmasındaki bu düğümün adı"
+        "ETCD_IP"                   "--etcd-ip"                          "$DEFAULT_ETCD_IP"                     "Patroni'nin koordinasyon için kullandığı ETCD kümesinin IP adresi"
+        "REPLIKATOR_KULLANICI_ADI"  "--replicator-username"              "$DEFAULT_REPLIKATOR_KULLANICI_ADI"    "PostgreSQL replikasyon kullanıcısı için kullanıcı adı"
+        "REPLICATOR_SIFRESI"        "--replicator-password"              "$DEFAULT_REPLICATOR_SIFRESI"          "PostgreSQL replikasyon kullanıcısı için şifre"
+        "POSTGRES_SIFRESI"          "--postgres-password"                "$DEFAULT_POSTGRES_SIFRESI"            "PostgreSQL süper kullanıcı 'postgres' için şifre"
+        "IS_NODE_1"                 "--is-node1"                         "$DEFAULT_IS_NODE_1"                   "Bu düğümün kümedeki ilk düğüm olup olmadığını belirten bayrak. Bu bayrağa göre patroni ip atamaları yapılıyor. (true/false)"
 
         # ETCD Argümanları
-        "ETCD_CLIENT_PORT"          "--etcd-client-port"                 "$DEFAULT_ETCD_CLIENT_PORT"            "ETCD istemci portu"
-        "ETCD_PEER_PORT"            "--etcd-peer-port"                   "$DEFAULT_ETCD_PEER_PORT"              "ETCD eşler arası port"
-        "ETCD_CLUSTER_TOKEN"        "--etcd-cluster-token"               "$DEFAULT_ETCD_CLUSTER_TOKEN"          "Küme belirteci"
-        "ETCD_CLUSTER_KEEPALIVED_STATE" "--etcd-cluster-state"           "$DEFAULT_ETCD_CLUSTER_KEEPALIVED_STATE" "Küme durumu (new/existing)"
-        "ETCD_NAME"                 "--etcd-name"                        "$DEFAULT_ETCD_NAME"                   "ETCD düğüm adı"
-        "ETCD_ELECTION_TIMEOUT"     "--etcd-election-timeout"            "$DEFAULT_ETCD_ELECTION_TIMEOUT"       "Seçim zaman aşımı"
-        "ETCD_HEARTBEAT_INTERVAL"   "--etcd-heartbeat-interval"          "$DEFAULT_ETCD_HEARTBEAT_INTERVAL"     "Nabız aralığı"
-        "ETCD_DATA_DIR"             "--etcd-data-dir"                    "$DEFAULT_ETCD_DATA_DIR"               "Veri dizini"
+        "ETCD_CLIENT_PORT"          "--etcd-client-port"                 "$DEFAULT_ETCD_CLIENT_PORT"            "ETCD istemci isteklerinin hizmet verdiği port"
+        "ETCD_PEER_PORT"            "--etcd-peer-port"                   "$DEFAULT_ETCD_PEER_PORT"              "ETCD küme düğümleri arasındaki eşler arası iletişim için kullanılan port"
+        "ETCD_CLUSTER_TOKEN"        "--etcd-cluster-token"               "$DEFAULT_ETCD_CLUSTER_TOKEN"          "ETCD kümesini benzersiz bir şekilde tanımlayan belirteç"
+        "ETCD_CLUSTER_KEEPALIVED_STATE" "--etcd-cluster-state"           "$DEFAULT_ETCD_CLUSTER_KEEPALIVED_STATE" "ETCD kümesinin başlangıç durumu ('new' için ilk kurulum veya 'existing' düğüm ekleme)"
+        "ETCD_NAME"                 "--etcd-name"                        "$DEFAULT_ETCD_NAME"                   "Bu ETCD düğümünün küme içindeki adı"
+        "ETCD_ELECTION_TIMEOUT"     "--etcd-election-timeout"            "$DEFAULT_ETCD_ELECTION_TIMEOUT"       "ETCD seçim zaman aşımı süresi (milisaniye cinsinden, örn: 1000)"
+        "ETCD_HEARTBEAT_INTERVAL"   "--etcd-heartbeat-interval"          "$DEFAULT_ETCD_HEARTBEAT_INTERVAL"     "ETCD nabız aralığı süresi (milisaniye cinsinden, örn: 500)"
+        "ETCD_DATA_DIR"             "--etcd-data-dir"                    "$DEFAULT_ETCD_DATA_DIR"               "ETCD verilerinin saklanacağı dizin"
     )
 }
 
@@ -158,28 +181,6 @@ parse_all_arguments() {
     write_constants_to_file
 }
 
-
-# Sabitleri tanımlar.
-define_constants() {
-    constants=(
-        "SQL_DOCKERFILE_NAME=docker_sql"
-        "SQL_IMAGE_NAME=sql_image"
-        "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"
-        "HAPROXY_SCRIPT_NAME=create_haproxy.sh"
-        "ETCD_SCRIPT_FOLDER=etcd_scripts"
-        "ETCD_SCRIPT_NAME=create_etcd.sh"
-        "DOCKERFILE_PATH=../docker_files"
-        "DNS_DOCKERFILE_NAME=docker_dns"
-        "DNS_IMAGE_NAME=dns_image"
-        "DNS_SHELL_SCRIPT_NAME=create_dns_server.sh"
-        "ETCD_CONFIG_DIR=/etc/etcd"
-        "ETCD_CONFIG_FILE=$ETCD_CONFIG_DIR/etcd.conf.yml"
-        "ETCD_USER=etcd"
-        "PATRONI_DATA_DIR=/data"
-        "PATRONI_DIR=$PATRONI_DATA_DIR/patroni"
-        "POSTGRES_USER=postgres"
-    )
-}
 
 # Ana fonksiyon: Sabitleri dosyaya yazar.
 write_constants_to_file() {
