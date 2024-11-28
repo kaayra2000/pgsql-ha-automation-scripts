@@ -9,7 +9,6 @@ COMMENT
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source "$ROOT_DIR/general_functions.sh"
-ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 
 check_integer() {
     if ! [[ "$1" =~ ^[0-9]+$ ]]; then

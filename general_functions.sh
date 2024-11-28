@@ -3,7 +3,7 @@
 # Argüman dosyasının varlığını kontrol edip gerekli fonksiyonları çağıran fonksiyon
 parse_and_read_arguments() {
     parse_all_arguments "$@"
-    read_arguments "$ARGUMENT_CFG_FILE"
+    read_arguments "$ARGUMENT_CFG_FILE" # ARGUMENT_CFG_FILE değişkeni argument_parser.sh dosyasında tanımlı
 }
 
 # Argümanları dosyadan oku ve export et
