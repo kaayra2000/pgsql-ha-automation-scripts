@@ -113,6 +113,19 @@ write_config_to_file() {
     done
 }
 
+# Anahtar ve değerin dosyada olup olmadığını kontrol eden fonksiyon
+value_exists_in_file() {
+    local key="$1"
+    local filename="$2"
+    local value="$3"
+
+    if grep -q "^$key=$value\$" "$filename"; then
+        return 0  # Anahtar-değer çifti bulundu
+    else
+        return 1  # Anahtar-değer çifti bulunamadı
+    fi
+}
+
 # Anahtarın dosyada olup olmadığını kontrol eden fonksiyon
 key_exists_in_file() {
     local key="$1"
@@ -188,6 +201,7 @@ write_constants_to_file() {
             key=$(echo "$const" | cut -d'=' -f1)
             value=$(echo "$const" | cut -d'=' -f2-)
             echo "$key=$value" >> "$cfg_file"
+            echo "Sabit '$key' eklendi: Değer='$value'"
         done
         echo "Sabitler \"$cfg_file\" dosyasına yazıldı."
     else
@@ -223,7 +237,15 @@ write_constants_to_file() {
             value=$(echo "$const" | cut -d'=' -f2-)
             if key_exists_in_file "$key" "$cfg_file"; then
                 if $overwrite_all; then
-                    update_config_file "$key" "$cfg_file" "$value"
+                    if ! value_exists_in_file "$key" "$cfg_file" "$value"; then
+                        # Eğer değer farklıysa, eski değeri al, sabiti güncelle ve değişikliği ekrana yazdır
+                        # Eski değeri al
+                        old_value=$(grep "^$key=" "$cfg_file" | cut -d'=' -f2-)
+                        # Sabiti güncelle
+                        update_config_file "$key" "$cfg_file" "$value"
+                        # Değişikliği ekrana yazdır
+                        echo "Sabit '$key' güncellendi: Eski Değer='$old_value', Yeni Değer='$value'"
+                    fi
                 fi
                 # overwrite_all false ise, hiçbir şey yapma
             else
