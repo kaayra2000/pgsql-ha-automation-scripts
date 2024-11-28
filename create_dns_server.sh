@@ -1,5 +1,9 @@
 #!/bin/bash
 
+<<COMMENT
+    Buradaki değişkenler arguments.cfg dosyasından okunacak.
+COMMENT
+
 # Fonksiyonlar
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

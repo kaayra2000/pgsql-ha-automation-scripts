@@ -1,5 +1,9 @@
 #!/bin/bash
 
+<<COMMENT
+    Buradaki değişkenler arguments.cfg dosyasından okunacak.
+COMMENT
+
 # Keepalived kurulumu
 install_keepalived() {
     if ! command -v keepalived &>/dev/null; then

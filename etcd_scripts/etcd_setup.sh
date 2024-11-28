@@ -1,4 +1,9 @@
 #!/bin/bash
+
+<<COMMENT
+    Buradaki değişkenler arguments.cfg dosyasından okunacak.
+COMMENT
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source $SCRIPT_DIR/../general_functions.sh

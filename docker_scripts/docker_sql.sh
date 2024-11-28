@@ -1,5 +1,9 @@
 #!/bin/bash
 
+<<COMMENT
+    Buradaki değişkenler arguments.cfg dosyasından okunacak.
+COMMENT
+
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source $SCRIPT_DIR/create_image.sh
 source $SCRIPT_DIR/../default_variables.sh
