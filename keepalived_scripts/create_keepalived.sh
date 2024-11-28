@@ -8,7 +8,7 @@ COMMENT
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Diğer scriptleri import etme
-source "$SCRIPT_DIR/../argument_parser.sh"
+source "$SCRIPT_DIR/../general_functions.sh"
 source "$SCRIPT_DIR/user_management.sh"
 source "$SCRIPT_DIR/logging.sh"
 source "$SCRIPT_DIR/keepalived_setup.sh"
