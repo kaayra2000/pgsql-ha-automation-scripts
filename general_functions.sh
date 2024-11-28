@@ -1,5 +1,9 @@
 #!/bin/bash
 
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+source "$ROOT_DIR/argument_parser.sh"
+
 # Argüman dosyasının varlığını kontrol edip gerekli fonksiyonları çağıran fonksiyon
 parse_and_read_arguments() {
     parse_all_arguments "$@"
