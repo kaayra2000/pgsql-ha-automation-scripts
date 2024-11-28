@@ -20,10 +20,10 @@ define_constants() {
         "DNS_IMAGE_NAME=dns_image"                          # docker ps çıktısında gözükecek DNS Docker imajı adı
         "DNS_SHELL_SCRIPT_NAME=create_dns_server.sh"        # DNS sunucusunu ayağa kaldırmak için kullanılan script adı
         "ETCD_CONFIG_DIR=/etc/etcd"                         # etcd konfigürasyon dosyasının bulunması gereken klasör
-        "ETCD_CONFIG_FILE=$ETCD_CONFIG_DIR/etcd.conf.yml"   # etcd konfigürasyon dosyasının tam yolu
+        "ETCD_CONFIG_FILE=\$ETCD_CONFIG_DIR/etcd.conf.yml"   # etcd konfigürasyon dosyasının tam yolu
         "ETCD_USER=etcd"                                    # işletim sisteminde bulunacak olan etcd kullanıcısının adı
         "PATRONI_DATA_DIR=/data"                            # patroni verilerinin tutulacağı dizin
-        "PATRONI_DIR=$PATRONI_DATA_DIR/patroni"             # patroni'nin çalıştığı dizin
+        "PATRONI_DIR=\$PATRONI_DATA_DIR/patroni"             # patroni'nin çalıştığı dizin
         "POSTGRES_USER=postgres"                            # işletim sisteminde bulunacak olan postgres kullanıcısının adı
     )
 }

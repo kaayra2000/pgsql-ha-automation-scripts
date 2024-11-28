@@ -17,9 +17,7 @@ read_arguments() {
         echo "Hata: Argüman dosyası bulunamadı: $input_file"
         exit 1
     fi
-    while IFS='=' read -r key value; do
-        export "$key"="$value"
-    done < "$input_file"
+    source "$input_file"
 }
 
 check_success() {
