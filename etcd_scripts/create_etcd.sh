@@ -13,11 +13,11 @@ source $SCRIPT_DIR/../general_functions.sh
 parse_and_read_arguments "$@"
 # Sayısal değer kontrolü
 # Dizin kontrolü
-if ! check_directory "$ETCD_DATA_DIR"; then
+if ! check_and_create_directory "$ETCD_DATA_DIR"; then
     exit 1
 fi
 
-if ! check_directory "$ETCD_CONFIG_DIR"; then
+if ! check_and_create_directory "$ETCD_CONFIG_DIR"; then
     exit 1
 fi
 

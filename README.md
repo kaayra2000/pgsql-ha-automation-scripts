@@ -149,10 +149,10 @@ validate_number() {
 
 * **Amaç:** Verilen değerin sayısal bir değer olup olmadığını ve isteğe bağlı olarak belirli bir minimum değerden büyük olup olmadığını kontrol eder.
 
-#### check_directory
+#### check_and_create_directory
 
 ```bash
-check_directory() {
+check_and_create_directory() {
     # Dizin varlığını ve yazılabilirliğini kontrol eder
 }
 ```

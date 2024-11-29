@@ -11,6 +11,8 @@ define_constants() {
     constants=(
         "SQL_DOCKERFILE_NAME=docker_sql"                    # docker oluşturulmak için temel alınan SQL Dockerfile adı
         "SQL_IMAGE_NAME=sql_image"                          # docker ps çıktısında gözükecek SQL Docker imajı adı
+        "PATRONI_SCRIPT_FOLDER=patroni_scripts"             # patroni scriptlerini içeren klasör adı
+        "PATRONI_SCRIPT_NAME=create_patroni.sh"             # patroni'yi ayağa kaldırmak için kullanılan script adı
         "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"             # haproxy scriptlerini içeren klasör adı
         "HAPROXY_SCRIPT_NAME=create_haproxy.sh"             # haproxy'yi ayağa kaldırmak için kullanılan script adı
         "ETCD_SCRIPT_FOLDER=etcd_scripts"                   # etcd scriptlerini içeren klasör adı

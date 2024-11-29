@@ -70,7 +70,7 @@ validate_number() {
 }
 
 # Dizin kontrolü ve oluşturma fonksiyonu
-check_directory() {
+check_and_create_directory() {
     local dir_path="$1"
     local create_if_missing="${2:-true}"  # Opsiyonel parametre, varsayılan true
     

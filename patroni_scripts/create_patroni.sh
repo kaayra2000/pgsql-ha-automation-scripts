@@ -13,7 +13,7 @@ source $SCRIPT_DIR/../general_functions.sh
 parse_and_read_arguments "$@"
 
 
-if ! check_directory "$PATRONI_DIR"; then
+if ! check_and_create_directory "$PATRONI_DIR"; then
     exit 1
 fi 
 
@@ -29,3 +29,5 @@ sudo chmod -R 700 $PATRONI_DIR
 check_success "Dizin izinleri değiştirilirken bir hata oluştu."
 
 patroni_yml_konfigure_et
+
+patroni_etkinlestir

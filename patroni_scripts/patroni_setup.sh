@@ -87,8 +87,7 @@ EOF
 }
 
 patroni_etkinlestir() {
-    local PATRONI_PORT="$1"
-    if [ -z "$PATRONI_PORT" ]; then
+    if [ -z "$HAPROXY_PORT" ]; then
         echo "HATA: Port numarası belirtilmedi!"
         return 1
     fi
@@ -103,11 +102,11 @@ patroni_etkinlestir() {
     if service patroni status >/dev/null 2>&1; then
         echo "Patroni servisi başarıyla çalışıyor."
         # API'nin çalışıp çalışmadığını kontrol et
-        if curl -s "http://127.0.0.1:${PATRONI_PORT}/patroni" >/dev/null 2>&1; then
-            echo "Patroni API aktif ve sağlıklı (port: ${PATRONI_PORT})"
+        if curl -s "http://127.0.0.1:${HAPROXY_PORT}/patroni" >/dev/null 2>&1; then
+            echo "Patroni API aktif ve sağlıklı (port: ${HAPROXY_PORT})"
             return 0
         else
-            echo "UYARI: Patroni servisi çalışıyor fakat API şu anlık yanıt vermiyor (port: ${PATRONI_PORT})"
+            echo "UYARI: Patroni servisi çalışıyor fakat API şu anlık yanıt vermiyor (port: ${HAPROXY_PORT})"
             return 0
         fi
     else

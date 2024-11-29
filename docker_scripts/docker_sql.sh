@@ -24,6 +24,7 @@ run_container() {
         $SQL_IMAGE_NAME \
         /bin/bash -c "$SHELL_PATH_IN_DOCKER/$ETCD_SCRIPT_FOLDER/$ETCD_SCRIPT_NAME \
         && $SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME \
+        && $SHELL_PATH_IN_DOCKER/$PATRONI_SCRIPT_FOLDER/$PATRONI_SCRIPT_NAME \
         && while true; do sleep 30; done"
 }
 parse_and_read_arguments "$@"
