@@ -56,7 +56,7 @@ postgresql:
     listen: 0.0.0.0:${PGSQL_PORT}
     connect_address: ${NODE1_IP}:${PGSQL_PORT}
     data_dir: /data/patroni
-    bin_dir: /usr/pgsql-16/bin
+    bin_dir: /usr/lib/postgresql/16/bin
     pgpass: /tmp/pgpass
     authentication:
         replication:
