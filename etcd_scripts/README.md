@@ -27,7 +27,7 @@ Eğer hangi argümanları alabildiğini öğrenmek istiyorsanız aşağıdaki ko
 Örnek bir kullanım:
 
 ```bash
-./create_etcd.sh --etcd-client-port 2379 -etcd-peer-port 2380 \
+./create_etcd.sh --etcd-client-port 2379 --etcd-peer-port 2380 \
 --etcd-cluster-token cluster1 --etcd-cluster-state new --etcd-name etcd1 \
 --etcd-election-timeout 5000 --etcd-heartbeat-interval 1000 \
 --etcd-data-dir /var/lib/etcd/default

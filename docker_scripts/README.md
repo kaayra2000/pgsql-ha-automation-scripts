@@ -52,7 +52,7 @@ Bu dosyalar yüksek erişilebilirlik sağlamak amacıyla docker üzerinde otomat
     ```bash
     ./docker_sql.sh --node1-ip 10.207.80.10 --node2-ip 10.207.80.11 \
     --haproxy-bind-port 7000 --pgsql-port 5432 --haproxy-port 8008 \
-    --pgsql-bind-port 5000 --etcd-client-port 2379 -etcd-peer-port 2380 \
+    --pgsql-bind-port 5000 --etcd-client-port 2379 --etcd-peer-port 2380 \
     --etcd-cluster-token cluster1 --etcd-cluster-state new --etcd-name etcd1 \
     --etcd-election-timeout 5000 --etcd-heartbeat-interval 1000 \
     --etcd-data-dir /var/lib/etcd/default \
