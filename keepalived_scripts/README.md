@@ -1,78 +1,48 @@
-# Keepalived Kurulum ve Yapılandırma Scriptleri - README
+# Ne işe yarar?
 
-## Dosyalar ve İşlevleri
+Bu dosyaların amacı ubuntu üzerinde otomatik keepalived kurulabilmesine vesile olmaktır.
 
-### create_keepalived.sh
+# Ne içerir?
 
-- Ana kontrol scripti
-- Diğer tüm scriptleri import eder
-- Sırasıyla tüm kurulum adımlarını çalıştırır
-- Keepalived kurulumunu ve yapılandırmasını yönetir
+- `create_keepalived.sh`: Bir üst dizindeki `arguments.cfg` dosyasındaki değişkenleri ve `keepalived_setup.sh` dosyasındaki fonksiyonları kullanarak keepalived kurulumunu yapar.
+- `keepalived_setup.sh`: keepalived konfigürasyonunu oluşturmak ve keepalived'yi başlatmak için kullanılan çeşitli fonksiyonları içerir.
+- `container_scripts.sh`: İlgili konteynerler ayakta mı kontrolü için script oluşturmaya yarar. Eğer ilgili konteyner ayakta değilse, ve diğer keepalivedlardan birisinde bu konteyner ayaktaysa ilgili ip'yi diğer keepalived'e devreder.
+- logging.sh: Log dosyası oluşturma komutlarını içerir.
+- user_management.sh: keepalived_script kullanıcısını oluşturur ve docker grup izinlerini ayarlar.
 
-### container_scripts.sh
+# Nasıl kullanılır?
 
-- Konteyner kontrol scripti
-- Docker konteynerlerinin durumunu kontrol eden scriptleri oluşturur
-- Konteyner durum kontrollerini loglar
-
-### keepalived_setup.sh
-
-- Keepalived kurulum ve yapılandırma scripti
-- Keepalived paketini kurar
-- Keepalived yapılandırma dosyasını oluşturur
-- Servisi başlatır ve etkinleştirir
-
-### logging.sh
-
-- Loglama yönetim scripti
-- Log dosyalarını oluşturur
-- Log dosyası izinlerini ayarlar
-- Log dosyası sahipliklerini yapılandırır
-
-### user_management.sh
-
-- Kullanıcı yönetim scripti
-- keepalived_script kullanıcısını oluşturur
-- Docker grup izinlerini ayarlar
-- Sudo yetkilerini yapılandırır
-
-## Kullanım
-
-./create_keepalived.sh [PARAMETRELER]
-
-Parametreler:
-_--interface :_ Ağ arayüzü (Varsayılan: enp0s3)
-_--sql-virtual-ip :_ SQL sanal IP adresi (Varsayılan: 10.207.80.20)
-_--dns-virtual-ip :_ DNS sanal IP adresi (Varsayılan: 10.207.80.30)
-_--priority :_ Öncelik değeri (Varsayılan: 100)
-_--state : Durum (MASTER/BACKUP) (Varsayılan: BACKUP)
-_--sql-container :_ SQL konteyner adı (Varsayılan: sql_container)
-_--dns-container :_ DNS konteyner adı (Varsayılan: dns_container)
-
-## Örnek Kullanım
+Normal şartlarda `docker_scripts/docker_sql.sh` dosyası bu dosyaları kullanarak keepalived kurulumunu yapar. Ancak bu dosyaları tek başına çalıştırmak isterseniz aşağıdaki komutu çalıştırabilirsiniz.
 
 ```bash
-./create_keepalived.sh \
- --interface eth0 \
- --sql-virtual-ip 192.168.1.100 \
- --dns-virtual-ip 192.168.1.101 \
- --priority 100 \
- --state MASTER \
- --sql-container sql_1 \
- --dns-container dns_1
+./create_keepalived.sh
 ```
-Dikkat: interface bulunamazsa sistem başlamaz.
 
-## Sistem Gereksinimleri
+Eğer hangi argümanları alabildiğini öğrenmek istiyorsanız aşağıdaki komutları çalıştırabilirsiniz.
 
-- Linux işletim sistemi
-- Sudo yetkileri
-- Docker kurulumu
-- İnternet bağlantısı (paket kurulumu için)
+```bash
+./create_keepalived.sh -h
+```
+```bash
+./create_keepalived.sh --help
+```
 
-## Notlar
+Örnek bir kullanım:
 
-- Script sudo yetkisi gerektirir
-- Docker kurulu olmalıdır
-- Konteynerler önceden oluşturulmuş olmalıdır
-- Log dosyaları /var/log/ dizininde oluşturulur
+```bash
+./create_keepalived.sh --keepalived-interface enp0s3 \
+--sql-virtual-ip 10.207.80.20 --dns-virtual-ip 10.207.80.30 \
+--keepalived-priority 100 --keepalived-state BACKUP \
+--sql-container-name sql_container --dns-container-name dns_container
+```
+
+**Önemli**: interface bulunamazsa sistem başlamaz.
+
+# Not
+
+- Eğer argümanları teker teker geçirmek istemiyorsanız `arguments.cfg` dosyasını düzenleyerek `create_keepalived.sh` dosyasını çalıştırabilirsiniz. Zaten varsayılan olarak oradaki değerler alınacaktır.
+
+- Eğer argümanları yukarıdaki örnekteki gibi geçirirseniz `create_keepalived.sh` dosyası `arguments.cfg` dosyasındaki değerleri değiştirecektir. Bu durumda, ilk geçirdiğiniz değerleri tekrar geçirmek istiyorsanız, bir daha argümanaları yukarıdaki örnekteki gibi geçirmenize gerek yoktur.
+
+- `arguments.cfg` dosyasında bu `create_keepalived.sh` dosyasında kullanılmayan argümanlar da bulunmaktadır. Tüm ***komut*** (.sh) dosyalarının argümanları tek bir merkezde toplandığı için bu durum normaldir. Eğer sadece `create_keepalived.sh` komut dosyasını çalıştıracaksanız `arguments.cfg` dosyasındaki fazlalık argümanları umursamayın.
+

@@ -274,7 +274,6 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
   - `DEFAULT_KEEPALIVED_STATE`: Keepalived durumunu belirtir (`MASTER` veya `BACKUP`). Varsayılan değer: `"BACKUP"`
   - `DEFAULT_SQL_CONTAINER_NAME`: SQL için Docker container adı. Varsayılan değer: `"sql_container"`
   - `DEFAULT_DNS_CONTAINER_NAME`: DNS için Docker container adı. Varsayılan değer: `"dns_container"`
-  - `DOCKER_BINARY_PATH`: Docker binary dosyasının yolu. Varsayılan değer: `"/usr/bin/docker"`
 
 - **ETCD Varsayılan Değerleri**:
   - `DEFAULT_ETCD_IP`: ETCD'nin IP adresi. Varsayılan olarak `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
