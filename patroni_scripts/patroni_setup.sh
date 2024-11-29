@@ -16,7 +16,7 @@ namespace: /db/
 name: $PATRONI_NODE_NAME
 
 restapi:
-    listen: ${NODE1_IP}:${HAPROXY_PORT}
+    listen: 0.0.0.0:${HAPROXY_PORT}
     connect_address: ${NODE1_IP}:${HAPROXY_PORT}
 
 etcd:
@@ -53,7 +53,7 @@ bootstrap:
                 - createdb
 
 postgresql:
-    listen: ${NODE1_IP}:${PGSQL_PORT}
+    listen: 0.0.0.0:${PGSQL_PORT}
     connect_address: ${NODE1_IP}:${PGSQL_PORT}
     data_dir: /data/patroni
     bin_dir: /usr/pgsql-16/bin

@@ -18,7 +18,8 @@ run_container() {
         -p $ETCD_PEER_PORT:$ETCD_PEER_PORT \
         -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/tcp \
         -p $HAPROXY_BIND_PORT:$HAPROXY_BIND_PORT/udp \
-        -p $PGSQL_BIND_PORT:$PGSQL_BIND_PORT/tcp \
+        -p $HAPROXY_PORT:$HAPROXY_PORT \
+        -p $PGSQL_PORT:$PGSQL_PORT \
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $SQL_IMAGE_NAME \
