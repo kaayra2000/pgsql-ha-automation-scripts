@@ -4,11 +4,13 @@ Bu depo temel olarak PostgreSQL'in yüksek erişilebilirlik mimarisini ve dns su
 
 # Dosya içerikleri
 
+Her klasörün içinde `README.md` dosyası bulunmaktadır. Bu dosyalar, klasördeki dosyaların ne işe yaradığını, ne içerdiğini, nasıl kullanıldığını ve notlarını içermektedir. Bu dosyaları okuyarak ilgili klasördeki dosyalar hakkında bilgi sahibi olabilirsiniz.
+
 <details>
 
 <summary><strong>argument_parser.sh</strong></summary>
 
-Bu script, verilen argümanları parse eder ve kullanıcının vermediği argümanlara varsayılan değerler atar. Sonuç olarak, bu argümanlar diğer dosyalarda kullanılmak üzere `_arguments.cfg_` dosyasına yazılır. İki durum söz konusudur:
+Bu script, sabitleri ve verilen argümanları parse eder ve kullanıcının vermediği argümanlara varsayılan değerler atar. Sonuç olarak, bu argümanlar diğer dosyalarda kullanılmak üzere `arguments.cfg` dosyasına yazılır. İki durum söz konusudur:
 
 ### Durumlar
 
@@ -32,74 +34,53 @@ Dosyanın içeriği şu şekilde olacaktır:
 
 ```bash
 SQL_VIRTUAL_IP=10.207.90.21
-ETCD_ELECTION_TIMEOUT=5000
+DNS_VIRTUAL_IP=10.207.80.11
 NODE2_IP=10.207.80.11
 REPLIKATOR_KULLANICI_ADI=replicator
-KEEPALIVED_PRIORITY=100
-KEEPALIVED_INTERFACE=et123456
 IS_NODE_1=true
+ETCD_CLUSTER_KEEPALIVED_STATE=new
 HAPROXY_BIND_PORT=7000
-DNS_CONTAINER_NAME=dns_1
+ETCD_HEARTBEAT_INTERVAL=1000
 ETCD_NAME=etcd1
 POSTGRES_SIFRESI=postgres_pass
+DNS_DOCKER_FORWARD_PORT=53
 ETCD_CLIENT_PORT=2379
-ETCD_HEARTBEAT_INTERVAL=1000
+KEEPALIVED_INTERFACE=enp0s3
 ETCD_IP=10.207.80.20
-PATRONI_NODE_NAME=pg_node1
-PGSQL_PORT=5432
-ETCD_CLUSTER_KEEPALIVED_STATE=new
-ETCD_DATA_DIR=/var/lib/etcd/default
 ETCD_CLUSTER_TOKEN=cluster1
-ETCD_PEER_PORT=2380
+PGSQL_PORT=5432
+ETCD_DATA_DIR=/var/lib/etcd/default
 PGSQL_BIND_PORT=5000
+ETCD_ELECTION_TIMEOUT=5000
+ETCD_PEER_PORT=2380
+KEEPALIVED_STATE=BACKUP
 HAPROXY_PORT=8008
 REPLICATOR_SIFRESI=replicator_pass
-SQL_CONTAINER_NAME=sql_1
 NODE1_IP=10.207.80.10
-KEEPALIVED_STATE=BACKUP
-DNS_VIRTUAL_IP=10.207.80.11
+DNS_PORT=53
+SQL_CONTAINER_NAME=sql_container
+KEEPALIVED_PRIORITY=100
+DNS_CONTAINER_NAME=dns_container
+PATRONI_NODE_NAME=pg_node1
+SQL_DOCKERFILE_NAME=docker_sql
+SQL_IMAGE_NAME=sql_image
+HAPROXY_SCRIPT_FOLDER=haproxy_scripts
+HAPROXY_SCRIPT_NAME=create_haproxy.sh
+ETCD_SCRIPT_FOLDER=etcd_scripts
+ETCD_SCRIPT_NAME=create_etcd.sh
+DOCKERFILE_PATH=../docker_files
+DNS_DOCKERFILE_NAME=docker_dns
+DNS_IMAGE_NAME=dns_image
+DNS_SHELL_SCRIPT_NAME=create_dns_server.sh
+ETCD_CONFIG_DIR=/etc/etcd
+ETCD_CONFIG_FILE=$ETCD_CONFIG_DIR/etcd.conf.yml
+ETCD_USER=etcd
+PATRONI_DATA_DIR=/data
+PATRONI_DIR=$PATRONI_DATA_DIR/patroni
+POSTGRES_USER=postgres
+
 ```
 Bu durumda _SQL\_VIRTUAL\_IP_ kullanıcının verdiği değerle değişmiştir. Halihazırda dosyada mevcut olan _DNS\_VIRTUAL\_IP_ argümanı değişmemiştir. Dosyada olmayan argümanlar ise varsayılan değerlerle doldurulmuştur.
-
-</details>
-
-<details>
-
-<summary><strong>create_dns_server.sh</strong></summary>
-
-Bu script, BIND9 DNS sunucusunu belirli bir port üzerinden kurar ve yapılandırır. Kullanıcıdan aldığı **port numarası** ile BIND9'un o portta dinlemesini sağlar. Ayrıca, gerekli yapılandırma dosyalarını oluşturur ve servisi yeniden başlatarak değişiklikleri uygular.
-
-### Özellikler
-
-- **Port Ayarı**: Kullanıcının belirttiği port numarasını kontrol ederek geçerli bir değer olup olmadığını doğrular.
-
-- **BIND9 Kurulumu**: BIND9 ve ilgili paketleri otomatik olarak kurar.
-
-- **Yapılandırma**:
-  - `named.conf.options` dosyasını düzenleyerek DNS sunucusunun genel ayarlarını yapar.
-  - `named.conf.local` dosyasını oluşturur ve zone tanımlarını ekler.
-  - Örnek zone dosyaları (`db.example.com` ve `db.server`) oluşturur.
-
-- **Servis Yönetimi**: BIND9 servisini yeniden başlatarak yeni yapılandırmaların etkin olmasını sağlar.
-
-### Kullanım
-
-```bash
-./create_dns_server.sh <port>
-```
-* \<port>: DNS sunucusunun dinleyeceği port numarası (1 ile 65535 arasında geçerli bir tam sayı olmalıdır).
-
-**Örnek:**
-```bash
-./create_dns_server.sh 5353
-```
-Bu komut, DNS sunucusunu 5353 numaralı portta çalışacak şekilde kurar ve yapılandırır.
-
-### Notlar
-* **Yetkilendirme:** Script, bazı işlemler için sudo yetkisi gerektirir.
-* **Sistem Gereksinimleri:** Ubuntu/Debian tabanlı sistemlerde çalışacak şekilde tasarlanmıştır.
-* **Güncellemeler:** Oluşturulan zone dosyalarını ve yapılandırma ayarlarını ihtiyaçlarınıza göre düzenleyebilirsiniz.
-* **Güvenlik:** Varsayılan ayarlar tüm IP adreslerinden gelen sorgulara izin verir. Güvenlik açısından allow-query gibi ayarları düzenlemeniz önerilir.
 
 </details>
 
@@ -198,10 +179,10 @@ check_user_exists() {
 
 * **Amaç:** Verilen kullanıcının sistemde mevcut olup olmadığını kontrol eder.
 
-#### show_help
+#### show_argument_help
 
 ```bash
-show_help() {
+show_argument_help() {
     # Yardım mesajını gösterir
 }
 ```
@@ -209,17 +190,6 @@ show_help() {
 * **Amaç:** Scriptin kullanımını ve argüman açıklamalarını formatlı bir şekilde ekrana yazdırır.
 
 #### show_argument_help
-
-```bash
-show_argument_help() {
-    # Argüman yardımını gösterir
-}
-```
-
-* **Amaç:** Argüman listesini ve açıklamalarını düzenli bir formatta kullanıcıya gösterir.
-
-### Kullanım
-Bu script, diğer scriptlerin içine dahil edilerek fonksiyonların kullanılmasını sağlar. Başka bir script içinde aşağıdaki şekilde kullanılabilir:
 
 ```bash
 #!/bin/bash
@@ -252,42 +222,109 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
 ### Özellikler
 
 - **HAProxy Değişkenleri**:
-  - `DEFAULT_NODE1_IP`: İlk node'un IP adresi. Varsayılan değer: `"10.207.80.10"`
-  - `DEFAULT_NODE2_IP`: İkinci node'un IP adresi. Varsayılan değer: `"10.207.80.11"`
-  - `DEFAULT_HAPROXY_BIND_PORT`: HAProxy'nin bağlanacağı port. Varsayılan değer: `"7000"`
-  - `DEFAULT_HAPROXY_PORT`: HAProxy'nin dinleyeceği port. Varsayılan değer: `"8008"`
+  - `DEFAULT_NODE1_IP`:
+    - Açıklama: HAProxy'nin yönlendireceği ilk PostgreSQL düğümünün IP adresi.
+    - Varsayılan Değer: `"10.207.80.10"`
+  - `DEFAULT_NODE2_IP`:
+    - Açıklama: HAProxy'nin yönlendireceği ikinci PostgreSQL düğümünün IP adresi.
+    - Varsayılan Değer: `"10.207.80.11"`
+  - `DEFAULT_HAPROXY_BIND_PORT`:
+    - Açıklama: HAProxy'nin durum ve istatistik sayfasının HTTP üzerinden erişileceği port.
+    - Varsayılan Değer: `"7000"`
+  - `DEFAULT_PGSQL_PORT`:
+    - Açıklama: Arka uç PostgreSQL düğümlerinin çalıştığı port.
+    - Varsayılan Değer: `"5432"`
+  - `DEFAULT_HAPROXY_PORT`:
+    - Açıklama: HAProxy'nin gelen PostgreSQL bağlantıları için dinlediği port.
+    - Varsayılan Değer: `"8008"`
+  - `DEFAULT_PGSQL_BIND_PORT`:
+    - Açıklama: HAProxy'nin PostgreSQL istemci bağlantıları için dinlediği port.
+    - Varsayılan Değer: `"5000"`
 
 - **PostgreSQL ve Patroni Değişkenleri**:
-  - `DEFAULT_PATRONI_NODE_NAME`: Node adı. Varsayılan değer: `"pg_node1"`
-  - `DEFAULT_PGSQL_PORT`: PostgreSQL'in dinlediği port. Varsayılan değer: `"5432"`
-  - `DEFAULT_PGSQL_BIND_PORT`: PostgreSQL'in bağlanacağı port. Varsayılan değer: `"5000"`
-  - `DEFAULT_REPLIKATOR_KULLANICI_ADI`: Replikasyon için kullanılacak kullanıcı adı. Varsayılan değer: `"replicator"`
-  - `DEFAULT_REPLICATOR_SIFRESI`: Replikasyon kullanıcısının şifresi. Varsayılan değer: `"replicator_pass"`
-  - `DEFAULT_POSTGRES_SIFRESI`: PostgreSQL veritabanı kullanıcısının şifresi. Varsayılan değer: `"postgres_pass"`
-  - `DEFAULT_IS_NODE_1`: Node'un birinci node olup olmadığını belirten değer. Varsayılan değer: `"true"`
+  - `DEFAULT_PATRONI_NODE_NAME`:
+    - Açıklama: Patroni küme yapılandırmasındaki bu düğümün adı.
+    - Varsayılan Değer: `"pg_node1"`
+  - `DEFAULT_ETCD_IP`:
+    - Açıklama: Patroni'nin koordinasyon için kullandığı ETCD kümesinin IP adresi.
+    - Varsayılan Değer: `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
+  - `DEFAULT_REPLIKATOR_KULLANICI_ADI`:
+    - Açıklama: PostgreSQL replikasyon kullanıcısı için kullanıcı adı.
+    - Varsayılan Değer: `"replicator"`
+  - `DEFAULT_REPLICATOR_SIFRESI`:
+    - Açıklama: PostgreSQL replikasyon kullanıcısı için şifre.
+    - Varsayılan Değer: `"replicator_pass"`
+  - `DEFAULT_POSTGRES_SIFRESI`:
+    - Açıklama: PostgreSQL süper kullanıcı 'postgres' için şifre.
+    - Varsayılan Değer: `"postgres_pass"`
+  - `DEFAULT_IS_NODE_1`:
+    - Açıklama: Bu düğümün kümedeki ilk düğüm olup olmadığını belirten bayrak. Bu bayrağa göre Patroni ip atamaları yapılıyor. (`true` veya `false`)
+    - Varsayılan Değer: `"true"`
 
 - **Keepalived Değişkenleri**:
-  - `DEFAULT_KEEPALIVED_INTERFACE`: Ağ arayüzü adı. Varsayılan değer: `"enp0s3"`
-  - `DEFAULT_SQL_VIRTUAL_IP`: SQL için sanal IP adresi. Varsayılan değer: `"10.207.80.20"`
-  - `DEFAULT_DNS_VIRTUAL_IP`: DNS için sanal IP adresi. Varsayılan değer: `"10.207.80.30"`
-  - `DEFAULT_KEEPALIVED_PRIORITY`: Keepalived öncelik değeri. Varsayılan değer: `"100"`
-  - `DEFAULT_KEEPALIVED_STATE`: Keepalived durumunu belirtir (`MASTER` veya `BACKUP`). Varsayılan değer: `"BACKUP"`
-  - `DEFAULT_SQL_CONTAINER_NAME`: SQL için Docker container adı. Varsayılan değer: `"sql_container"`
-  - `DEFAULT_DNS_CONTAINER_NAME`: DNS için Docker container adı. Varsayılan değer: `"dns_container"`
+  - `DEFAULT_KEEPALIVED_INTERFACE`:
+    - Açıklama: Keepalived'in VRRP iletişimi için kullanacağı ağ arayüzü (örn: `eth0`).
+    - Varsayılan Değer: `"enp0s3"`
+  - `DEFAULT_SQL_VIRTUAL_IP`:
+    - Açıklama: Keepalived tarafından yönetilen PostgreSQL servisi için sanal IP adresi.
+    - Varsayılan Değer: `"10.207.80.20"`
+  - `DEFAULT_DNS_VIRTUAL_IP`:
+    - Açıklama: Keepalived tarafından yönetilen DNS servisi için sanal IP adresi.
+    - Varsayılan Değer: `"10.207.80.30"`
+  - `DEFAULT_KEEPALIVED_PRIORITY`:
+    - Açıklama: Keepalived için öncelik değeri; daha yüksek değer, master seçiminde daha yüksek öncelik anlamına gelir (tamsayı).
+    - Varsayılan Değer: `"100"`
+  - `DEFAULT_KEEPALIVED_STATE`:
+    - Açıklama: Düğümün Keepalived VRRP içindeki başlangıç durumu (`"MASTER"` veya `"BACKUP"`).
+    - Varsayılan Değer: `"BACKUP"`
+  - `DEFAULT_SQL_CONTAINER_NAME`:
+    - Açıklama: Keepalived'in izlediği SQL (PostgreSQL) konteynerinin adı.
+    - Varsayılan Değer: `"sql_container"`
+  - `DEFAULT_DNS_CONTAINER_NAME`:
+    - Açıklama: Keepalived'in izlediği DNS konteynerinin adı.
+    - Varsayılan Değer: `"dns_container"`
+
+- **DNS Argümanları**:
+  - `DEFAULT_DNS_PORT`:
+    - Açıklama: DNS servisi için dinleme portu.
+    - Varsayılan Değer: `"53"`
+  - `DEFAULT_DNS_DOCKER_FORWARD_PORT`:
+    - Açıklama: DNS Docker konteynerine yönlendirilecek ana makine portu.
+    - Varsayılan Değer: `"53"`
 
 - **ETCD Varsayılan Değerleri**:
-  - `DEFAULT_ETCD_IP`: ETCD'nin IP adresi. Varsayılan olarak `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
-  - `DEFAULT_ETCD_CLIENT_PORT`: ETCD istemci portu. Varsayılan değer: `"2379"`
-  - `DEFAULT_ETCD_PEER_PORT`: ETCD peer portu. Varsayılan değer: `"2380"`
-  - `DEFAULT_ETCD_CLUSTER_TOKEN`: ETCD cluster token değeri. Varsayılan değer: `"cluster1"`
-  - `DEFAULT_ETCD_CLUSTER_KEEPALIVED_STATE`: ETCD cluster durumu. Varsayılan değer: `"new"`
-  - `DEFAULT_ETCD_NAME`: ETCD node adı. Varsayılan değer: `"etcd1"`
-  - `DEFAULT_ETCD_ELECTION_TIMEOUT`: ETCD seçim zaman aşımı değeri (ms). Varsayılan değer: `"5000"`
-  - `DEFAULT_ETCD_HEARTBEAT_INTERVAL`: ETCD kalp atışı aralığı (ms). Varsayılan değer: `"1000"`
-  - `DEFAULT_ETCD_DATA_DIR`: ETCD veri dizini yolu. Varsayılan değer: `"/var/lib/etcd/default"`
+  - `DEFAULT_ETCD_IP`:
+    - Açıklama: ETCD'nin IP adresi.
+    - Varsayılan Değer: `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
+  - `DEFAULT_ETCD_CLIENT_PORT`:
+    - Açıklama: ETCD istemci portu.
+    - Varsayılan Değer: `"2379"`
+  - `DEFAULT_ETCD_PEER_PORT`:
+    - Açıklama: ETCD eşler arası iletişim portu.
+    - Varsayılan Değer: `"2380"`
+  - `DEFAULT_ETCD_CLUSTER_TOKEN`:
+    - Açıklama: ETCD kümesini benzersiz bir şekilde tanımlayan token değeri.
+    - Varsayılan Değer: `"cluster1"`
+  - `DEFAULT_ETCD_CLUSTER_KEEPALIVED_STATE`:
+    - Açıklama: ETCD kümesinin başlangıç durumu (`"new"` için ilk kurulum veya `"existing"` düğüm ekleme).
+    - Varsayılan Değer: `"new"`
+  - `DEFAULT_ETCD_NAME`:
+    - Açıklama: Bu ETCD düğümünün küme içindeki adı.
+    - Varsayılan Değer: `"etcd1"`
+  - `DEFAULT_ETCD_ELECTION_TIMEOUT`:
+    - Açıklama: ETCD seçim zaman aşımı değeri (milisaniye cinsinden).
+    - Varsayılan Değer: `"5000"`
+  - `DEFAULT_ETCD_HEARTBEAT_INTERVAL`:
+    - Açıklama: ETCD kalp atışı aralığı (milisaniye cinsinden).
+    - Varsayılan Değer: `"1000"`
+  - `DEFAULT_ETCD_DATA_DIR`:
+    - Açıklama: ETCD verilerinin saklanacağı dizin.
+    - Varsayılan Değer: `"/var/lib/etcd/default"`
 
 - **Docker Değişkenleri**:
-  - `SHELL_PATH_IN_DOCKER`: Docker container içinde shell komutlarının bulunduğu dizin. Varsayılan değer: `"/usr/local/bin"`
+  - `SHELL_PATH_IN_DOCKER`:
+    - Açıklama: Docker konteyner içinde shell komutlarının bulunduğu dizin.
+    - Varsayılan Değer: `"/usr/local/bin"`
 
 ### Kullanım
 
@@ -302,400 +339,6 @@ Bu değişkenler, diğer scriptlerde varsayılan değerleri atamak için kullan�
 
 </details>
 
-<details>
-
-<summary><strong>keepalived_scripts</strong></summary>
-
-Bu script koleksiyonu, **Keepalived** servisini kurmak, yapılandırmak ve yönetmek için gerekli fonksiyonları ve yardımcı scriptleri içerir. Keepalived, yüksek erişilebilirlik ve yük devretme (failover) sağlayarak servislerin kesintisiz çalışmasını hedefler.
-
-### İçerikler
-
-1. **create_keepalived.sh**
-
-   - **Amaç**: Keepalived servisinin kurulumu ve yapılandırılması için ana script.
-   - **İşlevleri**:
-     - Gerekli diğer script dosyalarını dahil eder.
-     - Kullanıcı argümanlarını kontrol eder ve parse eder.
-     - Keepalived için gerekli kullanıcı ve izin yapılandırmalarını yapar.
-     - Keepalived servisini kurar, yapılandırır ve başlatır.
-     - İşlem tamamlandığında kullanıcıya bilgi verir.
-
-2. **container_scripts.sh**
-
-   - **Amaç**: Keepalived'in kontrol scriptlerini oluşturur.
-   - **İşlevleri**:
-     - `create_checkscript` fonksiyonu ile, belirtilen Docker konteynerinin çalışıp çalışmadığını kontrol eden bir script oluşturur.
-     - Bu script, konteynerin durumu hakkında log bilgilerini `/var/log/keepalived_check.log` dosyasına yazar.
-
-3. **keepalived_setup.sh**
-
-   - **Amaç**: Keepalived servisinin kurulumu ve yapılandırılmasını yapar.
-   - **İşlevleri**:
-     - `install_keepalived`: Keepalived paketinin sistemde kurulu olup olmadığını kontrol eder, değilse kurar.
-     - `configure_keepalived`: Keepalived için gerekli yapılandırma dosyalarını oluşturur ve VRRP instance'larını tanımlar.
-       - SQL ve DNS için ayrı VRRP instance'ları yapılandırır.
-       - Her bir instance için kontrol scriptlerini ve diğer ayarları belirler.
-     - `start_keepalived`: Keepalived servisini başlatır ve sistem başlangıcında otomatik olarak başlaması için etkinleştirir.
-
-4. **logging.sh**
-
-   - **Amaç**: Keepalived kontrol scriptlerinin loglama işlevlerini yönetir.
-   - **İşlevleri**:
-     - `get_log_path`: Belirtilen konteyner için log dosyasının yolunu döndürür.
-     - `setup_container_log`: Log dosyasının varlığını ve doğru izinlere sahip olup olmadığını kontrol eder; yoksa oluşturur ve izinleri ayarlar.
-
-5. **user_management.sh**
-
-   - **Amaç**: Keepalived'in çalışması için gerekli kullanıcı ve izin yapılandırmalarını yapar.
-   - **İşlevleri**:
-     - `create_keepalived_user`: `keepalived_script` adlı sistem kullanıcısını oluşturur.
-     - `check_and_add_docker_permissions`: `keepalived_script` kullanıcısının `docker` grubuna üye olup olmadığını kontrol eder; değilse ekler.
-     - `configure_sudo_access`: `keepalived_script` kullanıcısına `sudo` üzerinden `docker` komutlarını şifresiz çalıştırabilme izni verir.
-
-### Genel Akış
-
-- **create_keepalived.sh** scripti çalıştırıldığında:
-  - Gerekli argümanlar kontrol edilir ve parse edilir.
-  - Gerekli kullanıcı ve grup izinleri ayarlanır.
-  - Keepalived servisi kurulur ve yapılandırılır.
-  - Kontrol scriptleri ve loglama mekanizmaları oluşturulur.
-  - Keepalived servisi başlatılır ve etkinleştirilir.
-
-### Notlar
-
-- **Güvenlik**:
-  - `keepalived_script` kullanıcısına sadece gerekli izinler verilir.
-  - Sudo konfigurasyonu ile `docker` komutlarının şifresiz çalıştırılması sağlanır; bu nedenle sudoers dosyası dikkatli bir şekilde yapılandırılır.
-
-- **Loglama**:
-  - Kontrol scriptleri, konteynerlerin durumu hakkında log bilgilerini `/var/log/{CONTAINER_NAME}_check.log` dosyasına yazar.
-  - Log dosyalarının doğru sahiplik ve izinlere sahip olması sağlanır.
-
-- **Yapılandırma Dosyaları**:
-  - `/etc/keepalived/keepalived.conf` dosyası, VRRP instance'larını ve kontrol scriptlerini tanımlar.
-  - SQL ve DNS hizmetleri için ayrı VRRP instance'ları ve kontrol scriptleri yapılandırılır.
-
-- **Servis Yönetimi**:
-  - Keepalived servisi, sistem yeniden başlatıldığında otomatik olarak başlayacak şekilde etkinleştirilir.
-  - Servisin durumu kontrol edilir ve gerekirse yeniden başlatılır.
-
-### Kullanım
-
-- **Script'i Çalıştırma**:
-
-  ```bash
-  ./create_keepalived.sh [ARGÜMANLAR]
-    ```
-</details>
-
-<details>
-
-<summary><strong>haproxy_scripts</strong></summary>
-
-Bu script seti, **HAProxy** servisinin kurulumu, yapılandırılması ve başlatılması için gerekli fonksiyonları ve yardımcı scriptleri içerir. HAProxy, yüksek performanslı bir TCP/HTTP yük dengeleyici ve proxy sunucusudur ve bu scriptler aracılığıyla PostgreSQL hizmetlerinin yük dengelemesini sağlar.
-
-### İçerikler
-
-1. **create_haproxy.sh**
-
-   - **Amaç**: HAProxy servisinin kurulumu ve yapılandırılması için ana script.
-   - **İşlevleri**:
-     - Gerekli script dosyalarını dahil eder:
-       - `haproxy_setup.sh`: HAProxy kurulumu ve yapılandırma fonksiyonlarını içerir.
-       - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
-       - `general_functions.sh`: Genel amaçlı yardımcı fonksiyonları içerir.
-     - `parse_and_read_arguments` fonksiyonunu çağırarak kullanıcının verdiği argümanları kontrol eder ve parse eder.
-     - Aşağıdaki fonksiyonları sırasıyla çağırır:
-       - `ha_proxy_kur`: HAProxy paketini kurar.
-       - `ha_proxy_konfigure_et`: HAProxy yapılandırma dosyasını oluşturur.
-       - `enable_haproxy`: HAProxy servisinin konfigürasyonunu kontrol eder ve servisi başlatır.
-
-2. **haproxy_setup.sh**
-
-   - **Amaç**: HAProxy servisinin kurulumu, yapılandırılması ve başlatılması için gerekli fonksiyonları içerir.
-   - **İşlevleri**:
-     - **ha_proxy_kur**:
-       - HAProxy paketini sistem üzerine kurar.
-       - Kurulum sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bildirir.
-     - **ha_proxy_konfigure_et**:
-       - HAProxy için `/etc/haproxy/haproxy.cfg` yapılandırma dosyasını oluşturur.
-       - Yapılandırma dosyasında şunları tanımlar:
-         - **global** ve **defaults** ayarları: Maksimum bağlantı sayısı, log ayarları, timeout değerleri vb.
-         - **frontend stats** ve **backend stats_backend**: HAProxy istatistik arayüzü için frontend ve backend tanımları.
-           - İstatistik arayüzü belirlenen `$HAPROXY_BIND_PORT` portunda çalışır.
-         - **frontend postgres_frontend** ve **backend postgres_backend**:
-           - PostgreSQL hizmeti için frontend ve backend tanımları.
-           - `$PGSQL_BIND_PORT` portunda gelen bağlantıları kabul eder ve backend sunucularına yönlendirir.
-           - Backend sunucuları olarak `node-1` ve `node-2` tanımlanır, bu sunucular `$NODE1_IP` ve `$NODE2_IP` adreslerinde bulunan PostgreSQL hizmetleridir.
-           - Yük dengeleme algoritması olarak `roundrobin` kullanılır.
-           - Sunucu sağlık kontrolü için `tcp-check` yapılır.
-     - **enable_haproxy**:
-       - HAProxy konfigürasyon dosyasının doğruluğunu kontrol eder.
-       - Konfigürasyon geçerliyse HAProxy servisini başlatır.
-       - Servisin başlatılması sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bildirir.
-
-### Genel Akış
-
-- **create_haproxy.sh** scripti çalıştırıldığında:
-  - Gerekli argümanları kontrol eder ve parse eder.
-  - HAProxy kurulumunu gerçekleştirir (`ha_proxy_kur`).
-  - HAProxy yapılandırma dosyasını oluşturur (`ha_proxy_konfigure_et`).
-  - HAProxy servisini başlatır ve yapılandırmayı etkinleştirir (`enable_haproxy`).
-
-### Notlar
-
-- **Bağımlılıklar**:
-  - Scriptler, diğer yardımcı script dosyalarına bağımlıdır:
-    - `argument_parser.sh`: Kullanıcıdan gelen argümanları işler.
-    - `general_functions.sh`: Genel yardımcı fonksiyonları sağlar (örneğin, `check_success` fonksiyonu).
-- **Değişkenler**:
-  - `$HAPROXY_BIND_PORT`: HAProxy'nin istatistik arayüzü için bind edildiği port.
-  - `$PGSQL_BIND_PORT`: HAProxy'nin PostgreSQL frontend'inin dinlediği port.
-  - `$NODE1_IP` ve `$NODE2_IP`: Backend PostgreSQL sunucularının IP adresleri.
-  - `$PGSQL_PORT`: Backend PostgreSQL sunucularının dinlediği port.
-- **Yapılandırma Dosyası**:
-  - `/etc/haproxy/haproxy.cfg`: HAProxy'nin ana yapılandırma dosyasıdır ve script tarafından otomatik olarak oluşturulur.
-- **Servis Yönetimi**:
-  - HAProxy servisinin başlatılması ve konfigürasyonunun kontrolü otomatik olarak yapılır.
-  - Konfigürasyon dosyasında hata olması durumunda servis başlatılmaz ve kullanıcıya hata mesajı gösterilir.
-  
-### Kullanım
-
-- **Script'i Çalıştırma**:
-
-  ```bash
-  ./create_haproxy.sh [ARGÜMANLAR]
-    ```
-</details>    
-
-<details>
-
-<summary><strong>etcd_scripts</strong></summary>
-
-Bu script seti, **etcd** servisinin kurulumu, yapılandırılması ve başlatılması için gerekli fonksiyonları ve yardımcı scriptleri içerir. etcd, dağıtık sistemlerde yüksek erişilebilirlik ve tutarlılık sağlayan bir anahtar-değer depolama sistemidir ve bu scriptler aracılığıyla etcd servisini kolayca yönetebilirsiniz.
-
-### İçerikler
-
-1. **create_etcd.sh**
-
-   - **Amaç**: etcd servisinin kurulumu ve yapılandırılması için ana script.
-   - **İşlevleri**:
-     - Gerekli diğer script dosyalarını dahil eder:
-       - `etcd_setup.sh`: etcd'nin kurulumu ve yapılandırılması için fonksiyonları içerir.
-       - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
-       - `general_functions.sh`: Genel amaçlı yardımcı fonksiyonları içerir.
-     - `parse_and_read_arguments` fonksiyonunu çağırarak kullanıcının verdiği argümanları kontrol eder ve parse eder.
-     - Kullanıcı tarafından belirtilen veya varsayılan değerlerin kullanıldığı değişkenleri kontrol eder ve gerekli dizinlerin mevcut olup olmadığını kontrol eder; yoksa oluşturur.
-     - `check_user_exists` fonksiyonu ile etcd için gerekli kullanıcının sistemde mevcut olup olmadığını kontrol eder.
-     - Dizinlerin ve konfigürasyon dosyalarının sahipliğini ve izinlerini ayarlar:
-       - `set_permissions` fonksiyonu ile `$ETCD_DATA_DIR` ve `$ETCD_CONFIG_DIR` dizinlerinin sahipliğini ve izinlerini etcd kullanıcısına göre ayarlar.
-     - etcd kurulumu ve yapılandırmasını gerçekleştirir:
-       - `etcd_kur` fonksiyonu ile etcd paketini kurar.
-       - `etcd_konfigure_et` fonksiyonu ile etcd konfigürasyon dosyasını oluşturur.
-       - Konfigürasyon dosyasının sahipliğini ve izinlerini ayarlar.
-       - `update_daemon_args` fonksiyonu ile etcd servisinin başlangıç argümanlarını günceller, böylece servis belirtilen konfigürasyon dosyasını kullanır.
-     - etcd servisini başlatır ve durumunu kontrol eder:
-       - `etcd_etkinlestir` fonksiyonu ile etcd servisini başlatır ve API'nin çalışıp çalışmadığını kontrol eder.
-     - İşlem sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bilgilendirir.
-
-2. **etcd_setup.sh**
-
-   - **Amaç**: etcd servisinin kurulumu, yapılandırılması ve başlatılması için gerekli fonksiyonları içerir.
-   - **İşlevleri**:
-     - **etcd_kur**:
-       - etcd paketini sistem üzerine kurar.
-       - Kurulum sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bildirir.
-     - **etcd_konfigure_et**:
-       - etcd için YAML formatında konfigürasyon dosyasını oluşturur.
-       - Konfigürasyon dosyasında şunları tanımlar:
-         - Sunucu adı (`name`), veri dizini (`data-dir`), dinlenecek adresler ve portlar (`listen-peer-urls`, `listen-client-urls`), duyurulacak adresler (`initial-advertise-peer-urls`, `advertise-client-urls`), cluster bilgileri (`initial-cluster`, `initial-cluster-token`, `initial-cluster-state`), zaman aşımı değerleri (`election-timeout`, `heartbeat-interval`) ve diğer ayarlar.
-       - Oluşturulan konfigürasyon dosyasında oluşabilecek hataları kontrol eder.
-     - **update_daemon_args**:
-       - etcd servisini başlatırken kullanılacak argümanları günceller.
-       - `/etc/init.d/etcd` dosyasındaki `DAEMON_ARGS` satırını, oluşturulan konfigürasyon dosyasını kullanacak şekilde günceller veya ekler.
-     - **etcd_etkinlestir**:
-       - etcd servisini durdurur ve yeniden başlatır.
-       - Servisin durumu ve API'nin çalışıp çalışmadığını kontrol eder.
-       - Servis başlatılamazsa veya API yanıt vermiyorsa kullanıcıya hata mesajı gösterir.
-
-### Genel Akış
-
-- **create_etcd.sh** scripti çalıştırıldığında:
-  - Gerekli argümanları kontrol eder ve parse eder.
-  - Gerekli dizinleri kontrol eder ve oluşturur.
-  - etcd kullanıcısının mevcut olduğunu kontrol eder ve gerekli izinleri ayarlar.
-  - etcd kurulumunu gerçekleştirir (`etcd_kur`).
-  - etcd yapılandırma dosyasını oluşturur (`etcd_konfigure_et`).
-  - etcd servisinin başlangıç argümanlarını günceller (`update_daemon_args`).
-  - etcd servisini başlatır ve API'nin durumunu kontrol eder (`etcd_etkinlestir`).
-
-### Notlar
-
-- **Bağımlılıklar**:
-  - Scriptler, diğer yardımcı script dosyalarına bağımlıdır:
-    - `argument_parser.sh`: Kullanıcıdan gelen argümanları işler.
-    - `general_functions.sh`: Genel yardımcı fonksiyonları sağlar (örneğin, `check_success`, `check_user_exists`, `set_permissions` gibi).
-- **Değişkenler**:
-  - `$ETCD_CONFIG_DIR`: etcd konfigürasyon dosyalarının bulunduğu dizin (`/etc/etcd`).
-  - `$ETCD_CONFIG_FILE`: etcd ana konfigürasyon dosyasının tam yolu.
-  - `$ETCD_DATA_DIR`: etcd'nin veri depolama dizini.
-  - `$ETCD_USER`: etcd servisini çalıştıracak kullanıcı adı (`etcd`).
-  - `$ETCD_IP`, `$ETCD_CLIENT_PORT`, `$ETCD_PEER_PORT`: etcd'nin dinleyeceği IP adresi ve portlar.
-  - `$ETCD_NAME`: etcd node adı.
-  - `$ETCD_CLUSTER_TOKEN`, `$ETCD_CLUSTER_KEEPALIVED_STATE`: etcd cluster bilgileri.
-  - `$ETCD_ELECTION_TIMEOUT`, `$ETCD_HEARTBEAT_INTERVAL`: etcd zaman aşımı ayarları.
-- **Yapılandırma Dosyası**:
-  - etcd için oluşturulan `etcd.conf.yml` dosyası, etcd servisinin çalışma parametrelerini belirler.
-- **Servis Yönetimi**:
-  - etcd servisi, sistem servis yöneticisi aracılığıyla (`service etcd start/stop/status`) kontrol edilir.
-  - Servisin başarıyla başlatılıp başlatılmadığı ve API'nin çalışıp çalışmadığı kontrol edilir.
-
-### Kullanım
-
-- **Script'i Çalıştırma**:
-
-  ```bash
-  ./create_etcd.sh [ARGÜMANLAR]
-    ```
-- **Örnek Argümanlar:**
-    - --etcd-ip: etcd sunucusunun dinleyeceği IP adresi.
-    - --etcd-name: etcd node adı.
-    - --data-dir: etcd veri dizini.
-    - --etcd-client-port: etcd istemci portu.
-    - --etcd-peer-port: etcd peer portu.
-    - Diğer gerekli argümanlar argument_parser.sh tarafından yönetilir.
-
-- **Gereksinimler:**
-    * Scriptlerin başarılı bir şekilde çalışması için gerekli paketlerin ve izinlerin sağlanması gerekir.
-    * etcd kullanıcısının sistemde mevcut olması gerekir; yoksa oluşturulmalıdır.
-    * Scriptler Ubuntu/Debian tabanlı sistemler için tasarlanmıştır.
-
-</details>
-
-<details>
-
-<summary><strong>docker_scripts</strong></summary>
-
-Bu script seti, Docker imajları ve konteynerleri oluşturmak, yapılandırmak ve çalıştırmak için gerekli fonksiyonları ve yardımcı scriptleri içerir. Bu scriptler aracılığıyla, DNS ve SQL hizmetleri için özel Docker konteynerleri oluşturabilir ve yönetebilirsiniz.
-
-### İçerikler
-
-1. **docker_dns.sh**
-
-   - **Amaç**: DNS hizmeti için Docker imajı oluşturur ve konteyneri çalıştırır.
-   - **İşlevleri**:
-     - Gerekli scriptleri ve değişkenleri dahil eder:
-       - `create_image.sh`: Docker imajı oluşturmak için fonksiyonları içerir.
-       - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
-       - `default_variables.sh`, `general_functions.sh`: Genel amaçlı değişkenleri ve fonksiyonları içerir.
-     - Varsayılan değerleri ve sabitleri tanımlar:
-       - `DNS_PORT`, `HOST_PORT`: DNS hizmeti için konteyner içi ve host port numaraları.
-       - `DOCKERFILE_PATH`, `DOCKERFILE_NAME`: Dockerfile'ın yolu ve adı.
-       - `DNS_CONTAINER_NAME`, `IMAGE_NAME`: Docker konteyneri ve imajı için isimler.
-       - `SHELL_SCRIPT_NAME`: Konteyner içinde çalıştırılacak scriptin adı (`create_dns_server.sh`).
-     - `dns_parser` fonksiyonu ile kullanıcıdan gelen argümanları işler.
-     - `create_image` fonksiyonunu çağırarak DNS hizmeti için Docker imajını oluşturur.
-     - `run_container` fonksiyonu ile Docker konteynerini çalıştırır.
-       - Konteyner çalıştırılırken gerekli port yönlendirmelerini ve yetkileri ayarlar.
-       - Konteyner içinde DNS sunucusunu ve Keepalived'i başlatır.
-   
-2. **docker_sql.sh**
-
-   - **Amaç**: SQL (PostgreSQL) ve HAProxy hizmetleri için Docker imajı oluşturur ve konteyneri çalıştırır.
-   - **İşlevleri**:
-     - Gerekli scriptleri ve değişkenleri dahil eder:
-       - `create_image.sh`: Docker imajı oluşturmak için fonksiyonları içerir.
-       - `argument_parser.sh`: Kullanıcı argümanlarını parse etmek için kullanılır.
-       - `default_variables.sh`, `general_functions.sh`: Genel amaçlı değişkenleri ve fonksiyonları içerir.
-     - Varsayılan değerleri ve sabitleri tanırlar:
-       - `HAPROXY_PORT`, `HOST_PORT`: HAProxy için konteyner içi ve host port numaraları.
-       - `DOCKERFILE_PATH`, `DOCKERFILE_NAME`: Dockerfile'ın yolu ve adı.
-       - `SQL_CONTAINER_NAME`, `IMAGE_NAME`: Docker konteyneri ve imajı için isimler.
-       - `HAPROXY_SCRIPT_FOLDER`, `HAPROXY_SCRIPT_NAME`: Konteyner içinde çalıştırılacak HAProxy scriptinin yolu ve adı.
-       - `ETCD_SCRIPT_FOLDER`, `ETCD_SCRIPT_NAME`: Konteyner içinde çalıştırılacak etcd scriptinin yolu ve adı.
-     - `parse_all_arguments` fonksiyonu ile kullanıcıdan gelen argümanları işler.
-     - `create_image` fonksiyonunu çağırarak SQL ve HAProxy hizmetleri için Docker imajını oluşturur.
-     - `run_container` fonksiyonu ile Docker konteynerini çalıştırır.
-       - Konteyner çalıştırılırken gerekli port yönlendirmelerini ve yetkileri ayarlar.
-       - Konteyner içinde etcd ve HAProxy servislerini başlatır.
-
-3. **create_image.sh**
-
-   - **Amaç**: Belirtilen Dockerfile ve bağlam (context) kullanılarak Docker imajı oluşturur.
-   - **İşlevleri**:
-     - `create_image` fonksiyonu ile Docker imajının mevcut olup olmadığını kontrol eder.
-     - İmaj mevcutsa, kullanıcıya yeniden oluşturmak isteyip istemediğini sorar.
-     - Docker imajını oluşturur veya yeniden oluşturur.
-     - Oluşturma işlemi sırasında oluşabilecek hataları kontrol eder ve kullanıcıya bildirir.
-
-4. **argument_parser.sh**
-
-   - **Amaç**: Docker scriptleri için kullanıcıdan gelen argümanları parse eder ve doğrular.
-   - **İşlevleri**:
-     - `dns_parser` ve `sql_parser` fonksiyonları ile ilgili argümanları işler.
-       - Argümanları varsayılan değerlerle birleştirir.
-       - Argümanların geçerliliğini kontrol eder (örneğin, port numaralarının doğruluğu).
-     - `process_argument` ve `parse_arguments` yardımcı fonksiyonları ile genel argüman işleme işlemlerini gerçekleştirir.
-     - Yardım mesajlarını gösterir ve kullanıcının doğru şekilde yönlendirilmesini sağlar.
-
-### Genel Akış
-
-- **DNS Hizmeti için**:
-  - `docker_dns.sh` scripti çalıştırılır.
-  - Kullanıcıdan gelen argümanlar parse edilir.
-  - Docker imajı oluşturulur (`dns_image`).
-  - Docker konteyneri başlatılır (`dns_container`), gerekli servisler çalıştırılır.
-
-- **SQL ve HAProxy Hizmeti için**:
-  - `docker_sql.sh` scripti çalıştırılır.
-  - Kullanıcıdan gelen argümanlar parse edilir.
-  - Docker imajı oluşturulur (`sql_image`).
-  - Docker konteyneri başlatılır (`sql_container`), etcd ve HAProxy servisleri çalıştırılır.
-
-### Notlar
-
-- **Bağımlılıklar**:
-  - Bu scriptler, diğer yardımcı script dosyalarına ve Dockerfile'lara bağımlıdır.
-  - `create_image.sh` genel amaçlı Docker imajı oluşturma fonksiyonlarını içerir ve diğer scriptler tarafından kullanılır.
-  - `argument_parser.sh` kullanıcı argümanlarını işlemek için kullanılır ve scriptlerin esnekliğini artırır.
-
-- **Değişkenler ve Sabitler**:
-  - Scriptler içinde kullanılan port numaraları, konteyner ve imaj isimleri gibi değerler tanımlanmıştır ve gerektiğinde kullanıcı argümanları ile değiştirilebilir.
-
-- **Güvenlik ve Yetkiler**:
-  - Docker konteynerleri çalıştırılırken `--privileged` ve `--cap-add=NET_ADMIN` gibi seçenekler kullanılır.
-  - Bu nedenle, scriptleri çalıştırırken dikkatli olunmalı ve gerekli izinlere sahip olunduğundan emin olunmalıdır.
-
-- **Konteyner İçindeki İşlemler**:
-  - Konteynerler başlatıldığında, ilgili servisleri çalıştırmak için belirli scriptler çağrılır.
-  - Örneğin, `docker_dns.sh` içinde `create_dns_server.sh` scripti konteyner içinde çalıştırılır ve DNS sunucusu kurulur.
-
-- **Loglama ve Hata Yönetimi**:
-  - `check_success` fonksiyonu ile her adımın başarılı olup olmadığı kontrol edilir.
-  - Oluşabilecek hatalar kullanıcıya bildirilir ve gerekli önlemler alınabilir.
-
-### Kullanım
-
-- **DNS Hizmeti için**:
-
-  ```bash
-  ./docker_dns.sh [--host-port <HOST_PORT>] [--dns-port <DNS_PORT>]
-    ```
-
-- **SQL ve HAProxy Hizmeti için**:
-    
-    ```bash
-    ./docker_sql.sh [--host-port <HOST_PORT>] [--haproxy-port <HAPROXY_PORT>]
-    ```
-    - --host-port: Host üzerinde yönlendirilecek port (varsayılan: 8404).
-    - --haproxy-port: HAProxy hizmetinin dinleyeceği port (varsayılan: 8404).
-- **Örnek**:
-    ```bash
-    ./docker_dns.sh --host-port 1053 --dns-port 53
-    ./docker_sql.sh --host-port 8500 --haproxy-port 8404
-    ```
-
-</details>
 
 
 # DNS Sunucusu Kurma
