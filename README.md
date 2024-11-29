@@ -697,29 +697,42 @@ Bu script seti, Docker imajları ve konteynerleri oluşturmak, yapılandırmak v
 
 </details>
 
-# keepalived
-Keepalived, yüksek erişilebilirlik sağlamak için kullanılan bir yazılımdır. Keepalived, birincil ve yedek sunucular arasında bir sanal IP adresi üzerinden otomatik olarak geçiş yapar. Keepalived, birincil sunucunun çalışıp çalışmadığını kontrol eder ve birincil sunucu çalışmıyorsa yedek sunucuyu birincil sunucu olarak devreye alır.
 
-## keepalived kurulumu
+# DNS Sunucusu Kurma
+``create_dns_server.sh`` scripti, DNS sunucusunu başlatmak için kullanılır.`arguments.cfg` dosyasındaki değişkenleri ve `dns_setup.sh` dosyasındaki fonksiyonları kullanarak dns kurulumunu yapar.
+
+## Ne işe yarar?
+
+Bu dosyaların amacı docker üzerinde otomatik dns kurulabilmesine vesile olmaktır. `docker_scripts/docker_dns.sh` dosyası bu klasördeki dosyaları kullanır.
+
+
+## Nasıl kullanılır?
+
+Normal şartlarda `docker_scripts/docker_dns.sh` dosyası bu dosyaları kullanarak dns kurulumunu yapar. Ancak bu dosyaları tek başına çalıştırmak isterseniz aşağıdaki komutu çalıştırabilirsiniz.
+
 ```bash
-cd keepalived_scripts
-bash create_keepalived.sh
+./create_dns_server.sh
 ```
 
-# bind9
-Bind9, DNS sunucusu yazılımıdır. Bu yazılım, DNS sorgularını alır ve DNS kayıtlarını çözümleyerek istemcilere cevaplar. Bu yazılım, DNS sunucularının yüksek erişilebilirlik sağlamasını sağlar.
+Eğer hangi argümanları alabildiğini öğrenmek istiyorsanız aşağıdaki komutları çalıştırabilirsiniz.
 
-## bind9 kurulumu
 ```bash
-cd docker_scripts
-bash docker_dns.sh
+./create_dns_server.sh -h
+```
+```bash
+./create_dns_server.sh --help
 ```
 
-# postgresql
-PostgreSQL, ilişkisel veritabanı yönetim sistemidir. Bu yazılım, veritabanı sorgularını alır ve veritabanı işlemlerini gerçekleştirir. Bu yazılım, veritabanı sunucularının yüksek erişilebilirlik sağlamasını sağlar. Yüksek erişilebilirlik sağlamak için patroni, etcd ve haproxy yazılımlarıyla beraber kullanılması gerekmektedir.
+Örnek bir kullanım:
 
-## postgresql kurulumu
 ```bash
-cd docker_scripts
-bash docker_sql.sh
+./create_dns_server.sh --dns-port 53 --dns-docker-forward-port 53 
 ```
+
+## Not
+
+- Eğer argümanları teker teker geçirmek istemiyorsanız `arguments.cfg` dosyasını düzenleyerek `create_dns_server.sh` dosyasını çalıştırabilirsiniz. Zaten varsayılan olarak oradaki değerler alınacaktır.
+
+- Eğer argümanları yukarıdaki örnekteki gibi geçirirseniz `create_dns_server.sh` dosyası `arguments.cfg` dosyasındaki değerleri değiştirecektir. Bu durumda, ilk geçirdiğiniz değerleri tekrar geçirmek istiyorsanız, bir daha argümanaları yukarıdaki örnekteki gibi geçirmenize gerek yoktur.
+
+- `arguments.cfg` dosyasında bu `create_dns_server.sh` dosyasında kullanılmayan argümanlar da bulunmaktadır. Tüm ***komut*** (.sh) dosyalarının argümanları tek bir merkezde toplandığı için bu durum normaldir. Eğer sadece `create_dns_server.sh` komut dosyasını çalıştıracaksanız `arguments.cfg` dosyasındaki fazlalık argümanları umursamayın.
