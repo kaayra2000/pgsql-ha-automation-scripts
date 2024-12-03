@@ -43,7 +43,7 @@ HAPROXY_BIND_PORT=7000
 ETCD_HEARTBEAT_INTERVAL=1000
 ETCD_NAME=etcd1
 POSTGRES_SIFRESI=postgres_pass
-DNS_DOCKER_FORWARD_PORT=53
+DNS_DOCKER_FORWARD_PORT=7777
 ETCD_CLIENT_PORT=2379
 KEEPALIVED_INTERFACE=enp0s3
 ETCD_IP=10.207.80.20
@@ -290,7 +290,7 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
     - Varsayılan Değer: `"53"`
   - `DEFAULT_DNS_DOCKER_FORWARD_PORT`:
     - Açıklama: DNS Docker konteynerine yönlendirilecek ana makine portu.
-    - Varsayılan Değer: `"53"`
+    - Varsayılan Değer: `"7777"`
 
 - **ETCD Varsayılan Değerleri**:
   - `DEFAULT_ETCD_IP`:
@@ -369,7 +369,7 @@ Eğer hangi argümanları alabildiğini öğrenmek istiyorsanız aşağıdaki ko
 Örnek bir kullanım:
 
 ```bash
-./create_dns_server.sh --dns-port 53 --dns-docker-forward-port 53 
+./create_dns_server.sh --dns-port 53 --dns-docker-forward-port 7777 
 ```
 
 ## Not

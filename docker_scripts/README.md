@@ -29,7 +29,7 @@ Bu dosyalar yüksek erişilebilirlik sağlamak amacıyla docker üzerinde otomat
 
     ```bash
     ./docker_dns.sh --dns-port 53 \
-    --dns-docker-forward-port 53
+    --dns-docker-forward-port 7777
     ```
 
 - `docker_sql.sh` dosyasını çalıştırmak için aşağıdaki komutu çalıştırabilirsiniz.
