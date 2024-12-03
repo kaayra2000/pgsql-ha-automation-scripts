@@ -27,9 +27,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     etcd \
     net-tools
 
-# postgres kullanıcısını oluşturun (eğer yoksa)
-RUN useradd -ms /bin/bash postgres
-
 # Gerekli dizinleri oluşturun ve sahipliğini ayarlayın
 RUN mkdir -p /var/lib/etcd \
     /etc/haproxy \
@@ -37,10 +34,8 @@ RUN mkdir -p /var/lib/etcd \
     /var/lib/postgresql/16/main \
     /data/patroni
 RUN chown -R postgres:postgres /var/lib/postgresql \
-    /var/lib/etcd \
-    /etc/haproxy \
-    /etc/patroni \
-    /data/patroni
+    /data/patroni \
+    /etc/patroni
 
 # Patroni ve bağımlılıklarını postgres kullanıcısı altında kurun
 USER postgres
@@ -51,14 +46,17 @@ RUN pip3 install --no-cache-dir patroni[etcd] psycopg2-binary
 # Tekrar root kullanıcısına geçin
 USER root
 
-# Script dosyalarını kopyalayın ve sahipliğini ayarlayın
-COPY --chown=postgres:postgres etcd_scripts /usr/local/bin/etcd_scripts
-COPY --chown=postgres:postgres haproxy_scripts /usr/local/bin/haproxy_scripts
-COPY --chown=postgres:postgres patroni_scripts /usr/local/bin/patroni_scripts
-COPY --chown=postgres:postgres argument_parser.sh /usr/local/bin/
-COPY --chown=postgres:postgres general_functions.sh /usr/local/bin/
-COPY --chown=postgres:postgres default_variables.sh /usr/local/bin/
-COPY --chown=postgres:postgres arguments.cfg /usr/local/bin/
+# Script dosyalarını kopyalayın
+COPY etcd_scripts /usr/local/bin/etcd_scripts
+COPY haproxy_scripts /usr/local/bin/haproxy_scripts
+COPY patroni_scripts /usr/local/bin/patroni_scripts
+COPY argument_parser.sh /usr/local/bin/
+COPY general_functions.sh /usr/local/bin/
+COPY default_variables.sh /usr/local/bin/
+COPY arguments.cfg /usr/local/bin/
+
+# **Sadece Patroni scriptlerinin sahipliğini postgres kullanıcısına ayarla**
+RUN chown -R postgres:postgres /usr/local/bin/patroni_scripts
 
 # Script dosyalarına çalıştırma izni verin
 RUN chmod +x /usr/local/bin/*
@@ -69,8 +67,6 @@ ENV PATH="/usr/lib/postgresql/16/bin:${PATH}"
 # Varsayılan çalışma dizinini ayarlayın
 WORKDIR /home/postgres
 
-# Varsayılan kullanıcıyı postgres olarak ayarlayın
-USER postgres
 
 # Varsayılan komutu ayarlayın
 CMD ["/bin/bash"]
