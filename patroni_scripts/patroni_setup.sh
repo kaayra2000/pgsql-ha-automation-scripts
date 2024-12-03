@@ -40,7 +40,7 @@ namespace: /db/
 name: $PATRONI_NODE_NAME
 
 restapi:
-    listen: ${NODE_IP}:${HAPROXY_PORT}
+    listen: 0.0.0.0:${HAPROXY_PORT}
     connect_address: ${NODE_IP}:${HAPROXY_PORT}
 
 etcd:
