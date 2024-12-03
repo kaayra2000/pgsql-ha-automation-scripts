@@ -37,14 +37,8 @@ RUN chown -R postgres:postgres /var/lib/postgresql \
     /data/patroni \
     /etc/patroni
 
-# Patroni ve bağımlılıklarını postgres kullanıcısı altında kurun
-USER postgres
-
 # Patroni ve bağımlılıklarını yükleyin
 RUN pip3 install --no-cache-dir patroni[etcd] psycopg2-binary
-
-# Tekrar root kullanıcısına geçin
-USER root
 
 # Script dosyalarını kopyalayın
 COPY etcd_scripts /usr/local/bin/etcd_scripts

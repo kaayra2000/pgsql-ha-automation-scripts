@@ -28,6 +28,8 @@ check_success "Dizin sahipliği değiştirilirken bir hata oluştu."
 sudo chmod -R 700 $PATRONI_DIR
 check_success "Dizin izinleri değiştirilirken bir hata oluştu."
 
+patroni_bootstrap_dosyasi_olustur
+
 patroni_yml_konfigure_et
 
 patroni_etkinlestir

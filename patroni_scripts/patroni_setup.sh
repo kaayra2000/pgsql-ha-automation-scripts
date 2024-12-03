@@ -8,6 +8,23 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 source $SCRIPT_DIR/../general_functions.sh
 
+
+patroni_bootstrap_dosyasi_olustur() {
+    # Admin kullanıcısını oluşturacak SQL betiği
+    cat <<EOF > $BOOTSTRAP_SQL_FILE
+CREATE USER $PATRONI_ADMIN_USER WITH PASSWORD '$PATRONI_ADMIN_PASSWORD';
+ALTER USER $PATRONI_ADMIN_USER WITH SUPERUSER CREATEDB CREATEROLE REPLICATION;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $PATRONI_ADMIN_USER;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO $PATRONI_ADMIN_USER;
+EOF
+
+    check_success "Admin kullanıcı SQL betiği oluşturulurken hata oluştu."
+    
+    # SQL betiğinin çalıştırılması için post_bootstrap içeriğini oluştur
+    chmod 600 $BOOTSTRAP_SQL_FILE
+    chown postgres:postgres $BOOTSTRAP_SQL_FILE
+}
+
 # Patroni yapılandırma dosyasını oluşturma fonksiyonu
 patroni_yml_konfigure_et() {
     cat <<EOF | sudo tee /etc/patroni.yml
@@ -39,18 +56,14 @@ bootstrap:
         - encoding: UTF8
         - data-checksums
 
+    # Admin kullanıcısı oluşturma betiğini ekle
+    post_bootstrap: "psql -f $BOOTSTRAP_SQL_FILE"
+
     pg_hba:
         - host replication $REPLIKATOR_KULLANICI_ADI 127.0.0.1/32 md5
         - host replication $REPLIKATOR_KULLANICI_ADI ${NODE1_IP}/0 md5
         - host replication $REPLIKATOR_KULLANICI_ADI ${NODE2_IP}/0 md5
         - host all all 0.0.0.0/0 md5
-
-    users:
-        admin:
-            password: admin
-            options:
-                - createrole
-                - createdb
 
 postgresql:
     listen: 0.0.0.0:${PGSQL_PORT}
