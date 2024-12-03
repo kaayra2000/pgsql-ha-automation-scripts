@@ -75,8 +75,8 @@ bootstrap:
 postgresql:
     listen: 0.0.0.0:${PGSQL_PORT}
     connect_address: ${NODE_IP}:${PGSQL_PORT}
-    data_dir: /data/patroni
-    bin_dir: /usr/lib/postgresql/16/bin
+    data_dir: $POSTGRES_DATA_DIR
+    bin_dir: $POSTGRES_BIN_DIR
     pgpass: /tmp/pgpass
     authentication:
         replication:
