@@ -24,8 +24,9 @@ define_constants() {
         "ETCD_CONFIG_DIR=/etc/etcd"                                         # etcd konfigürasyon dosyasının bulunması gereken klasör
         "ETCD_CONFIG_FILE=\$ETCD_CONFIG_DIR/etcd.conf.yml"                  # etcd konfigürasyon dosyasının tam yolu
         "ETCD_USER=etcd"                                                    # işletim sisteminde bulunacak olan etcd kullanıcısının adı
-        "POSTGRES_DATA_DIR=/var/lib/pgsql/16/data"                          # postgresql verilerinin tutulacağı kök dizin
-        "POSTGRES_BIN_DIR=/usr/pgsql-16/bin"                                # postgresql verilerinin tutulacağı dizin
+        "POSTGRES_DATA_ROOT_DIR=/var/lib/pgsql"                             # postgresql verilerinin tutulacağı kök dizin
+        "POSTGRES_DATA_DIR=\$POSTGRES_DATA_ROOT_DIR/16/data"                # postgresql verilerinin tutulacağı dizin
+        "POSTGRES_BIN_DIR=/usr/lib/postgresql/16/bin"                       # postgresql binary dosyalarının bulunduğu dizin
         "POSTGRES_USER=postgres"                                            # işletim sisteminde bulunacak olan postgres kullanıcısının adı
         "BOOTSTRAP_SQL_FILE=/var/lib/postgresql/patroni_bootstrap.sql"      # patroni'nin ilk ayağa kalkerken oluşturacağı kullanıcıları içeren dosya yolu
     )

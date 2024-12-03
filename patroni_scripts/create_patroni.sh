@@ -22,10 +22,10 @@ if ! check_user_exists "$POSTGRES_USER"; then
     exit 1
 fi
 
-sudo chown -R $POSTGRES_USER:$POSTGRES_USER $POSTGRES_DATA_DIR
+sudo chown -R $POSTGRES_USER:$POSTGRES_USER $POSTGRES_DATA_ROOT_DIR
 check_success "Dizin sahipliği değiştirilirken bir hata oluştu."
 
-sudo chmod -R 700 $POSTGRES_DATA_DIR
+sudo chmod -R 700 $POSTGRES_DATA_ROOT_DIR
 check_success "Dizin izinleri değiştirilirken bir hata oluştu."
 
 patroni_bootstrap_dosyasi_olustur
