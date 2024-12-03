@@ -27,10 +27,12 @@ EOF
 
 # Patroni yapılandırma dosyasını oluşturma fonksiyonu
 patroni_yml_konfigure_et() {
-    if IS_NODE_1; then
+    if [ "$IS_NODE_1" = true ]; then
         PATRONI_NODE_NAME=$PATRONI_NODE1_NAME
+        NODE_IP=$NODE1_IP
     else
         PATRONI_NODE_NAME=$PATRONI_NODE2_NAME
+        NODE_IP=$NODE2_IP
     fi
     cat <<EOF | sudo tee /etc/patroni.yml
 scope: postgres
@@ -38,8 +40,8 @@ namespace: /db/
 name: $PATRONI_NODE_NAME
 
 restapi:
-    listen: 0.0.0.0:${HAPROXY_PORT}
-    connect_address: ${NODE1_IP}:${HAPROXY_PORT}
+    listen: ${NODE_IP}:${HAPROXY_PORT}
+    connect_address: ${NODE_IP}:${HAPROXY_PORT}
 
 etcd:
     host: ${ETCD_IP}:${ETCD_CLIENT_PORT}
@@ -72,7 +74,7 @@ bootstrap:
 
 postgresql:
     listen: 0.0.0.0:${PGSQL_PORT}
-    connect_address: ${NODE1_IP}:${PGSQL_PORT}
+    connect_address: ${NODE_IP}:${PGSQL_PORT}
     data_dir: /data/patroni
     bin_dir: /usr/lib/postgresql/16/bin
     pgpass: /tmp/pgpass
