@@ -27,6 +27,11 @@ EOF
 
 # Patroni yapılandırma dosyasını oluşturma fonksiyonu
 patroni_yml_konfigure_et() {
+    if IS_NODE_1; then
+        PATRONI_NODE_NAME=$PATRONI_NODE1_NAME
+    else
+        PATRONI_NODE_NAME=$PATRONI_NODE2_NAME
+    fi
     cat <<EOF | sudo tee /etc/patroni.yml
 scope: postgres
 namespace: /db/

@@ -59,7 +59,8 @@ define_arguments() {
         "DNS_DOCKER_FORWARD_PORT"   "--dns-docker-forward-port"          "$DEFAULT_DNS_DOCKER_FORWARD_PORT"     "DNS Docker konteynerine yönlendirilecek ana makine portu"
 
         # Patroni Argümanları
-        "PATRONI_NODE_NAME"         "--patroni-node-name"                "$DEFAULT_PATRONI_NODE_NAME"           "Patroni küme yapılandırmasındaki bu düğümün adı"
+        "PATRONI_NODE1_NAME"        "--patroni-node1-name"               "$DEFAULT_PATRONI_NODE1_NAME"          "Patroni küme yapılandırmasındaki birinci düğümün adı (IS_NODE_1 argümanına göre değişir)"
+        "PATRONI_NODE2_NAME"        "--patroni-node2-name"               "$DEFAULT_PATRONI_NODE2_NAME"          "Patroni küme yapılandırmasındaki ikinci düğümün adı (IS_NODE_1 argümanına göre değişir)"
         "ETCD_IP"                   "--etcd-ip"                          "$DEFAULT_ETCD_IP"                     "Patroni'nin koordinasyon için kullandığı ETCD kümesinin IP adresi"
         "REPLIKATOR_KULLANICI_ADI"  "--replicator-username"              "$DEFAULT_REPLIKATOR_KULLANICI_ADI"    "PostgreSQL replikasyon kullanıcısı için kullanıcı adı"
         "REPLICATOR_SIFRESI"        "--replicator-password"              "$DEFAULT_REPLICATOR_SIFRESI"          "PostgreSQL replikasyon kullanıcısı için şifre"

@@ -61,7 +61,8 @@ DNS_PORT=53
 SQL_CONTAINER_NAME=sql_container
 KEEPALIVED_PRIORITY=100
 DNS_CONTAINER_NAME=dns_container
-PATRONI_NODE_NAME=pg_node1
+PATRONI_NODE1_NAME=pg_node1
+PATRONI_NODE2_NAME=pg_node2
 SQL_DOCKERFILE_NAME=docker_sql
 SQL_IMAGE_NAME=sql_image
 HAPROXY_SCRIPT_FOLDER=haproxy_scripts
@@ -242,9 +243,12 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
     - Varsayılan Değer: `"5000"`
 
 - **PostgreSQL ve Patroni Değişkenleri**:
-  - `DEFAULT_PATRONI_NODE_NAME`:
-    - Açıklama: Patroni küme yapılandırmasındaki bu düğümün adı.
+  - `DEFAULT_PATRONI_NODE1_NAME`:
+    - Açıklama: Patroni küme yapılandırmasındaki birinci düğümün adı.
     - Varsayılan Değer: `"pg_node1"`
+  - `DEFAULT_PATRONI_NODE2_NAME`:
+    - Açıklama: Patroni küme yapılandırmasındaki ikinci düğümün adı.
+    - Varsayılan Değer: `"pg_node2"`
   - `DEFAULT_ETCD_IP`:
     - Açıklama: Patroni'nin koordinasyon için kullandığı ETCD kümesinin IP adresi.
     - Varsayılan Değer: `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
