@@ -29,6 +29,8 @@ define_constants() {
         "POSTGRES_BIN_DIR=/usr/lib/postgresql/16/bin"                       # postgresql binary dosyalarının bulunduğu dizin
         "POSTGRES_USER=postgres"                                            # işletim sisteminde bulunacak olan postgres kullanıcısının adı
         "BOOTSTRAP_SQL_FILE=/var/lib/postgresql/patroni_bootstrap.sql"      # patroni'nin ilk ayağa kalkerken oluşturacağı kullanıcıları içeren dosya yolu
+        "PATRONI_YML_PATH=/etc/patroni.yml"                                 # patroni yapılandırma dosyasının yolu
+        "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin
     )
 }
 

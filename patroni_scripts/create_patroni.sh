@@ -30,6 +30,8 @@ check_success "Dizin izinleri değiştirilirken bir hata oluştu."
 
 patroni_bootstrap_dosyasi_olustur
 
+setup_patroni_service
+
 patroni_yml_konfigure_et
 
 patroni_etkinlestir

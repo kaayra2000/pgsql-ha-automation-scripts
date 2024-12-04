@@ -112,26 +112,76 @@ patroni_etkinlestir() {
         return 1
     fi
 
-    echo "Patroni servisi durduruluyor..."
-    service patroni stop
-
     echo "Patroni servisi başlatılıyor..."
     service patroni start
 
     # Servis durumunu kontrol et
     if service patroni status >/dev/null 2>&1; then
         echo "Patroni servisi başarıyla çalışıyor."
-        # API'nin çalışıp çalışmadığını kontrol et
-        if curl -s "http://127.0.0.1:${HAPROXY_PORT}/patroni" >/dev/null 2>&1; then
-            echo "Patroni API aktif ve sağlıklı (port: ${HAPROXY_PORT})"
-            return 0
-        else
-            echo "UYARI: Patroni servisi çalışıyor fakat API şu anlık yanıt vermiyor (port: ${HAPROXY_PORT})"
-            return 0
-        fi
+        return 0
     else
         echo "HATA: Patroni servisi başlatılamadı!"
         service patroni status
         return 1
     fi
+}
+
+# patroni'nin servis dosyasını oluştur
+setup_patroni_service() {
+    local INIT_SCRIPT_PATH="/etc/init.d/patroni"
+    sudo tee $INIT_SCRIPT_PATH > /dev/null << EOM
+#!/bin/sh
+### BEGIN INIT INFO
+# Provides:          patroni
+# Required-Start:    \$network \$remote_fs \$syslog
+# Required-Stop:     \$network \$remote_fs \$syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Patroni PostgreSQL High Availability
+# Description:       Control the Patroni service for PostgreSQL
+### END INIT INFO
+
+PATH=/sbin:/usr/sbin:/bin:/usr/bin
+DESC="Patroni PostgreSQL High Availability"
+NAME=patroni
+DAEMON="$PATRONI_BINARY_PATH"
+DAEMON_ARGS="$PATRONI_YML_PATH"
+PIDFILE=/var/run/\$NAME.pid
+SCRIPTNAME=/etc/init.d/\$NAME
+
+# Patroni'nin bulunduğu yolu kontrol edin
+[ -x "\$DAEMON" ] || exit 0
+
+# Gerekli fonksiyonları dahil edin
+. /lib/init/vars.sh
+. /lib/lsb/init-functions
+
+case "\$1" in
+  start)
+    log_daemon_msg "Starting \$DESC" "\$NAME"
+    start-stop-daemon --start --quiet --background --pidfile \$PIDFILE --make-pidfile --user postgres --chuid postgres --exec \$DAEMON -- \$DAEMON_ARGS
+    log_end_msg \$?
+    ;;
+  stop)
+    log_daemon_msg "Stopping \$DESC" "\$NAME"
+    start-stop-daemon --stop --quiet --pidfile \$PIDFILE --name \$NAME
+    log_end_msg \$?
+    ;;
+  restart|force-reload)
+    \$0 stop
+    \$0 start
+    ;;
+  status)
+    status_of_proc -p \$PIDFILE "\$DAEMON" "\$NAME" && exit 0 || exit \$?
+    ;;
+  *)
+    echo "Usage: \$SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+    exit 3
+    ;;
+esac
+
+exit 0
+EOM
+
+    sudo chmod +x $INIT_SCRIPT_PATH
 }
