@@ -81,10 +81,10 @@ postgresql:
     authentication:
         replication:
             username: $REPLIKATOR_KULLANICI_ADI
-            password: $REPLICATOR_SIFRESI
+            password: '$REPLICATOR_SIFRESI'
         superuser:
             username: postgres
-            password: $POSTGRES_SIFRESI
+            password: '$POSTGRES_SIFRESI'
     create_replica_methods:
         - basebackup
         - pgbackrest

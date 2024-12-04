@@ -257,10 +257,10 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
     - Varsayılan Değer: `"replicator"`
   - `DEFAULT_REPLICATOR_SIFRESI`:
     - Açıklama: PostgreSQL replikasyon kullanıcısı için şifre.
-    - Varsayılan Değer: `"replicator_pass"`
+    - Varsayılan Değer: `"111"`
   - `DEFAULT_POSTGRES_SIFRESI`:
     - Açıklama: PostgreSQL süper kullanıcı 'postgres' için şifre.
-    - Varsayılan Değer: `"postgres_pass"`
+    - Varsayılan Değer: `"111"`
   - `DEFAULT_IS_NODE_1`:
     - Açıklama: Bu düğümün kümedeki ilk düğüm olup olmadığını belirten bayrak. Bu bayrağa göre Patroni ip atamaları yapılıyor. (`true` veya `false`)
     - Varsayılan Değer: `"true"`
