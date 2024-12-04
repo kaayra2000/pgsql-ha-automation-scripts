@@ -26,6 +26,7 @@ EOF
 }
 
 # Patroni yapılandırma dosyasını oluşturma fonksiyonu
+# retry_timeout: eğer 0 olursa etcd ile bağlantı kaybedilse bile master, master kalmaya devam eder.
 patroni_yml_konfigure_et() {
     if [ "$IS_NODE_1" = true ]; then
         PATRONI_NODE_NAME=$PATRONI_NODE1_NAME
@@ -50,7 +51,7 @@ bootstrap:
     dcs:
         ttl: 30
         loop_wait: 10
-        retry_timeout: 10
+        retry_timeout: 0
         maximum_lag_on_failover: 1048576
         postgresql:
             use_pg_rewind: true
