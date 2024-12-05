@@ -1,4 +1,4 @@
-FROM ubuntu:latest
+FROM ubuntu:22.04
 
 COPY create_dns_server.sh /usr/local/bin/
 COPY argument_parser.sh /usr/local/bin/
