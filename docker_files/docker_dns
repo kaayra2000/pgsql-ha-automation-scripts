@@ -1,16 +1,24 @@
 FROM ubuntu:22.04
 
-COPY create_dns_server.sh /usr/local/bin/
-COPY argument_parser.sh /usr/local/bin/
-COPY default_variables.sh /usr/local/bin/
-COPY general_functions.sh /usr/local/bin/
-
+# Locale ayarları için gerekli paketleri yükle
 RUN apt-get update && apt-get install -y \
+    locales \
     sudo \
     keepalived \
     bind9 \
     bind9utils \
     bind9-doc
+
+# Türkçe locale'ini oluştur ve varsayılan olarak ayarla
+RUN locale-gen tr_TR.UTF-8
+ENV LANG tr_TR.UTF-8
+ENV LANGUAGE tr_TR:tr
+ENV LC_ALL tr_TR.UTF-8
+
+COPY create_dns_server.sh /usr/local/bin/
+COPY argument_parser.sh /usr/local/bin/
+COPY default_variables.sh /usr/local/bin/
+COPY general_functions.sh /usr/local/bin/
 
 RUN chmod +x /usr/local/bin/create_dns_server.sh
 
