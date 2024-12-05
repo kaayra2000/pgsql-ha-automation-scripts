@@ -23,10 +23,14 @@ run_container() {
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $SQL_IMAGE_NAME \
-        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$ETCD_SCRIPT_FOLDER/$ETCD_SCRIPT_NAME \
-        && $SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME \
-        && $SHELL_PATH_IN_DOCKER/$PATRONI_SCRIPT_FOLDER/$PATRONI_SCRIPT_NAME \
-        && while true; do sleep 30; done"
+        /bin/bash -c "while true; do sleep 30; done"
+
+    docker cp $ARGUMENT_CFG_FILE $SQL_CONTAINER_NAME:$DOCKER_BINARY_PATH
+
+    docker exec -it $SQL_CONTAINER_NAME \
+        /bin/bash -c    "$SHELL_PATH_IN_DOCKER/$ETCD_SCRIPT_FOLDER/$ETCD_SCRIPT_NAME \
+                        && $SHELL_PATH_IN_DOCKER/$HAPROXY_SCRIPT_FOLDER/$HAPROXY_SCRIPT_NAME \
+                        && $SHELL_PATH_IN_DOCKER/$PATRONI_SCRIPT_FOLDER/$PATRONI_SCRIPT_NAME"
 }
 parse_and_read_arguments "$@"
 create_image "$SQL_IMAGE_NAME" "$DOCKERFILE_PATH" "$SQL_DOCKERFILE_NAME" "$SCRIPT_DIR/.."

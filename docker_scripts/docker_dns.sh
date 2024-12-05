@@ -18,10 +18,14 @@ run_container() {
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         --cap-add=NET_ADMIN \
         $DNS_IMAGE_NAME \
-        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$DNS_SHELL_SCRIPT_NAME $DNS_PORT && \
-                      service named start && \
-                      service keepalived start && \
-                      while true; do sleep 30; done"
+        /bin/bash -c "while true; do sleep 30; done"
+
+        docker cp $ARGUMENT_CFG_FILE $DNS_CONTAINER_NAME:$DOCKER_BINARY_PATH
+
+        docker exec -it $DNS_CONTAINER_NAME \
+                /bin/bash -c    "$SHELL_PATH_IN_DOCKER/$DNS_SHELL_SCRIPT_NAME $DNS_PORT \
+                                && service named start \
+                                && service keepalived start"
 }
 
 # Ana fonksiyon

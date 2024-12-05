@@ -51,7 +51,7 @@ bootstrap:
     dcs:
         ttl: 30
         loop_wait: 10
-        retry_timeout: 0
+        retry_timeout: 0            # etcd ile bağlantı kaybedilse bile master, master kalmaya devam eder.
         maximum_lag_on_failover: 1048576
         postgresql:
             use_pg_rewind: true
