@@ -23,7 +23,7 @@ run_container() {
         docker cp $ARGUMENT_CFG_FILE $DNS_CONTAINER_NAME:$DOCKER_BINARY_PATH
 
         docker exec -it $DNS_CONTAINER_NAME \
-                /bin/bash -c    "$SHELL_PATH_IN_DOCKER/$DNS_SHELL_SCRIPT_NAME $DNS_PORT \
+                /bin/bash -c    "$SHELL_PATH_IN_DOCKER/$DNS_SHELL_SCRIPT_NAME \
                                 && service named start \
                                 && service keepalived start"
 }
