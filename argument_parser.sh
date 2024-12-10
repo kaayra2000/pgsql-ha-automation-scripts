@@ -28,8 +28,8 @@ define_constants() {
         "PATRONI_SCRIPT_NAME=create_patroni.sh"                             # patroni'yi ayağa kaldırmak için kullanılan script adı
         "PATRONI_YML_PATH=/etc/patroni.yml"                                 # patroni yapılandırma dosyasının yolu
         "POSTGRES_BIN_DIR=/usr/lib/postgresql/16/bin"                       # postgresql binary dosyalarının bulunduğu dizin
-        "POSTGRES_DATA_DIR=\$POSTGRES_DATA_ROOT_DIR/16/data"                # postgresql verilerinin tutulacağı dizin
         "POSTGRES_DATA_ROOT_DIR=/var/lib/postgresql"                        # postgresql verilerinin tutulacağı kök dizin
+        "POSTGRES_DATA_DIR=\$POSTGRES_DATA_ROOT_DIR/16/data"                # postgresql verilerinin tutulacağı dizin
         "POSTGRES_USER=postgres"                                            # işletim sisteminde bulunacak olan postgres kullanıcısının adı
         "SQL_DOCKERFILE_NAME=docker_sql"                                    # docker oluşturulmak için temel alınan SQL Dockerfile adı
         "SQL_IMAGE_NAME=sql_image"                                          # docker ps çıktısında gözükecek SQL Docker imajı adı
