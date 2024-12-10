@@ -40,16 +40,13 @@ EOF
     check_success "etcd konfigürasyonu yapılırken bir hata oluştu."
 }
 
-etcd_etkinlestir() {
+start_etcd() {
     local ETCD_CLIENT_PORT="$1"
     if [ -z "$ETCD_CLIENT_PORT" ]; then
         echo "HATA: Port numarası belirtilmedi!"
         return 1
     fi
 
-    echo "ETCD servisi durduruluyor..."
-    service etcd stop
-    
     echo "ETCD servisi başlatılıyor..."
     service etcd start
 
@@ -74,7 +71,7 @@ etcd_etkinlestir() {
 
 # Bu fonksiyon, verilen yml dosyasının yolunu alır ve /etc/init.d/etcd dosyasındaki DAEMON_ARGS satırını günceller.
 # Amacı etcd servisini başlatırken yml dosyasını kullanmaktır.
-update_daemon_args() {
+update_etcd_init_script() {
     local ETCD_CONFIG_FILE="$1"
 
     # Yml dosyasının varlığını kontrol et

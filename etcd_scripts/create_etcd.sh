@@ -46,12 +46,12 @@ if ! set_permissions "$ETCD_USER" "$ETCD_CONFIG_FILE" "600"; then
     exit 1
 fi
 
-if ! update_daemon_args "$ETCD_CONFIG_FILE"; then
+if ! update_etcd_init_script "$ETCD_CONFIG_FILE"; then
     echo "Hata: etcd daemon argümanları güncellenemedi."
     exit 1
 fi
 
-if ! etcd_etkinlestir $ETCD_CLIENT_PORT; then
+if ! start_etcd $ETCD_CLIENT_PORT; then
     echo "Hata: etcd servisi başlatılamadı."
     exit 1
 fi
