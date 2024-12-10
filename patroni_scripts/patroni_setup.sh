@@ -129,7 +129,7 @@ patroni_etkinlestir() {
 
 # patroni'nin servis dosyasını oluştur
 setup_patroni_service() {
-    local INIT_SCRIPT_PATH="/etc/init.d/patroni"
+    local INIT_SCRIPT_PATH="$DOCKER_INITD_PATH/patroni"
     sudo tee $INIT_SCRIPT_PATH > /dev/null << EOM
 #!/bin/sh
 ### BEGIN INIT INFO
@@ -148,7 +148,7 @@ NAME=patroni
 DAEMON="$PATRONI_BINARY_PATH"
 DAEMON_ARGS="$PATRONI_YML_PATH"
 PIDFILE=/var/run/\$NAME.pid
-SCRIPTNAME=/etc/init.d/\$NAME
+SCRIPTNAME=$DOCKER_INITD_PATH/\$NAME
 
 # Patroni'nin bulunduğu yolu kontrol edin
 [ -x "\$DAEMON" ] || exit 0

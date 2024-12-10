@@ -32,6 +32,7 @@ define_constants() {
         "PATRONI_YML_PATH=/etc/patroni.yml"                                 # patroni yapılandırma dosyasının yolu
         "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin
         "DOCKER_BINARY_PATH=/usr/local/bin"                                 # docker içindeki binary dosyaların yolu
+        "DOCKER_INITD_PATH=/etc/init.d"                                     # docker içindeki init.d kaslörünün yolu                         
     )
 }
 

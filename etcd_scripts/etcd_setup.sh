@@ -84,19 +84,19 @@ update_daemon_args() {
     fi
 
     # /etc/init.d/etcd dosyasının varlığını kontrol et
-    if [ ! -f "/etc/init.d/etcd" ]; then
-        echo "HATA: /etc/init.d/etcd dosyası bulunamadı."
+    if [ ! -f "$DOCKER_INITD_PATH/etcd" ]; then
+        echo "HATA: $DOCKER_INITD_PATH/etcd dosyası bulunamadı."
         return 1
     fi
 
     # DAEMON_ARGS satırını güncelle veya ekle
-    if grep -q "^DAEMON_ARGS=" /etc/init.d/etcd; then
+    if grep -q "^DAEMON_ARGS=" $DOCKER_INITD_PATH/etcd; then
         # DAEMON_ARGS satırı varsa güncelle
-        sudo sed -i "s|^DAEMON_ARGS=.*|DAEMON_ARGS=\"--config-file=$ETCD_CONFIG_FILE\"|" /etc/init.d/etcd
+        sudo sed -i "s|^DAEMON_ARGS=.*|DAEMON_ARGS=\"--config-file=$ETCD_CONFIG_FILE\"|" $DOCKER_INITD_PATH/etcd
         echo "DAEMON_ARGS başarıyla güncellendi: --config-file=$ETCD_CONFIG_FILE"
     else
         # DAEMON_ARGS satırı yoksa, [ -x "$DAEMON" ] || exit 0 satırının üstüne ekle
-        sudo sed -i "/^\[ -x \"\$DAEMON\" \] || exit 0/i DAEMON_ARGS=\"--config-file=$ETCD_CONFIG_FILE\"" /etc/init.d/etcd
+        sudo sed -i "/^\[ -x \"\$DAEMON\" \] || exit 0/i DAEMON_ARGS=\"--config-file=$ETCD_CONFIG_FILE\"" $DOCKER_INITD_PATH/etcd
         echo "DAEMON_ARGS satırı eklendi: --config-file=$ETCD_CONFIG_FILE"
     fi
 }
