@@ -60,7 +60,7 @@ EOF
     check_success "HAProxy konfigürasyonu yapılırken bir hata oluştu."
 }
 
-enable_haproxy() {
+start_haproxy() {
     # Konfigürasyon dosyasını kontrol et
     echo "HAProxy konfigürasyon dosyası kontrol ediliyor..."
     sudo haproxy -c -f /etc/haproxy/haproxy.cfg
@@ -72,4 +72,53 @@ enable_haproxy() {
     sudo service haproxy start
     check_success "HAProxy servisi başlatılırken bir hata oluştu."
     echo "HAProxy servisi başarıyla başlatıldı."
+}
+
+update_haproxy_init_script() {
+    local HAPROXY_INIT_SCRIPT="$DOCKER_INITD_PATH/haproxy"
+
+    # HAProxy init script'in varlığını kontrol et
+    if [ ! -f "$HAPROXY_INIT_SCRIPT" ]; then
+        echo "HATA: $HAPROXY_INIT_SCRIPT bulunamadı."
+        return 1
+    fi
+
+    # haproxy_debug fonksiyonunu ekle
+    if grep -q "haproxy_debug()" "$HAPROXY_INIT_SCRIPT"; then
+        echo "haproxy_debug fonksiyonu zaten mevcut."
+    else
+        echo "haproxy_debug fonksiyonu ekleniyor..."
+        sudo sed -i "/^check_haproxy_config()/i \\
+haproxy_debug() {\\
+    check_haproxy_config\\
+    echo \"Starting haproxy in debug mode...\"\\
+    \$HAPROXY -f \"\$CONFIG\" -db \$EXTRAOPTS\\
+}\\
+" "$HAPROXY_INIT_SCRIPT"
+        echo "haproxy_debug fonksiyonu eklendi."
+    fi
+
+    # Usage satırını güncelle
+    if grep -q "{start|stop|reload|restart|status|debug}" "$HAPROXY_INIT_SCRIPT"; then
+        echo "Usage satırı zaten güncel."
+    else
+        echo "Usage satırı güncelleniyor..."
+        sudo sed -i 's/{start|stop|reload|restart|status}/{start|stop|reload|restart|status|debug}/' "$HAPROXY_INIT_SCRIPT"
+        echo "Usage satırı güncellendi."
+    fi
+
+    # Case yapısına debug seçeneğini ekle
+    if grep -q -E '^\s*debug\)' "$HAPROXY_INIT_SCRIPT"; then
+        echo "Case yapısında debug seçeneği zaten mevcut."
+    else
+        echo "Case yapısına debug seçeneği ekleniyor..."
+        sudo sed -i "/case \"\$1\" in/a \\
+    debug)\\
+        haproxy_debug\\
+        ;;\\
+" "$HAPROXY_INIT_SCRIPT"
+        echo "Case yapısına debug seçeneği eklendi."
+    fi
+
+    echo "HAProxy init scripti başarıyla güncellendi."
 }

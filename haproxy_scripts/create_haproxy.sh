@@ -7,4 +7,5 @@ source $SCRIPT_DIR/../general_functions.sh
 parse_and_read_arguments "$@"
 ha_proxy_kur
 ha_proxy_konfigure_et
-enable_haproxy
+update_haproxy_init_script
+start_haproxy
