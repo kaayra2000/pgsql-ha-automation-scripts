@@ -9,30 +9,30 @@ ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 # Sabitleri tanımlar.
 define_constants() {
     constants=(
-        "SQL_DOCKERFILE_NAME=docker_sql"                                    # docker oluşturulmak için temel alınan SQL Dockerfile adı
-        "SQL_IMAGE_NAME=sql_image"                                          # docker ps çıktısında gözükecek SQL Docker imajı adı
-        "PATRONI_SCRIPT_FOLDER=patroni_scripts"                             # patroni scriptlerini içeren klasör adı
-        "PATRONI_SCRIPT_NAME=create_patroni.sh"                             # patroni'yi ayağa kaldırmak için kullanılan script adı
-        "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"                             # haproxy scriptlerini içeren klasör adı
-        "HAPROXY_SCRIPT_NAME=create_haproxy.sh"                             # haproxy'yi ayağa kaldırmak için kullanılan script adı
-        "ETCD_SCRIPT_FOLDER=etcd_scripts"                                   # etcd scriptlerini içeren klasör adı
-        "ETCD_SCRIPT_NAME=create_etcd.sh"                                   # etcd'yi ayağa kaldırmak için kullanılan script adı
+        "BOOTSTRAP_SQL_FILE=/var/lib/postgresql/patroni_bootstrap.sql"      # patroni'nin ilk ayağa kalkarken oluşturacağı kullanıcıları içeren dosya yolu
+        "DOCKER_BINARY_PATH=/usr/local/bin"                                 # docker içindeki binary dosyaların yolu
         "DOCKERFILE_PATH=../docker_files"                                   # dockerfile'ların bulunduğu klasörün göreceli yolu
+        "DOCKER_INITD_PATH=/etc/init.d"                                     # docker içindeki init.d kaslörünün yolu
         "DNS_DOCKERFILE_NAME=docker_dns"                                    # docker oluşturulmak için temel alınan DNS Dockerfile adı
         "DNS_IMAGE_NAME=dns_image"                                          # docker ps çıktısında gözükecek DNS Docker imajı adı
         "DNS_SHELL_SCRIPT_NAME=create_dns_server.sh"                        # DNS sunucusunu ayağa kaldırmak için kullanılan script adı
         "ETCD_CONFIG_DIR=/etc/etcd"                                         # etcd konfigürasyon dosyasının bulunması gereken klasör
         "ETCD_CONFIG_FILE=\$ETCD_CONFIG_DIR/etcd.conf.yml"                  # etcd konfigürasyon dosyasının tam yolu
+        "ETCD_SCRIPT_FOLDER=etcd_scripts"                                   # etcd scriptlerini içeren klasör adı
+        "ETCD_SCRIPT_NAME=create_etcd.sh"                                   # etcd'yi ayağa kaldırmak için kullanılan script adı
         "ETCD_USER=etcd"                                                    # işletim sisteminde bulunacak olan etcd kullanıcısının adı
-        "POSTGRES_DATA_ROOT_DIR=/var/lib/postgresql"                        # postgresql verilerinin tutulacağı kök dizin
-        "POSTGRES_DATA_DIR=\$POSTGRES_DATA_ROOT_DIR/16/data"                # postgresql verilerinin tutulacağı dizin
-        "POSTGRES_BIN_DIR=/usr/lib/postgresql/16/bin"                       # postgresql binary dosyalarının bulunduğu dizin
-        "POSTGRES_USER=postgres"                                            # işletim sisteminde bulunacak olan postgres kullanıcısının adı
-        "BOOTSTRAP_SQL_FILE=/var/lib/postgresql/patroni_bootstrap.sql"      # patroni'nin ilk ayağa kalkerken oluşturacağı kullanıcıları içeren dosya yolu
-        "PATRONI_YML_PATH=/etc/patroni.yml"                                 # patroni yapılandırma dosyasının yolu
+        "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"                             # haproxy scriptlerini içeren klasör adı
+        "HAPROXY_SCRIPT_NAME=create_haproxy.sh"                             # haproxy'yi ayağa kaldırmak için kullanılan script adı
         "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin
-        "DOCKER_BINARY_PATH=/usr/local/bin"                                 # docker içindeki binary dosyaların yolu
-        "DOCKER_INITD_PATH=/etc/init.d"                                     # docker içindeki init.d kaslörünün yolu                         
+        "PATRONI_SCRIPT_FOLDER=patroni_scripts"                             # patroni scriptlerini içeren klasör adı
+        "PATRONI_SCRIPT_NAME=create_patroni.sh"                             # patroni'yi ayağa kaldırmak için kullanılan script adı
+        "PATRONI_YML_PATH=/etc/patroni.yml"                                 # patroni yapılandırma dosyasının yolu
+        "POSTGRES_BIN_DIR=/usr/lib/postgresql/16/bin"                       # postgresql binary dosyalarının bulunduğu dizin
+        "POSTGRES_DATA_DIR=\$POSTGRES_DATA_ROOT_DIR/16/data"                # postgresql verilerinin tutulacağı dizin
+        "POSTGRES_DATA_ROOT_DIR=/var/lib/postgresql"                        # postgresql verilerinin tutulacağı kök dizin
+        "POSTGRES_USER=postgres"                                            # işletim sisteminde bulunacak olan postgres kullanıcısının adı
+        "SQL_DOCKERFILE_NAME=docker_sql"                                    # docker oluşturulmak için temel alınan SQL Dockerfile adı
+        "SQL_IMAGE_NAME=sql_image"                                          # docker ps çıktısında gözükecek SQL Docker imajı adı
     )
 }
 
@@ -63,7 +63,7 @@ define_arguments() {
         "DNS_PORT"                  "--dns-port"                         "$DEFAULT_DNS_PORT"                    "DNS servisi için dinleme portu"
         "DNS_DOCKER_FORWARD_PORT"   "--dns-docker-forward-port"          "$DEFAULT_DNS_DOCKER_FORWARD_PORT"     "DNS Docker konteynerine yönlendirilecek ana makine portu"
 
-        # Patroni Argümanları
+        # Patroni Argümanları ve postgres
         "PATRONI_NODE1_NAME"        "--patroni-node1-name"               "$DEFAULT_PATRONI_NODE1_NAME"          "Patroni küme yapılandırmasındaki birinci düğümün adı (IS_NODE_1 argümanına göre değişir)"
         "PATRONI_NODE2_NAME"        "--patroni-node2-name"               "$DEFAULT_PATRONI_NODE2_NAME"          "Patroni küme yapılandırmasındaki ikinci düğümün adı (IS_NODE_1 argümanına göre değişir)"
         "ETCD_IP"                   "--etcd-ip"                          "$DEFAULT_ETCD_IP"                     "Patroni'nin koordinasyon için kullandığı ETCD kümesinin IP adresi"
