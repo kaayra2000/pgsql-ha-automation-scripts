@@ -11,37 +11,16 @@ source $SCRIPT_DIR/../argument_parser.sh
 source $SCRIPT_DIR/../general_functions.sh
 
 parse_and_read_arguments "$@"
-# Sayısal değer kontrolü
-# Dizin kontrolü
-if ! check_and_create_directory "$ETCD_DATA_DIR"; then
-    exit 1
-fi
 
-if ! check_and_create_directory "$ETCD_CONFIG_DIR"; then
-    exit 1
-fi
-
-# Dizinler oluşturulduktan sonra kullanıcı kontrolü
-if ! check_user_exists "$ETCD_USER"; then
-    echo "Hata: Kullanıcı $ETCD_USER mevcut değil. Devam edilemiyor."
-    exit 1
-fi
-
-# Kullanıcı varsa, dizinlerin sahipliğini ve izinlerini ayarla
-if ! set_permissions "$ETCD_USER" "$ETCD_DATA_DIR" "700"; then
-    echo "Hata: $ETCD_DATA_DIR için izinler ayarlanamadı."
-    exit 1
-fi
-
-if ! set_permissions "$ETCD_USER" "$ETCD_CONFIG_DIR" "700"; then
-    echo "Hata: $ETCD_CONFIG_DIR için izinler ayarlanamadı."
+if ! create_and_configure_neccessary_etcd_files; then
+    echo "Hata: gerekli dosyalar oluşturulamadı."
     exit 1
 fi
 
 # ETCD kurulum ve konfigürasyon
 etcd_kur
-etcd_konfigure_et "$ETCD_CONFIG_FILE"
-if ! set_permissions "$ETCD_USER" "$ETCD_CONFIG_FILE" "600"; then
+
+if ! etcd_konfigure_et "$ETCD_CONFIG_FILE"; then
     echo "Hata: $ETCD_CONFIG_FILE için izinler ayarlanamadı."
     exit 1
 fi

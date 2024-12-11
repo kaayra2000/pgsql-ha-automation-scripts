@@ -38,6 +38,9 @@ heartbeat-interval: $ETCD_HEARTBEAT_INTERVAL
 enable-v2: true
 EOF
     check_success "etcd konfigürasyonu yapılırken bir hata oluştu."
+
+    set_permissions "$ETCD_USER" "$ETCD_CONFIG_FILE" "600"
+    return $?
 }
 
 start_etcd() {
@@ -96,4 +99,33 @@ update_etcd_init_script() {
         sudo sed -i "/^\[ -x \"\$DAEMON\" \] || exit 0/i DAEMON_ARGS=\"--config-file=$ETCD_CONFIG_FILE\"" $DOCKER_INITD_PATH/etcd
         echo "DAEMON_ARGS satırı eklendi: --config-file=$ETCD_CONFIG_FILE"
     fi
+    return 0
+}
+
+create_and_configure_neccessary_etcd_files() {
+    if ! check_and_create_directory "$ETCD_DATA_DIR"; then
+        return 1
+    fi
+
+    if ! check_and_create_directory "$ETCD_CONFIG_DIR"; then
+        return 1
+    fi
+
+    # Dizinler oluşturulduktan sonra kullanıcı kontrolü
+    if ! check_user_exists "$ETCD_USER"; then
+        echo "Hata: Kullanıcı $ETCD_USER mevcut değil. Devam edilemiyor."
+        return 1
+    fi
+
+    # Kullanıcı varsa, dizinlerin sahipliğini ve izinlerini ayarla
+    if ! set_permissions "$ETCD_USER" "$ETCD_DATA_DIR" "700"; then
+        echo "Hata: $ETCD_DATA_DIR için izinler ayarlanamadı."
+        return 1
+    fi
+
+    if ! set_permissions "$ETCD_USER" "$ETCD_CONFIG_DIR" "700"; then
+        echo "Hata: $ETCD_CONFIG_DIR için izinler ayarlanamadı."
+        return 1
+    fi
+    return 0
 }
