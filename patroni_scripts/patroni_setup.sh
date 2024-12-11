@@ -128,7 +128,7 @@ patroni_etkinlestir() {
 }
 
 # patroni'nin servis dosyasını oluştur
-setup_patroni_service() {
+setup_patroni_init_script() {
     local INIT_SCRIPT_PATH="$DOCKER_INITD_PATH/patroni"
     sudo tee $INIT_SCRIPT_PATH > /dev/null << EOM
 #!/bin/sh
@@ -157,6 +157,12 @@ SCRIPTNAME=$DOCKER_INITD_PATH/\$NAME
 . /lib/init/vars.sh
 . /lib/lsb/init-functions
 
+patroni_debug() {
+    echo "Patroni ön planda başlatılıyor (debug modunda)..."
+    # postgres kullanıcısı olarak patroni'yi ön planda çalıştır
+    su - postgres -c "\$DAEMON \$DAEMON_ARGS"
+}
+
 case "\$1" in
   start)
     log_daemon_msg "Starting \$DESC" "\$NAME"
@@ -175,8 +181,11 @@ case "\$1" in
   status)
     status_of_proc -p \$PIDFILE "\$DAEMON" "\$NAME" && exit 0 || exit \$?
     ;;
+  debug)
+    patroni_debug
+    ;;
   *)
-    echo "Usage: \$SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+    echo "Usage: \$SCRIPTNAME {start|stop|status|restart|force-reload|debug}" >&2
     exit 3
     ;;
 esac
