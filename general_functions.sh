@@ -102,7 +102,7 @@ set_permissions() {
     # Argüman sayısını kontrol et
     if [ "$#" -lt 3 ]; then
         echo "Hata: Eksik parametre"
-        echo "Kullanım: izin_ver <kullanıcı> <dosya_veya_dizin> <izin_numarası>"
+        echo "Kullanım: izin_ver <kullanıcı[:grup]> <dosya_veya_dizin> <izin_numarası>"
         return 1
     fi
 
@@ -110,9 +110,24 @@ set_permissions() {
     local hedef="$2"
     local izin="$3"
 
+    # Kullanıcı ve grup ayrıştır
+    if [[ "$kullanici" == *:* ]]; then
+        local user="${kullanici%%:*}"
+        local group="${kullanici##*:}"
+    else
+        local user="$kullanici"
+        local group="$kullanici"
+    fi
+
     # Kullanıcının varlığını kontrol et
-    if ! id "$kullanici" >/dev/null 2>&1; then
-        echo "Hata: $kullanici kullanıcısı mevcut değil"
+    if ! id "$user" >/dev/null 2>&1; then
+        echo "Hata: $user kullanıcısı mevcut değil"
+        return 1
+    fi
+
+    # Grubun varlığını kontrol et
+    if ! getent group "$group" >/dev/null 2>&1; then
+        echo "Hata: $group grubu mevcut değil"
         return 1
     fi
 
@@ -129,13 +144,13 @@ set_permissions() {
     fi
 
     # Sahipliği değiştir
-    if ! chown "$kullanici:$kullanici" "$hedef"; then
+    if ! chown "$user:$group" "$hedef"; then
         echo "Hata: Sahiplik değiştirilemedi"
         return 1
     fi
 
     echo "Başarılı: $hedef için izinler ve sahiplik güncellendi"
-    echo "Yeni sahip: $kullanici"
+    echo "Yeni sahip: $user:$group"
     echo "Yeni izinler: $izin"
     ls -l "$hedef"
     return 0
