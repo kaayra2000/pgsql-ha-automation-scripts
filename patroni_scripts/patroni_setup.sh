@@ -48,10 +48,14 @@ etcd:
     host: ${ETCD_IP}:${ETCD_CLIENT_PORT}
 
 log:
-    type: file
+    type: json
     level: INFO # DEBUG, INFO, WARNING, ERROR, CRITICAL
     traceback_level: ERROR # DEBUG, INFO, WARNING, ERROR, CRITICAL
-    format: '%(asctime)s %(levelname)s: %(message)s'
+    format:
+        - asctime
+        - levelname
+        - message
+        - name
     dateformat: '%d-%m-%Y %H:%M:%S'
     static_fields:
         app: patroni

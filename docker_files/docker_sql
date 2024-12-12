@@ -31,11 +31,10 @@ RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main 16" > /etc/apt/sources.list.d/pgdg.list
 
-# Paket listelerini güncelleyin
-RUN apt-get update
+
 
 # Gerekli paketleri yükleyin
-RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y \
     sudo \
     postgresql-16 \
     postgresql-client-16 \
@@ -44,7 +43,12 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install -y \
     python3-pip \
     haproxy \
     etcd \
-    net-tools
+    net-tools && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Python paketlerini yükleyin
+RUN pip3 install --upgrade pip && pip3 install python-json-logger
+
 
 # Gerekli dizinleri oluşturun ve sahipliğini ayarlayın
 RUN mkdir -p /var/lib/etcd \
