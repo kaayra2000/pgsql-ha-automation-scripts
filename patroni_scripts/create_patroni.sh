@@ -12,21 +12,7 @@ source $SCRIPT_DIR/../general_functions.sh
 
 parse_and_read_arguments "$@"
 
-
-if ! check_and_create_directory "$POSTGRES_DATA_DIR"; then
-    exit 1
-fi 
-
-if ! check_user_exists "$POSTGRES_USER"; then
-    echo "Hata: Kullanıcı postgres mevcut değil. Devam edilemiyor."
-    exit 1
-fi
-
-sudo chown -R $POSTGRES_USER:$POSTGRES_USER $POSTGRES_DATA_ROOT_DIR
-check_success "Dizin sahipliği değiştirilirken bir hata oluştu."
-
-sudo chmod -R 700 $POSTGRES_DATA_ROOT_DIR
-check_success "Dizin izinleri değiştirilirken bir hata oluştu."
+create_and_configure_neccessary_patroni_files
 
 patroni_bootstrap_dosyasi_olustur
 

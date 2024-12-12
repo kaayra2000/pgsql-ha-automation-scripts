@@ -47,6 +47,20 @@ restapi:
 etcd:
     host: ${ETCD_IP}:${ETCD_CLIENT_PORT}
 
+log:
+    type: file
+    level: INFO # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    traceback_level: ERROR # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    format: '%(asctime)s %(levelname)s: %(message)s'
+    dateformat: '%d-%m-%Y %H:%M:%S'
+    static_fields:
+        app: patroni
+    max_queue_size: 100
+    dir: $PATRONI_LOG_FILE
+    mode: 0644
+    file_num: 7
+    file_size: 10485760
+
 bootstrap:
     dcs:
         ttl: 30
@@ -106,7 +120,6 @@ EOF
 
     check_success "Patroni konfigürasyonu yapılırken bir hata oluştu."
 }
-
 patroni_etkinlestir() {
     if [ -z "$HAPROXY_PORT" ]; then
         echo "HATA: Port numarası belirtilmedi!"
@@ -194,4 +207,33 @@ exit 0
 EOM
 
     sudo chmod +x $INIT_SCRIPT_PATH
+}
+create_and_configure_neccessary_patroni_files(){
+    if ! check_and_create_directory "$POSTGRES_DATA_DIR"; then
+        exit 1
+    fi 
+
+    if ! check_user_exists "$POSTGRES_USER"; then
+        echo "Hata: Kullanıcı postgres mevcut değil. Devam edilemiyor."
+        exit 1
+    fi
+    if ! set_permissions "$POSTGRES_USER:$POSTGRES_USER" "$POSTGRES_DATA_DIR" "700"; then
+        echo "Hata: $POSTGRES_DATA_DIR için izinler ayarlanamadı."
+        exit 1
+    fi
+
+    if ! check_and_create_directory "$PATRONI_LOG_FILE"; then
+        return 1
+    fi
+    # Dizinler oluşturulduktan sonra kullanıcı kontrolü
+    if ! check_user_exists "$POSTGRES_USER"; then
+        echo "Hata: Kullanıcı $POSTGRES_USER mevcut değil. Devam edilemiyor."
+        return 1
+    fi
+
+    # Kullanıcı varsa, dizinlerin sahipliğini ve izinlerini ayarla
+    if ! set_permissions "$POSTGRES_USER" "$PATRONI_LOG_FILE" "700"; then
+        echo "Hata: $PATRONI_LOG_FILE için izinler ayarlanamadı."
+        return 1
+    fi
 }

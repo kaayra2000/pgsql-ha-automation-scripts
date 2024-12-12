@@ -9,6 +9,7 @@ ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 # Sabitleri tanımlar.
 define_constants() {
     constants=(
+        "ROOT_LOG_DIR=/var/log"                                             # log dosyalarının kök dizini
         "BOOTSTRAP_SQL_FILE=/var/lib/postgresql/patroni_bootstrap.sql"      # patroni'nin ilk ayağa kalkarken oluşturacağı kullanıcıları içeren dosya yolu
         "DOCKER_BINARY_PATH=/usr/local/bin"                                 # docker içindeki binary dosyaların yolu
         "DOCKERFILE_PATH=../docker_files"                                   # dockerfile'ların bulunduğu klasörün göreceli yolu
@@ -24,6 +25,7 @@ define_constants() {
         "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"                             # haproxy scriptlerini içeren klasör adı
         "HAPROXY_SCRIPT_NAME=create_haproxy.sh"                             # haproxy'yi ayağa kaldırmak için kullanılan script adı
         "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin
+        "PATRONI_LOG_FILE=\$ROOT_LOG_DIR/patroni/"                          # patroni'nin log dosyasının yolu
         "PATRONI_SCRIPT_FOLDER=patroni_scripts"                             # patroni scriptlerini içeren klasör adı
         "PATRONI_SCRIPT_NAME=create_patroni.sh"                             # patroni'yi ayağa kaldırmak için kullanılan script adı
         "PATRONI_YML_PATH=/etc/patroni.yml"                                 # patroni yapılandırma dosyasının yolu
