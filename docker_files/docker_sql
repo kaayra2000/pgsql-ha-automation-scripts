@@ -15,6 +15,18 @@ ENV LANG tr_TR.UTF-8
 ENV LANGUAGE tr_TR:tr
 ENV LC_ALL tr_TR.UTF-8
 
+# Paket listelerini güncelleyin
+RUN apt-get update
+
+# Zaman dilimini işlemleri
+# Tzdata paketini yükleyin
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
+# Zaman dilimini Türkiye olarak ayarlayın
+ENV TZ=Europe/Istanbul
+# Zaman dilimi dosyasını linkleyin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
 # PostgreSQL 16 APT deposunu ekleyin
 RUN wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add -
 RUN echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main 16" > /etc/apt/sources.list.d/pgdg.list

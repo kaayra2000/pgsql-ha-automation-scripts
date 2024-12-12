@@ -9,6 +9,14 @@ RUN apt-get update && apt-get install -y \
     bind9utils \
     bind9-doc
 
+# Zaman dilimini işlemleri
+# Tzdata paketini yükleyin
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
+# Zaman dilimini Türkiye olarak ayarlayın
+ENV TZ=Europe/Istanbul
+# Zaman dilimi dosyasını linkleyin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Türkçe locale'ini oluştur ve varsayılan olarak ayarla
 RUN locale-gen tr_TR.UTF-8
 ENV LANG tr_TR.UTF-8
