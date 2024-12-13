@@ -1,28 +1,28 @@
 #!/bin/bash
 
-# keepalived_script kullanıcısına docker yetkisi verme
+# $KEEPALIVED_SCRIPT_USER kullanıcısına docker yetkisi verme
 check_and_add_docker_permissions() {
-    if ! groups keepalived_script | grep -q docker; then
-        echo "keepalived_script kullanıcısına docker grubuna ekleniyor..."
-        sudo usermod -aG docker keepalived_script
-        echo "keepalived_script kullanıcısı docker grubuna eklendi."
+    if ! groups $KEEPALIVED_SCRIPT_USER | grep -q docker; then
+        echo "$KEEPALIVED_SCRIPT_USER kullanıcısına docker grubuna ekleniyor..."
+        sudo usermod -aG docker $KEEPALIVED_SCRIPT_USER
+        echo "$KEEPALIVED_SCRIPT_USER kullanıcısı docker grubuna eklendi."
     else
-        echo "keepalived_script kullanıcısı zaten docker grubunda."
+        echo "$KEEPALIVED_SCRIPT_USER kullanıcısı zaten docker grubunda."
     fi
 }
 
-# keepalived_script kullanıcısını oluşturma
+# $KEEPALIVED_SCRIPT_USER kullanıcısını oluşturma
 create_keepalived_user() {
-    if ! id "keepalived_script" &>/dev/null; then
-        echo "keepalived_script kullanıcısı oluşturuluyor..."
-        sudo useradd -r -s /sbin/nologin keepalived_script
-        echo "keepalived_script kullanıcısı oluşturuldu."
+    if ! id "$KEEPALIVED_SCRIPT_USER" &>/dev/null; then
+        echo "$KEEPALIVED_SCRIPT_USER kullanıcısı oluşturuluyor..."
+        sudo useradd -r -s /sbin/nologin $KEEPALIVED_SCRIPT_USER
+        echo "$KEEPALIVED_SCRIPT_USER kullanıcısı oluşturuldu."
     else
-        echo "keepalived_script kullanıcısı zaten mevcut."
+        echo "$KEEPALIVED_SCRIPT_USER kullanıcısı zaten mevcut."
     fi
 }
 
-# keepalived_script kullanıcısına sudo yetkisi verme
+# $KEEPALIVED_SCRIPT_USER kullanıcısına sudo yetkisi verme
 configure_sudo_access() {
     echo "Sudo erişimi yapılandırılıyor..."
 
@@ -33,9 +33,9 @@ configure_sudo_access() {
     fi
 
     # Keepalived için sudo kuralını oluştur
-    sudo bash -c 'cat > /etc/sudoers.d/keepalived << EOF
-keepalived_script ALL=(ALL) NOPASSWD: /usr/bin/docker
-EOF'
+    sudo bash -c "cat > /etc/sudoers.d/keepalived << EOF
+$KEEPALIVED_SCRIPT_USER ALL=(ALL) NOPASSWD: /usr/bin/docker
+EOF"
 
     # Dosya izinlerini ayarla
     sudo chmod 440 /etc/sudoers.d/keepalived

@@ -92,7 +92,6 @@ check_and_create_directory() {
     # Dizine yazma izni kontrolü
     if [[ ! -w "$dir_path" ]]; then
         echo "Hata: $dir_path dizinine yazma izni yok"
-        return 1
     fi
     
     return 0

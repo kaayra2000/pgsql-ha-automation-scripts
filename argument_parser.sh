@@ -26,6 +26,7 @@ define_constants() {
         "HAPROXY_CONFIG_FILE=/etc/haproxy/haproxy.cfg"                      # haproxy konfigürasyon dosyasının yolu
         "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"                             # haproxy scriptlerini içeren klasör adı
         "HAPROXY_SCRIPT_NAME=create_haproxy.sh"                             # haproxy'yi ayağa kaldırmak için kullanılan script adı
+        "KEEPALIVED_SCRIPT_USER=keepalived_script"                          # keepalived scriptlerini çalıştırmak için kullanılan kullanıcı adı
         "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin
         "PATRONI_LOG_FILE=\$ROOT_LOG_DIR/patroni/"                          # patroni'nin log dosyasının yolu
         "PATRONI_SCRIPT_FOLDER=patroni_scripts"                             # patroni scriptlerini içeren klasör adı
