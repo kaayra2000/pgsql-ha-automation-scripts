@@ -104,6 +104,10 @@ postgresql:
         superuser:
             username: postgres
             password: '$POSTGRES_SIFRESI'
+    parameters:
+        logging_collector: on
+        log_directory: 'log'
+        log_filename: 'postgresql-%Y-%m-%d_%H%M%S.log'
     create_replica_methods:
         - basebackup
         - pgbackrest
