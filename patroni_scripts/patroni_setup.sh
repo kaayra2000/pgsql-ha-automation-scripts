@@ -74,9 +74,6 @@ bootstrap:
         postgresql:
             use_pg_rewind: true
             use_slots: true
-        parameters:
-            archive_mode: true
-            archive_command: 'pgbackrest --stanza=dbmaster_cls archive-push %p && cp -i %p /var/lib/pgsql/archive/%f'
 
     initdb:
         - encoding: UTF8
@@ -105,6 +102,8 @@ postgresql:
             username: postgres
             password: '$POSTGRES_SIFRESI'
     parameters:
+        archive_mode: true
+        archive_command: 'cp -i %p $POSTGRES_ARCHIVE_DIR/%f'
         logging_collector: on
         log_directory: 'log'
         log_filename: 'postgresql-%Y-%m-%d_%H%M%S.log'
@@ -231,6 +230,14 @@ create_and_configure_neccessary_patroni_files(){
     if ! check_and_create_directory "$POSTGRES_DATA_DIR"; then
         exit 1
     fi 
+    if ! check_and_create_directory "$POSTGRES_ARCHIVE_DIR"; then
+        exit 1
+    fi
+
+    if ! set_permissions "$POSTGRES_USER:$POSTGRES_USER" "$POSTGRES_ARCHIVE_DIR" "700"; then
+        echo "Hata: $POSTGRES_ARCHIVE_DIR için izinler ayarlanamadı."
+        exit 1
+    fi
 
     if ! check_user_exists "$POSTGRES_USER"; then
         echo "Hata: Kullanıcı postgres mevcut değil. Devam edilemiyor."

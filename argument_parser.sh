@@ -10,7 +10,8 @@ ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 define_constants() {
     constants=(
         "ROOT_LOG_DIR=/var/log"                                             # log dosyalarının kök dizini
-        "BOOTSTRAP_SQL_FILE=/var/lib/postgresql/patroni_bootstrap.sql"      # patroni'nin ilk ayağa kalkarken oluşturacağı kullanıcıları içeren dosya yolu
+        "POSTGRES_DATA_ROOT_DIR=/var/lib/postgresql"                        # postgresql verilerinin tutulacağı kök dizin
+        "BOOTSTRAP_SQL_FILE=\$POSTGRES_DATA_ROOT_DIR/patroni_bootstrap.sql" # patroni'nin ilk ayağa kalkarken oluşturacağı kullanıcıları içeren dosya yolu
         "DOCKER_BINARY_PATH=/usr/local/bin"                                 # docker içindeki binary dosyaların yolu
         "DOCKERFILE_PATH=../docker_files"                                   # dockerfile'ların bulunduğu klasörün göreceli yolu
         "DOCKER_INITD_PATH=/etc/init.d"                                     # docker içindeki init.d kaslörünün yolu
@@ -30,8 +31,8 @@ define_constants() {
         "PATRONI_SCRIPT_NAME=create_patroni.sh"                             # patroni'yi ayağa kaldırmak için kullanılan script adı
         "PATRONI_YML_PATH=/etc/patroni.yml"                                 # patroni yapılandırma dosyasının yolu
         "POSTGRES_BIN_DIR=/usr/lib/postgresql/16/bin"                       # postgresql binary dosyalarının bulunduğu dizin
-        "POSTGRES_DATA_ROOT_DIR=/var/lib/postgresql"                        # postgresql verilerinin tutulacağı kök dizin
         "POSTGRES_DATA_DIR=\$POSTGRES_DATA_ROOT_DIR/16/data"                # postgresql verilerinin tutulacağı dizin
+        "POSTGRES_ARCHIVE_DIR=\$POSTGRES_DATA_ROOT_DIR/16/archive"          # postgresql'in WAL dosyalarının tutulacağı dizin
         "POSTGRES_USER=postgres"                                            # işletim sisteminde bulunacak olan postgres kullanıcısının adı
         "SQL_DOCKERFILE_NAME=docker_sql"                                    # docker oluşturulmak için temel alınan SQL Dockerfile adı
         "SQL_IMAGE_NAME=sql_image"                                          # docker ps çıktısında gözükecek SQL Docker imajı adı
