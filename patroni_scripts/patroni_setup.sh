@@ -108,6 +108,17 @@ postgresql:
         logging_collector: on
         log_directory: 'log'
         log_filename: 'postgresql-%Y-%m-%d_%H%M%S.log'
+        log_line_prefix: '%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h '
+        log_connections: on # on veya off
+        log_disconnections: on # on veya off
+        log_statement: 'all' # none, ddl, mod, all
+        log_destination: 'stderr'    # stderr, csvlog, syslog, eventlog
+        log_min_duration_statement: 0 # milisaniye cinsinden
+        log_error_verbosity: default # terse, default, verbose
+        log_rotation_size: 10MB     # Tek bir log dosyasının maksimum boyutu
+        log_rotation_age: 1d        # Log dosyasının yaşı (1d = 1 gün)
+        log_file_mode: 0600        # Log dosyası izinleri
+        log_truncate_on_rotation: on    # Yeni döngüde eski dosyanın üzerine yazar
     create_replica_methods:
         - basebackup
         - pgbackrest
