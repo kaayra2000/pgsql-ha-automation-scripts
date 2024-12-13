@@ -23,6 +23,7 @@ define_constants() {
         "ETCD_SCRIPT_FOLDER=etcd_scripts"                                   # etcd scriptlerini içeren klasör adı
         "ETCD_SCRIPT_NAME=create_etcd.sh"                                   # etcd'yi ayağa kaldırmak için kullanılan script adı
         "ETCD_USER=etcd"                                                    # işletim sisteminde bulunacak olan etcd kullanıcısının adı
+        "HAPROXY_CONFIG_FILE=/etc/haproxy/haproxy.cfg"                      # haproxy konfigürasyon dosyasının yolu
         "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"                             # haproxy scriptlerini içeren klasör adı
         "HAPROXY_SCRIPT_NAME=create_haproxy.sh"                             # haproxy'yi ayağa kaldırmak için kullanılan script adı
         "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin

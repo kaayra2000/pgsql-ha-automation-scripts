@@ -13,7 +13,7 @@ ha_proxy_kur() {
 }
 
 ha_proxy_konfigure_et() {
-    cat <<EOF | sudo tee /etc/haproxy/haproxy.cfg
+    cat <<EOF | sudo tee $HAPROXY_CONFIG_FILE
 global
     maxconn 1000
     log /dev/log    local0
@@ -63,7 +63,7 @@ EOF
 start_haproxy() {
     # Konfigürasyon dosyasını kontrol et
     echo "HAProxy konfigürasyon dosyası kontrol ediliyor..."
-    sudo haproxy -c -f /etc/haproxy/haproxy.cfg
+    sudo haproxy -c -f $HAPROXY_CONFIG_FILE
     check_success "HAProxy konfigürasyon dosyası hatalı."
     echo "HAProxy konfigürasyon dosyası başarıyla kontrol edildi."
 
