@@ -28,7 +28,7 @@ global_defs {
 
 # SQL için VRRP yapılandırması
 vrrp_script check_sql {
-    script "$(create_checkscript $SQL_CONTAINER_NAME)"
+    script "$(create_docker_checkscript $SQL_CONTAINER_NAME)"
     interval 2
     weight -20
     fall 2
@@ -73,7 +73,7 @@ vrrp_instance VI_HAPROXY {
 
 # DNS için VRRP yapılandırması
 vrrp_script check_dns {
-    script "$(create_checkscript $DNS_CONTAINER_NAME)"
+    script "$(create_docker_checkscript $DNS_CONTAINER_NAME)"
     interval 2
     weight -20
     fall 2
