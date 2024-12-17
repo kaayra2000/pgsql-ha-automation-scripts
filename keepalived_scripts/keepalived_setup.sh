@@ -49,6 +49,28 @@ vrrp_instance VI_SQL {
     }
 }
 
+vrrp_script check_haproxyservice {
+    script "$(create_service_checkscript $SQL_CONTAINER_NAME $HAPROXY_SERVICE_NAME)"
+    interval 2
+    weight -20
+    fall 2
+    rise 2
+}
+
+vrrp_instance VI_HAPROXY {
+    state $KEEPALIVED_STATE
+    interface $KEEPALIVED_INTERFACE
+    virtual_router_id 51
+    priority $KEEPALIVED_PRIORITY
+    advert_int 1
+    virtual_ipaddress {
+        $HAPROXY_VIRTUAL_IP
+    }
+    track_script {
+        check_haproxyservice
+    }
+}
+
 # DNS için VRRP yapılandırması
 vrrp_script check_dns {
     script "$(create_checkscript $DNS_CONTAINER_NAME)"

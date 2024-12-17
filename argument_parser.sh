@@ -26,6 +26,7 @@ define_constants() {
         "HAPROXY_CONFIG_FILE=/etc/haproxy/haproxy.cfg"                      # haproxy konfigürasyon dosyasının yolu
         "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"                             # haproxy scriptlerini içeren klasör adı
         "HAPROXY_SCRIPT_NAME=create_haproxy.sh"                             # haproxy'yi ayağa kaldırmak için kullanılan script adı
+        "HAPROXY_SERVICE_NAME=haproxy"                                      # dockerda çalışan haproxy servisinin içi
         "KEEPALIVED_SCRIPT_USER=keepalived_script"                          # keepalived scriptlerini çalıştırmak için kullanılan kullanıcı adı
         "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin
         "PATRONI_LOG_FILE=\$ROOT_LOG_DIR/patroni/"                          # patroni'nin log dosyasının yolu
@@ -59,6 +60,7 @@ define_arguments() {
         "KEEPALIVED_INTERFACE"      "--keepalived-interface"             "$DEFAULT_KEEPALIVED_INTERFACE"        "Keepalived'in VRRP iletişimi için kullanacağı ağ arayüzü (örn: eth0)"
         "SQL_VIRTUAL_IP"            "--sql-virtual-ip"                   "$DEFAULT_SQL_VIRTUAL_IP"              "Keepalived tarafından yönetilen PostgreSQL servisi için sanal IP adresi"
         "DNS_VIRTUAL_IP"            "--dns-virtual-ip"                   "$DEFAULT_DNS_VIRTUAL_IP"              "Keepalived tarafından yönetilen DNS servisi için sanal IP adresi"
+        "HAPROXY_VIRTUAL_IP"        "--haproxy-virtual-ip"               "$DEFAULT_HAPROXY_VIRTUAL_IP"          "Keepalived tarafından yönetilen HAProxy servisi için sanal IP adresi"
         "KEEPALIVED_PRIORITY"       "--keepalived-priority"              "$DEFAULT_KEEPALIVED_PRIORITY"         "Keepalived için öncelik değeri; daha yüksek değer, master seçiminde daha yüksek öncelik anlamına gelir (tamsayı)"
         "KEEPALIVED_STATE"          "--keepalived-state"                 "$DEFAULT_KEEPALIVED_STATE"            "Düğümün Keepalived VRRP içindeki başlangıç durumu ('MASTER' veya 'BACKUP')"
         "SQL_CONTAINER_NAME"        "--sql-container-name"               "$DEFAULT_SQL_CONTAINER_NAME"          "Keepalived'in izlediği SQL (PostgreSQL) konteynerinin adı"
