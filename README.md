@@ -46,7 +46,7 @@ POSTGRES_SIFRESI=postgres_pass
 DNS_DOCKER_FORWARD_PORT=7777
 ETCD_CLIENT_PORT=2379
 KEEPALIVED_INTERFACE=enp0s3
-ETCD_IP=10.207.80.20
+ETCD_VIRTUAL_IP=10.207.80.22
 ETCD_CLUSTER_TOKEN=cluster1
 PGSQL_PORT=5432
 ETCD_DATA_DIR=/var/lib/etcd/default
@@ -249,7 +249,7 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
   - `DEFAULT_PATRONI_NODE2_NAME`:
     - Açıklama: Patroni küme yapılandırmasındaki ikinci düğümün adı.
     - Varsayılan Değer: `"pg_node2"`
-  - `DEFAULT_ETCD_IP`:
+  - `DEFAULT_ETCD_VIRTUAL_IP`:
     - Açıklama: Patroni'nin koordinasyon için kullandığı ETCD kümesinin IP adresi.
     - Varsayılan Değer: `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
   - `DEFAULT_REPLIKATOR_KULLANICI_ADI`:
@@ -297,7 +297,7 @@ Bu script, diğer scriptlerde kullanılmak üzere varsayılan değerleri tanıml
     - Varsayılan Değer: `"7777"`
 
 - **ETCD Varsayılan Değerleri**:
-  - `DEFAULT_ETCD_IP`:
+  - `DEFAULT_ETCD_VIRTUAL_IP`:
     - Açıklama: ETCD'nin IP adresi.
     - Varsayılan Değer: `DEFAULT_SQL_VIRTUAL_IP` değerini kullanır.
   - `DEFAULT_ETCD_CLIENT_PORT`:
@@ -337,7 +337,7 @@ Bu değişkenler, diğer scriptlerde varsayılan değerleri atamak için kullan�
 ### Notlar
 
 - Değişken isimleri büyük harflerle ve `DEFAULT_` önekiyle tanımlanmıştır.
-- `DEFAULT_ETCD_IP` değişkeni, `DEFAULT_SQL_VIRTUAL_IP` değerini kullanarak ETCD IP adresini otomatik olarak ayarlar.
+- `DEFAULT_ETCD_VIRTUAL_IP` değişkeni, `DEFAULT_SQL_VIRTUAL_IP` değerini kullanarak ETCD IP adresini otomatik olarak ayarlar.
 - Bu dosya, sistem yöneticilerinin varsayılan ayarları merkezi bir yerden kontrol etmelerini sağlar.
 - İhtiyaç duyulması halinde, bu varsayılan değerler güncellenebilir veya genişletilebilir.
 

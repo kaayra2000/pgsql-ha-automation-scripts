@@ -23,10 +23,11 @@ define_constants() {
         "ETCD_SCRIPT_FOLDER=etcd_scripts"                                   # etcd scriptlerini içeren klasör adı
         "ETCD_SCRIPT_NAME=create_etcd.sh"                                   # etcd'yi ayağa kaldırmak için kullanılan script adı
         "ETCD_USER=etcd"                                                    # işletim sisteminde bulunacak olan etcd kullanıcısının adı
+        "ETCD_SERVICE_NAME=etcd"                                            # dockerda çalışan etcd servisinin adı
         "HAPROXY_CONFIG_FILE=/etc/haproxy/haproxy.cfg"                      # haproxy konfigürasyon dosyasının yolu
         "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"                             # haproxy scriptlerini içeren klasör adı
         "HAPROXY_SCRIPT_NAME=create_haproxy.sh"                             # haproxy'yi ayağa kaldırmak için kullanılan script adı
-        "HAPROXY_SERVICE_NAME=haproxy"                                      # dockerda çalışan haproxy servisinin içi
+        "HAPROXY_SERVICE_NAME=haproxy"                                      # dockerda çalışan haproxy servisinin için
         "KEEPALIVED_SCRIPT_USER=keepalived_script"                          # keepalived scriptlerini çalıştırmak için kullanılan kullanıcı adı
         "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin
         "PATRONI_LOG_FILE=\$ROOT_LOG_DIR/patroni/"                          # patroni'nin log dosyasının yolu
@@ -60,6 +61,7 @@ define_arguments() {
         "KEEPALIVED_INTERFACE"      "--keepalived-interface"             "$DEFAULT_KEEPALIVED_INTERFACE"        "Keepalived'in VRRP iletişimi için kullanacağı ağ arayüzü (örn: eth0)"
         "SQL_VIRTUAL_IP"            "--sql-virtual-ip"                   "$DEFAULT_SQL_VIRTUAL_IP"              "Keepalived tarafından yönetilen PostgreSQL servisi için sanal IP adresi"
         "DNS_VIRTUAL_IP"            "--dns-virtual-ip"                   "$DEFAULT_DNS_VIRTUAL_IP"              "Keepalived tarafından yönetilen DNS servisi için sanal IP adresi"
+        "ETCD_VIRTUAL_IP"           "--etcd-virtual-ip"                  "$DEFAULT_ETCD_VIRTUAL_IP"             "Keepalived tarafından yönetilen ETCD servisi için sanal IP adresi"
         "HAPROXY_VIRTUAL_IP"        "--haproxy-virtual-ip"               "$DEFAULT_HAPROXY_VIRTUAL_IP"          "Keepalived tarafından yönetilen HAProxy servisi için sanal IP adresi"
         "KEEPALIVED_PRIORITY"       "--keepalived-priority"              "$DEFAULT_KEEPALIVED_PRIORITY"         "Keepalived için öncelik değeri; daha yüksek değer, master seçiminde daha yüksek öncelik anlamına gelir (tamsayı)"
         "KEEPALIVED_STATE"          "--keepalived-state"                 "$DEFAULT_KEEPALIVED_STATE"            "Düğümün Keepalived VRRP içindeki başlangıç durumu ('MASTER' veya 'BACKUP')"
@@ -73,7 +75,6 @@ define_arguments() {
         # Patroni Argümanları ve postgres
         "PATRONI_NODE1_NAME"        "--patroni-node1-name"               "$DEFAULT_PATRONI_NODE1_NAME"          "Patroni küme yapılandırmasındaki birinci düğümün adı (IS_NODE_1 argümanına göre değişir)"
         "PATRONI_NODE2_NAME"        "--patroni-node2-name"               "$DEFAULT_PATRONI_NODE2_NAME"          "Patroni küme yapılandırmasındaki ikinci düğümün adı (IS_NODE_1 argümanına göre değişir)"
-        "ETCD_IP"                   "--etcd-ip"                          "$DEFAULT_ETCD_IP"                     "Patroni'nin koordinasyon için kullandığı ETCD kümesinin IP adresi"
         "REPLIKATOR_KULLANICI_ADI"  "--replicator-username"              "$DEFAULT_REPLIKATOR_KULLANICI_ADI"    "PostgreSQL replikasyon kullanıcısı için kullanıcı adı"
         "REPLICATOR_SIFRESI"        "--replicator-password"              "$DEFAULT_REPLICATOR_SIFRESI"          "PostgreSQL replikasyon kullanıcısı için şifre"
         "POSTGRES_SIFRESI"          "--postgres-password"                "$DEFAULT_POSTGRES_SIFRESI"            "PostgreSQL süper kullanıcı 'postgres' için şifre"

@@ -45,7 +45,7 @@ restapi:
     connect_address: ${NODE_IP}:${HAPROXY_PORT}
 
 etcd:
-    host: ${ETCD_IP}:${ETCD_CLIENT_PORT}
+    host: ${ETCD_VIRTUAL_IP}:${ETCD_CLIENT_PORT}
 
 log:
     type: json

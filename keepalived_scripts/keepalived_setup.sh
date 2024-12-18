@@ -71,6 +71,28 @@ vrrp_instance VI_HAPROXY {
     }
 }
 
+vrrp_script check_etcdservice {
+    script "$(create_service_checkscript $SQL_CONTAINER_NAME $ETCD_SERVICE_NAME)"
+    interval 2
+    weight -20
+    fall 2
+    rise 2
+}
+
+vrrp_instance VI_ETCD {
+    state $KEEPALIVED_STATE
+    interface $KEEPALIVED_INTERFACE
+    virtual_router_id 50
+    priority $KEEPALIVED_PRIORITY
+    advert_int 1
+    virtual_ipaddress {
+        $ETCD_VIRTUAL_IP
+    }
+    track_script {
+        check_etcdservice
+    }
+}
+
 # DNS için VRRP yapılandırması
 vrrp_script check_dns {
     script "$(create_docker_checkscript $DNS_CONTAINER_NAME)"

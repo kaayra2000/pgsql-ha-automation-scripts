@@ -28,7 +28,7 @@ Eğer hangi argümanları alabildiğini öğrenmek istiyorsanız aşağıdaki ko
 
 ```bash
 ./create_patroni.sh --patroni-node-name pg_node1 \
---etcd-ip 10.207.80.20 --etcd-client-port 2379 --replicator-username replicator \
+--etcd-virtual-ip 10.207.80.22 --etcd-client-port 2379 --replicator-username replicator \
 --replicator-password replicator_pass --postgres-password postgres_pass \
 --pgsql-port 5432 --is-node1 true --node1-ip 10.207.80.10 \
 --node2-ip 10.207.80.11 --haproxy-port 8008 

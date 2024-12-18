@@ -25,10 +25,10 @@ listen-peer-urls: 'http://0.0.0.0:$ETCD_PEER_PORT'
 listen-client-urls: 'http://0.0.0.0:$ETCD_CLIENT_PORT'
 
 # Dışarıya duyurulacak adresler
-initial-advertise-peer-urls: 'http://$ETCD_IP:$ETCD_PEER_PORT'
-advertise-client-urls: 'http://$ETCD_IP:$ETCD_CLIENT_PORT'
+initial-advertise-peer-urls: 'http://$ETCD_VIRTUAL_IP:$ETCD_PEER_PORT'
+advertise-client-urls: 'http://$ETCD_VIRTUAL_IP:$ETCD_CLIENT_PORT'
 
-initial-cluster: '$ETCD_NAME=http://$ETCD_IP:$ETCD_PEER_PORT'
+initial-cluster: '$ETCD_NAME=http://$ETCD_VIRTUAL_IP:$ETCD_PEER_PORT'
 initial-cluster-token: '$ETCD_CLUSTER_TOKEN'
 initial-cluster-state: '$ETCD_CLUSTER_KEEPALIVED_STATE'
 
