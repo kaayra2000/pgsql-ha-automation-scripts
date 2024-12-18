@@ -22,6 +22,7 @@ run_container() {
         -p $PGSQL_PORT:$PGSQL_PORT \
         -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
         -v $POSTGRES_DATA_ROOT_VOLUME_NAME:$POSTGRES_DATA_ROOT_DIR \
+        -v $PATRONI_LOG_VOLUME_NAME:$PATRONI_LOG_DIR \
         --cap-add=NET_ADMIN \
         $SQL_IMAGE_NAME \
         /bin/bash -c "while true; do sleep 30; done"
@@ -34,7 +35,7 @@ run_container() {
                         && $SHELL_PATH_IN_DOCKER/$PATRONI_SCRIPT_FOLDER/$PATRONI_SCRIPT_NAME"
 }
 parse_and_read_arguments "$@"
-docker volume create $POSTGRES_DATA_ROOT_VOLUME_NAME 
+docker volume create $POSTGRES_DATA_ROOT_VOLUME_NAME $PATRONI_LOG_VOLUME_NAME
 create_image "$SQL_IMAGE_NAME" "$DOCKERFILE_PATH" "$SQL_DOCKERFILE_NAME" "$SCRIPT_DIR/.."
 cd $SCRIPT_DIR
 check_success "Docker imajı oluşturulurken hata oluştu"

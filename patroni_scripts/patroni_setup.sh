@@ -60,7 +60,7 @@ log:
     static_fields:
         app: patroni
     max_queue_size: 100
-    dir: $PATRONI_LOG_FILE
+    dir: $PATRONI_LOG_DIR
     mode: 0644
     file_num: 7
     file_size: 10485760
@@ -248,7 +248,7 @@ create_and_configure_neccessary_patroni_files(){
         exit 1
     fi
 
-    if ! check_and_create_directory "$PATRONI_LOG_FILE"; then
+    if ! check_and_create_directory "$PATRONI_LOG_DIR"; then
         return 1
     fi
     # Dizinler oluşturulduktan sonra kullanıcı kontrolü
@@ -258,8 +258,8 @@ create_and_configure_neccessary_patroni_files(){
     fi
 
     # Kullanıcı varsa, dizinlerin sahipliğini ve izinlerini ayarla
-    if ! set_permissions "$POSTGRES_USER" "$PATRONI_LOG_FILE" "700"; then
-        echo "Hata: $PATRONI_LOG_FILE için izinler ayarlanamadı."
+    if ! set_permissions "$POSTGRES_USER" "$PATRONI_LOG_DIR" "700"; then
+        echo "Hata: $PATRONI_LOG_DIR için izinler ayarlanamadı."
         return 1
     fi
 }

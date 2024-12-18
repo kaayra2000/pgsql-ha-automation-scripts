@@ -10,6 +10,7 @@ ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 define_constants() {
     constants=(
         "ROOT_LOG_DIR=/var/log"                                             # log dosyalarının kök dizini
+        "PATRONI_LOG_VOLUME_NAME=patroni_log"                                   # log dosyalarının tutulacağı kök dizin için docker volume adı
         "POSTGRES_DATA_ROOT_DIR=/var/lib/postgresql"                        # postgresql verilerinin tutulacağı kök dizin
         "POSTGRES_DATA_ROOT_VOLUME_NAME=pgdata"                              # postgresql verilerinin tutulacağı kök dizin için docker volume adı
         "BOOTSTRAP_SQL_FILE=\$POSTGRES_DATA_ROOT_DIR/patroni_bootstrap.sql" # patroni'nin ilk ayağa kalkarken oluşturacağı kullanıcıları içeren dosya yolu
@@ -31,7 +32,7 @@ define_constants() {
         "HAPROXY_SERVICE_NAME=haproxy"                                      # dockerda çalışan haproxy servisinin için
         "KEEPALIVED_SCRIPT_USER=keepalived_script"                          # keepalived scriptlerini çalıştırmak için kullanılan kullanıcı adı
         "PATRONI_BINARY_PATH=/usr/local/bin/patroni"                        # patroni binary dosyasının bulunduğu dizin
-        "PATRONI_LOG_FILE=\$ROOT_LOG_DIR/patroni/"                          # patroni'nin log dosyasının yolu
+        "PATRONI_LOG_DIR=\$ROOT_LOG_DIR/patroni/"                           # patroni'nin log dosyasının yolu
         "PATRONI_SCRIPT_FOLDER=patroni_scripts"                             # patroni scriptlerini içeren klasör adı
         "PATRONI_SCRIPT_NAME=create_patroni.sh"                             # patroni'yi ayağa kaldırmak için kullanılan script adı
         "PATRONI_YML_PATH=/etc/patroni.yml"                                 # patroni yapılandırma dosyasının yolu
