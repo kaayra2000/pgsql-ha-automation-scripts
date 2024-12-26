@@ -21,7 +21,7 @@ patroni_log_print() {
 
 # SQL server'a bağlanabilmek için
 sql_connect_server() {
-    local SQL_IP=${1:-"10.207.80.20"}
+    local SQL_IP=${1:-"$SQL_VIRTUAL_IP"}
     psql -U $POSTGRES_USER -h $SQL_IP
 }
 
@@ -29,7 +29,7 @@ sql_connect_server() {
 sql_create_table() {
     local TABLE_NAME=${1:-"default_table"}  # Varsayılan tablo adı
     local PASSWORD=${2:-"$POSTGRES_SIFRESI"}  # Varsayılan şifre
-    local SQL_IP=${3:-"10.207.80.20"}  # Varsayılan IP adresi
+    local SQL_IP=${3:-"$SQL_VIRTUAL_IP"}  # Varsayılan IP adresi
 
     # PostgreSQL komutunu çalıştır
     PGPASSWORD="$PASSWORD" psql -U $POSTGRES_USER -h "$SQL_IP" -d $POSTGRES_USER -c "
@@ -45,7 +45,7 @@ sql_insert_data() {
     local ELEMENT_COUNT=${1:-5}  # Varsayılan eleman sayısı
     local TABLE_NAME=${2:-"default_table"}  # Varsayılan tablo adı
     local PASSWORD=${3:-"$POSTGRES_SIFRESI"}  # Varsayılan şifre
-    local SQL_IP=${4:-"10.207.80.20"}  # Varsayılan IP adresi
+    local SQL_IP=${4:-"$SQL_VIRTUAL_IP"}  # Varsayılan IP adresi
 
     # PostgreSQL komutunu çalıştır
     for ((i=1; i<=ELEMENT_COUNT; i++)); do
@@ -71,7 +71,7 @@ sql_log_print() {
 sql_run_command() {
     local SQL_COMMAND=${1:-""}  # Çalıştırılacak SQL komutu
     local PASSWORD=${2:-"$POSTGRES_SIFRESI"}  # Varsayılan şifre
-    local SQL_IP=${3:-"10.207.80.20"}  # Varsayılan IP adresi
+    local SQL_IP=${3:-"$SQL_VIRTUAL_IP"}  # Varsayılan IP adresi
 
     if [[ -z "$SQL_COMMAND" ]]; then
         echo "SQL komutu belirtilmedi. Lütfen bir SQL komutu girin."
@@ -87,7 +87,7 @@ sql_run_command() {
 sql_select_data() {
     local TABLE_NAME=${1:-"default_table"}  # Varsayılan tablo adı
     local PASSWORD=${2:-"$POSTGRES_SIFRESI"}  # Varsayılan şifre
-    local SQL_IP=${3:-"10.207.80.20"}  # Varsayılan IP adresi
+    local SQL_IP=${3:-"$SQL_VIRTUAL_IP"}  # Varsayılan IP adresi
 
     # PostgreSQL komutunu çalıştır
     PGPASSWORD="$PASSWORD" psql -U $POSTGRES_USER -h "$SQL_IP" -d $POSTGRES_USER -c "
