@@ -12,6 +12,10 @@ source $SCRIPT_DIR/../general_functions.sh
 
 # Docker konteynerını çalıştır
 run_container() {
+    if docker ps --filter "name=$SQL_CONTAINER_NAME" --filter "status=running" | grep -q $SQL_CONTAINER_NAME; then
+        echo "Konteiner $SQL_CONTAINER_NAME zaten çalışıyor."
+        return
+    fi
     docker run -d --rm --privileged \
         --name $SQL_CONTAINER_NAME \
         -p $ETCD_CLIENT_PORT:$ETCD_CLIENT_PORT \
