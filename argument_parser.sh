@@ -26,6 +26,7 @@ define_constants() {
         "ETCD_SCRIPT_NAME=create_etcd.sh"                                   # etcd'yi ayağa kaldırmak için kullanılan script adı
         "ETCD_USER=etcd"                                                    # işletim sisteminde bulunacak olan etcd kullanıcısının adı
         "ETCD_SERVICE_NAME=etcd"                                            # dockerda çalışan etcd servisinin adı
+        "GLUSTERFS_KEY_NAME=glusterfs_key"                                  # GlusterFS anahtar dosyasının adı
         "HAPROXY_CONFIG_FILE=/etc/haproxy/haproxy.cfg"                      # haproxy konfigürasyon dosyasının yolu
         "HAPROXY_SCRIPT_FOLDER=haproxy_scripts"                             # haproxy scriptlerini içeren klasör adı
         "HAPROXY_SCRIPT_NAME=create_haproxy.sh"                             # haproxy'yi ayağa kaldırmak için kullanılan script adı
@@ -51,9 +52,13 @@ define_arguments() {
     ARGUMENTS=(
         # Anahtar                   Komut Satırı Argümanı                Varsayılan Değer                       Yardım Açıklaması
 
-        # HAProxy Argümanları
+        # Sanal Makine Argümanları
         "NODE1_IP"                  "--node1-ip"                         "$DEFAULT_NODE1_IP"                    "HAProxy'nin yönlendireceği ilk PostgreSQL düğümünün IP adresi"
         "NODE2_IP"                  "--node2-ip"                         "$DEFAULT_NODE2_IP"                    "HAProxy'nin yönlendireceği ikinci PostgreSQL düğümünün IP adresi"
+        "NODE1_USER"                "--node1-user"                       "$DEFAULT_NODE1_USER"                  "HAProxy'nin yönlendireceği ilk PostgreSQL düğümüne bağlanmak için kullanılacak kullanıcı adı"
+        "NODE2_USER"                "--node2-user"                       "$DEFAULT_NODE2_USER"                  "HAProxy'nin yönlendireceği ikinci PostgreSQL düğümüne bağlanmak için kullanılacak kullanıcı adı"
+
+        # HAProxy Argümanları
         "HAPROXY_BIND_PORT"         "--haproxy-bind-port"                "$DEFAULT_HAPROXY_BIND_PORT"           "HAProxy'nin durum ve istatistik sayfasının HTTP üzerinden erişileceği port"
         "PGSQL_PORT"                "--pgsql-port"                       "$DEFAULT_PGSQL_PORT"                  "Arka uç PostgreSQL düğümlerinin çalıştığı port"
         "HAPROXY_PORT"              "--haproxy-port"                     "$DEFAULT_HAPROXY_PORT"                "HAProxy'nin gelen PostgreSQL bağlantıları için dinlediği port"
