@@ -30,48 +30,34 @@ check_ssh_server() {
 }
 
 create_local_ssh_key() {
-    local key_path="$1"
-    local key_type="ed25519"  # Daha modern ve güvenli bir algoritma
-    local key_bits="4096"     # RSA için bit sayısı (ED25519 için gerekli değil)
-    local key_comment="glusterfs_$(hostname)_$(date +%Y%m%d)"
-    
-    if [ ! -f "$key_path" ]; then
-        echo "Yerel SSH anahtarı oluşturuluyor..."
-        
-        # Önce .ssh dizininin izinlerini ayarla
-        mkdir -p "$(dirname "$key_path")"
-        chmod 700 "$(dirname "$key_path")"
-        
-        # Eski anahtarları yedekle (varsa)
-        if [ -f "$key_path" ]; then
-            mv "$key_path" "${key_path}.backup.$(date +%Y%m%d_%H%M%S)"
-            mv "${key_path}.pub" "${key_path}.pub.backup.$(date +%Y%m%d_%H%M%S)"
-        fi
-        
-        # Anahtar tipine göre oluşturma
-        if [ "$key_type" = "ed25519" ]; then
-            if ! ssh-keygen -t ed25519 -N "" -C "$key_comment" -f "$key_path" 2>&1; then
-                echo "ED25519 anahtar oluşturma başarısız, RSA deneniyor..."
-                if ! ssh-keygen -t rsa -b "$key_bits" -N "" -C "$key_comment" -f "$key_path" 2>&1; then
-                    echo "Hata detayı: $?"
-                    return $ERROR_SSH_KEY_GENERATION
-                fi
-            fi
-        else
-            if ! ssh-keygen -t rsa -b "$key_bits" -N "" -C "$key_comment" -f "$key_path" 2>&1; then
-                echo "Hata detayı: $?"
-                return $ERROR_SSH_KEY_GENERATION
-            fi
-        fi
-        
-        # Anahtar dosyası izinlerini ayarla
-        chmod 600 "$key_path"
-        chmod 644 "${key_path}.pub"
-        
-        # Anahtarı SSH agent'a ekle
-        eval "$(ssh-agent -s)" >/dev/null
-        ssh-add "$key_path" 2>/dev/null
+    local key_path="$1"  # SSH anahtarının oluşturulacağı dosya yolu
+    local key_type="ed25519"  # Varsayılan anahtar türü
+    local key_comment="glusterfs_$(hostname)_$(date +%Y%m%d)"  # Anahtar açıklaması
+    local key_dir
+    key_dir=$(dirname "$key_path")  # Anahtarın bulunduğu dizin
+
+    echo "Yerel SSH anahtarı oluşturuluyor..."
+    # Anahtar dosyasının mevcut olup olmadığını kontrol et
+    if [ -f "$key_path" ]; then
+        echo "Anahtar dosyası zaten mevcut. Herhangi bir yerel anahtar oluşturma işlemi yapılmadı."
+        return 0
     fi
+    # .ssh dizinini kontrol et ve oluştur
+    if [ ! -d "$key_dir" ]; then
+        mkdir -p "$key_dir"
+        chmod 700 "$key_dir"
+    fi
+
+    # Anahtar oluşturma işlemi
+    if ! ssh-keygen -t "$key_type" -N "" -C "$key_comment" -f "$key_path"; then
+        echo "Hata: $key_type türünde SSH anahtarı oluşturulamadı. Lütfen sistem rastgelelik kaynağını kontrol edin."
+        return 1
+    fi
+
+    echo "SSH anahtarı başarıyla oluşturuldu: $key_path"
+    # Anahtarı SSH agent'a ekle
+    eval "$(ssh-agent -s)" >/dev/null
+    ssh-add "$key_path" 2>/dev/null
     return 0
 }
 
@@ -142,19 +128,19 @@ EOF
 create_remote_ssh_key() {
     local remote_user="$1"
     local remote_ip="$2"
+    local key_path="$3"
     local key_type="ed25519"
     local key_comment="glusterfs_$(hostname)_remote_$(date +%Y%m%d)"
-    local ssh_dir="~/.ssh"
-    local key_path="$ssh_dir/${GLUSTERFS_KEY_NAME}"
+    local key_dir=(dirname "$key_path")
 
     echo "Uzak sunucuda SSH anahtarı oluşturuluyor..."
 
     # Uzak sunucuda SSH anahtarı oluşturma işlemi
     if ! ssh "$remote_user@$remote_ip" "
         # .ssh dizinini kontrol et ve oluştur
-        if [ ! -d $ssh_dir ]; then
-            mkdir -p $ssh_dir
-            chmod 700 $ssh_dir
+        if [ ! -d $key_dir ]; then
+            mkdir -p $key_dir
+            chmod 700 $key_dir
         fi
 
         # Anahtar dosyası mevcutsa yedekle
@@ -255,7 +241,7 @@ setup_ssh_keys() {
     update_remote_ssh_config "$local_ip" "$remote_user" "$remote_ip" "$local_user"
 
     # 4. Uzak sunucuda anahtar oluştur
-    if ! create_remote_ssh_key "$remote_user" "$remote_ip"; then
+    if ! create_remote_ssh_key "$remote_user" "$remote_ip" "~/.ssh/${GLUSTERFS_KEY_NAME}"; then
         echo "Hata: Uzak sunucuda SSH anahtarı oluşturulamadı"
         return $ERROR_REMOTE_CONNECTION
     fi
