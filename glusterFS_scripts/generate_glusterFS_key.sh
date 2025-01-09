@@ -10,6 +10,8 @@ readonly ERROR_SSH_KEY_GENERATION=1
 readonly ERROR_REMOTE_CONNECTION=2
 readonly ERROR_KEY_EXCHANGE=3
 readonly ERROR_SSH_SERVER_NOT_FOUND=4
+readonly ERROR_UPDATE_SSH_CONFIG=5
+readonly ERROR_UPDATE_KNOWN_HOSTS=6
 
 # SSH server kontrol fonksiyonu
 check_ssh_server() {
@@ -65,8 +67,9 @@ update_local_ssh_config() {
     local local_ip="$1"
     local remote_user="$2"
     local remote_ip="$3"
-    local ssh_config_file="$HOME/.ssh/config"
-    local identity_file="$HOME/.ssh/glusterfs_key"
+    local ssh_dir="$HOME/.ssh"
+    local ssh_config_file="$ssh_dir/config"
+    local identity_file="$ssh_dir/$GLUSTERFS_KEY_NAME"
 
     # .ssh dizini yoksa oluştur
     if [ ! -d "$HOME/.ssh" ]; then
@@ -94,6 +97,8 @@ EOF
     else
         echo "Yerel SSH yapılandırması zaten mevcut: $remote_ip"
     fi
+
+    return 0
 }
 
 update_remote_ssh_config() {
@@ -107,10 +112,10 @@ update_remote_ssh_config() {
     local remote_ssh_config_file="\$HOME/.ssh/config"
 
     # Uzak sunucuda .ssh dizinini oluştur (eğer yoksa)
-    ssh "$remote_user@$remote_ip" "if [ ! -d \"$remote_ssh_dir\" ]; then mkdir -p \"$remote_ssh_dir\" && chmod 700 \"$remote_ssh_dir\"; fi"
+    ssh "$remote_user@$remote_ip" "if [ ! -d \"$remote_ssh_dir\" ]; then mkdir -p \"$remote_ssh_dir\" && chmod 700 \"$remote_ssh_dir\"; fi" || return 1
 
     # Uzak sunucuda SSH config dosyasını oluştur (eğer yoksa)
-    ssh "$remote_user@$remote_ip" "if [ ! -f \"$remote_ssh_config_file\" ]; then touch \"$remote_ssh_config_file\" && chmod 600 \"$remote_ssh_config_file\"; fi"
+    ssh "$remote_user@$remote_ip" "if [ ! -f \"$remote_ssh_config_file\" ]; then touch \"$remote_ssh_config_file\" && chmod 600 \"$remote_ssh_config_file\"; fi" || return 1
 
     # Uzak sunucuda yapılandırmayı kontrol et ve ekle
     ssh "$remote_user@$remote_ip" "if ! grep -q 'Host $local_ip' \"$remote_ssh_config_file\"; then
@@ -125,7 +130,9 @@ EOF
         echo 'Uzak SSH yapılandırması tamamlandı: $local_ip'
     else
         echo 'Uzak SSH yapılandırması zaten mevcut: $local_ip'
-    fi"
+    fi" || return 1
+
+    return 0
 }
 
 create_remote_ssh_key() {
@@ -228,7 +235,10 @@ setup_ssh_keys() {
     fi
 
     echo "Yerel SSH yapılandırması güncelleniyor..."
-    update_local_ssh_config "$local_ip" "$remote_user" "$remote_ip"
+    if ! update_local_ssh_config "$local_ip" "$remote_user" "$remote_ip"; then
+        echo "Hata: Yerel SSH yapılandırması güncellenemedi"
+        return $ERROR_UPDATE_SSH_CONFIG
+    fi
 
     # 3. Yerel anahtarı uzak sunucuya kopyala (şifre ile bağlantı zorla)
     echo "Yerel anahtar uzak sunucuya kopyalanıyor..."
@@ -241,7 +251,10 @@ setup_ssh_keys() {
     fi
 
     echo "Uzak SSH yapılandırması güncelleniyor..."
-    update_remote_ssh_config "$local_ip" "$remote_user" "$remote_ip" "$local_user"
+    if ! update_remote_ssh_config "$local_ip" "$remote_user" "$remote_ip" "$local_user"; then
+        echo "Hata: Uzak SSH yapılandırması güncellenemedi"
+        return $ERROR_UPDATE_SSH_CONFIG
+    fi
 
     # 4. Uzak sunucuda anahtar oluştur
     if ! create_remote_ssh_key "$remote_user" "$remote_ip" "~/.ssh/${GLUSTERFS_KEY_NAME}"; then
@@ -253,7 +266,7 @@ setup_ssh_keys() {
     # 5. Known hosts güncelle
     if ! update_known_hosts "$remote_ip" "$local_ip"; then
         echo "Hata: Known hosts güncellenemedi"
-        return $ERROR_KEY_EXCHANGE
+        return $ERROR_UPDATE_KNOWN_HOSTS
     fi
 
     # 6. Uzak sunucu anahtarını yerel makineye kopyala
