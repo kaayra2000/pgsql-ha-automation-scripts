@@ -75,6 +75,70 @@ create_local_ssh_key() {
     return 0
 }
 
+update_local_ssh_config() {
+    local local_ip="$1"
+    local remote_user="$2"
+    local remote_ip="$3"
+    local ssh_config_file="$HOME/.ssh/config"
+    local identity_file="$HOME/.ssh/glusterfs_key"
+
+    # .ssh dizini yoksa oluştur
+    if [ ! -d "$HOME/.ssh" ]; then
+        mkdir -p "$HOME/.ssh"
+        chmod 700 "$HOME/.ssh"
+    fi
+
+    # SSH config dosyası yoksa oluştur
+    if [ ! -f "$ssh_config_file" ]; then
+        touch "$ssh_config_file"
+        chmod 600 "$ssh_config_file"
+    fi
+
+    # Host yapılandırması kontrol ediliyor
+    if ! grep -q "Host $remote_ip" "$ssh_config_file"; then
+        echo "Yerel SSH yapılandırması ekleniyor..."
+        cat <<EOF >> "$ssh_config_file"
+
+Host $remote_ip
+    User $remote_user
+    IdentityFile $identity_file
+    IdentitiesOnly yes
+EOF
+        echo "Yerel SSH yapılandırması tamamlandı: $remote_ip"
+    else
+        echo "Yerel SSH yapılandırması zaten mevcut: $remote_ip"
+    fi
+}
+
+update_remote_ssh_config() {
+    local local_ip="$1"
+    local remote_user="$2"
+    local remote_ip="$3"
+    local local_user="$4"
+    local remote_ssh_config_file="/home/$remote_user/.ssh/config"
+
+    # Uzak sunucuda .ssh dizinini oluştur
+    ssh "$remote_user@$remote_ip" "mkdir -p ~/.ssh && chmod 700 ~/.ssh"
+
+    # Uzak sunucuda SSH config dosyasını oluştur
+    ssh "$remote_user@$remote_ip" "if [ ! -f $remote_ssh_config_file ]; then touch $remote_ssh_config_file && chmod 600 $remote_ssh_config_file; fi"
+
+    # Uzak sunucuda yapılandırmayı kontrol et ve ekle
+    ssh "$remote_user@$remote_ip" "if ! grep -q 'Host $local_ip' $remote_ssh_config_file; then
+        echo 'Uzak SSH yapılandırması ekleniyor...'
+        cat <<EOF >> $remote_ssh_config_file
+
+Host $local_ip
+    User $local_user
+    IdentityFile ~/.ssh/glusterfs_key
+    IdentitiesOnly yes
+EOF
+        echo 'Uzak SSH yapılandırması tamamlandı: $local_ip'
+    else
+        echo 'Uzak SSH yapılandırması zaten mevcut: $local_ip'
+    fi"
+}
+
 create_remote_ssh_key() {
     local remote_user="$1"
     local remote_ip="$2"
@@ -144,16 +208,19 @@ setup_ssh_keys() {
     local remote_ip
     local remote_user
     local local_ip
+    local local_user
 
     # NODE1 ise (varsayılan true)
     if [ "$IS_NODE_1" = "true" ]; then
         remote_ip="$NODE2_IP"
         remote_user="$NODE2_USER"
         local_ip="$NODE1_IP"
+        local_user="$NODE1_USER"
     else
         remote_ip="$NODE1_IP"
         remote_user="$NODE1_USER"
         local_ip="$NODE2_IP"
+        local_user="$NODE2_USER"
     fi
 
     # 1. Önce SSH server kontrolü yap
@@ -183,6 +250,11 @@ setup_ssh_keys() {
         echo "Hata: Uzak sunucuda SSH anahtarı oluşturulamadı"
         return $ERROR_REMOTE_CONNECTION
     fi
+    echo "Yerel SSH yapılandırması güncelleniyor..."
+    update_local_ssh_config "$local_ip" "$remote_user" "$remote_ip"
+
+    echo "Uzak SSH yapılandırması güncelleniyor..."
+    update_remote_ssh_config "$local_ip" "$remote_user" "$remote_ip" "$local_user"
 
     # 5. Known hosts güncelle
     if ! update_known_hosts "$remote_ip" "$local_ip"; then
