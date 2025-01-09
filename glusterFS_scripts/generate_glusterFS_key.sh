@@ -31,28 +31,80 @@ check_ssh_server() {
 
 create_local_ssh_key() {
     local key_path="$1"
+    local key_type="ed25519"  # Daha modern ve güvenli bir algoritma
+    local key_bits="4096"     # RSA için bit sayısı (ED25519 için gerekli değil)
+    local key_comment="glusterfs_$(hostname)_$(date +%Y%m%d)"
     
     if [ ! -f "$key_path" ]; then
         echo "Yerel SSH anahtarı oluşturuluyor..."
-        if ! ssh-keygen -t rsa -N "" -f "$key_path" 2>&1; then
-            echo "Hata detayı: $?"
-            return $ERROR_SSH_KEY_GENERATION
+        
+        # Önce .ssh dizininin izinlerini ayarla
+        mkdir -p "$(dirname "$key_path")"
+        chmod 700 "$(dirname "$key_path")"
+        
+        # Eski anahtarları yedekle (varsa)
+        if [ -f "$key_path" ]; then
+            mv "$key_path" "${key_path}.backup.$(date +%Y%m%d_%H%M%S)"
+            mv "${key_path}.pub" "${key_path}.pub.backup.$(date +%Y%m%d_%H%M%S)"
         fi
+        
+        # Anahtar tipine göre oluşturma
+        if [ "$key_type" = "ed25519" ]; then
+            if ! ssh-keygen -t ed25519 -N "" -C "$key_comment" -f "$key_path" 2>&1; then
+                echo "ED25519 anahtar oluşturma başarısız, RSA deneniyor..."
+                if ! ssh-keygen -t rsa -b "$key_bits" -N "" -C "$key_comment" -f "$key_path" 2>&1; then
+                    echo "Hata detayı: $?"
+                    return $ERROR_SSH_KEY_GENERATION
+                fi
+            fi
+        else
+            if ! ssh-keygen -t rsa -b "$key_bits" -N "" -C "$key_comment" -f "$key_path" 2>&1; then
+                echo "Hata detayı: $?"
+                return $ERROR_SSH_KEY_GENERATION
+            fi
+        fi
+        
+        # Anahtar dosyası izinlerini ayarla
+        chmod 600 "$key_path"
+        chmod 644 "${key_path}.pub"
+        
+        # Anahtarı SSH agent'a ekle
+        eval "$(ssh-agent -s)" >/dev/null
+        ssh-add "$key_path" 2>/dev/null
     fi
     return 0
 }
+
 create_remote_ssh_key() {
     local remote_user="$1"
     local remote_ip="$2"
+    local key_type="ed25519"
+    local key_bits="4096"
+    local key_comment="glusterfs_$(hostname)_remote_$(date +%Y%m%d)"
     
     echo "Uzak sunucuda SSH anahtarı oluşturuluyor..."
     if ! ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "$remote_user@$remote_ip" "
         mkdir -p ~/.ssh
         chmod 700 ~/.ssh
+        
         if [ ! -f ~/.ssh/${GLUSTERFS_KEY_NAME} ]; then
-            ssh-keygen -t rsa -N \"\" -f ~/.ssh/${GLUSTERFS_KEY_NAME}
+            # Eski anahtarları yedekle
+            if [ -f ~/.ssh/${GLUSTERFS_KEY_NAME} ]; then
+                mv ~/.ssh/${GLUSTERFS_KEY_NAME} ~/.ssh/${GLUSTERFS_KEY_NAME}.backup.\$(date +%Y%m%d_%H%M%S)
+                mv ~/.ssh/${GLUSTERFS_KEY_NAME}.pub ~/.ssh/${GLUSTERFS_KEY_NAME}.pub.backup.\$(date +%Y%m%d_%H%M%S)
+            fi
+            
+            # Önce ED25519 dene, başarısız olursa RSA kullan
+            if ! ssh-keygen -t ed25519 -N \"\" -C \"$key_comment\" -f ~/.ssh/${GLUSTERFS_KEY_NAME} 2>/dev/null; then
+                ssh-keygen -t rsa -b $key_bits -N \"\" -C \"$key_comment\" -f ~/.ssh/${GLUSTERFS_KEY_NAME}
+            fi
+            
             chmod 600 ~/.ssh/${GLUSTERFS_KEY_NAME}
             chmod 644 ~/.ssh/${GLUSTERFS_KEY_NAME}.pub
+            
+            # Anahtarı SSH agent'a ekle
+            eval \"\$(ssh-agent -s)\" >/dev/null
+            ssh-add ~/.ssh/${GLUSTERFS_KEY_NAME} 2>/dev/null
         else
             echo 'Anahtar zaten mevcut'
         fi
@@ -60,42 +112,6 @@ create_remote_ssh_key() {
         echo "Hata detayı: $?"
         return 1
     fi
-    return 0
-}
-
-update_known_hosts() {
-    local remote_ip="$1"
-    
-    echo "Uzak sunucu anahtarı alınıyor..."
-    ssh-keygen -R "$remote_ip" 2>/dev/null
-    if ! ssh-keyscan -H "$remote_ip" >> ~/.ssh/known_hosts 2>&1; then
-        echo "Hata detayı: $?"
-        return $ERROR_KEY_EXCHANGE
-    fi
-    return 0
-}
-
-exchange_ssh_keys() {
-    local remote_user="$1"
-    local remote_ip="$2"
-    
-    echo "Yerel anahtar uzak sunucuya kopyalanıyor..."
-    if ! cat ~/.ssh/$GLUSTERFS_KEY_NAME.pub | ssh "$remote_user@$remote_ip" '
-        mkdir -p ~/.ssh
-        cat >> ~/.ssh/authorized_keys
-        chmod 600 ~/.ssh/authorized_keys
-    ' 2>&1; then
-        echo "Hata detayı: $?"
-        return $ERROR_KEY_EXCHANGE
-    fi
-
-    echo "Uzak sunucu anahtarı yerel makineye kopyalanıyor..."
-    if ! ssh "$remote_user@$remote_ip" "cat ~/.ssh/${GLUSTERFS_KEY_NAME}.pub" >> ~/.ssh/authorized_keys 2>&1; then
-        echo "Hata detayı: $?"
-        return $ERROR_KEY_EXCHANGE
-    fi
-    
-    chmod 600 ~/.ssh/authorized_keys
     return 0
 }
 
