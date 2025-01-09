@@ -204,13 +204,8 @@ update_known_hosts() {
     return 0
 }
 
-setup_ssh_keys() {
-    local remote_ip
-    local remote_user
-    local local_ip
-    local local_user
-
-    # NODE1 ise (varsayılan true)
+# NODE1 kontrolünü yapan fonksiyon
+set_node_variables() {
     if [ "$IS_NODE_1" = "true" ]; then
         remote_ip="$NODE2_IP"
         remote_user="$NODE2_USER"
@@ -222,54 +217,80 @@ setup_ssh_keys() {
         local_ip="$NODE2_IP"
         local_user="$NODE2_USER"
     fi
+}
 
-    # 1. Önce SSH server kontrolü yap
+# Yerel anahtarı uzak sunucuya kopyalayan fonksiyon
+copy_ssh_key_to_remote() {
+    local key_path="$1"
+    local remote_user="$2"
+    local remote_ip="$3"
+
+    echo "Yerel anahtar uzak sunucuya kopyalanıyor..."
+    if ! cat "$key_path.pub" | ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "$remote_user@$remote_ip" '
+        mkdir -p ~/.ssh && chmod 700 ~/.ssh
+        cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys
+    ' 2>&1; then
+        echo "Hata: Yerel anahtar uzak sunucuya kopyalanamadı"
+        return $ERROR_KEY_EXCHANGE
+    fi
+    echo "Yerel anahtar uzak sunucuya başarıyla kopyalandı."
+    return 0
+}
+
+# SSH anahtarlarını kuran ana fonksiyon
+setup_ssh_keys() {
+    local remote_ip
+    local remote_user
+    local local_ip
+    local local_user
+
+    # NODE1 kontrolü
+    set_node_variables
+
+    # SSH server kontrolü yap mevcut değilse hata döndür
     if ! check_ssh_server "$remote_ip"; then
         return $ERROR_SSH_SERVER_NOT_FOUND
     fi
 
-    # 2. Yerel anahtar oluştur
+    # şifresiz SSH bağlantısı için anahtar oluştur
     if ! create_local_ssh_key ~/.ssh/$GLUSTERFS_KEY_NAME; then
         echo "Hata: Yerel SSH anahtarı oluşturulamadı"
         return $ERROR_SSH_KEY_GENERATION
     fi
 
     echo "Yerel SSH yapılandırması güncelleniyor..."
+
+    # Varsayılan olarak oluşturulan anahtarla bağlanmak için yerel SSH yapılandırmasını güncelle
     if ! update_local_ssh_config "$local_ip" "$remote_user" "$remote_ip"; then
         echo "Hata: Yerel SSH yapılandırması güncellenemedi"
         return $ERROR_UPDATE_SSH_CONFIG
     fi
 
-    # 3. Yerel anahtarı uzak sunucuya kopyala (şifre ile bağlantı zorla)
-    echo "Yerel anahtar uzak sunucuya kopyalanıyor..."
-    if ! cat ~/.ssh/$GLUSTERFS_KEY_NAME.pub | ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "$remote_user@$remote_ip" '
-        mkdir -p ~/.ssh
-        cat >> ~/.ssh/authorized_keys
-    ' 2>&1; then
-        echo "Hata: Yerel anahtar uzak sunucuya kopyalanamadı"
+    # Şifresiz SSH bağlantısı için anahtarı uzak sunucuya kopyala
+    if ! copy_ssh_key_to_remote ~/.ssh/$GLUSTERFS_KEY_NAME "$remote_user" "$remote_ip"; then
         return $ERROR_KEY_EXCHANGE
     fi
 
     echo "Uzak SSH yapılandırması güncelleniyor..."
+    # Varsayılan olarak oluşturulan anahtarla bağlanmak için uzak SSH yapılandırmasını güncelle
     if ! update_remote_ssh_config "$local_ip" "$remote_user" "$remote_ip" "$local_user"; then
         echo "Hata: Uzak SSH yapılandırması güncellenemedi"
         return $ERROR_UPDATE_SSH_CONFIG
     fi
 
-    # 4. Uzak sunucuda anahtar oluştur
+    # Şifresiz SSH bağlantısı için uzak sunucuda anahtar oluştur
     if ! create_remote_ssh_key "$remote_user" "$remote_ip" "~/.ssh/${GLUSTERFS_KEY_NAME}"; then
         echo "Hata: Uzak sunucuda SSH anahtarı oluşturulamadı"
         return $ERROR_REMOTE_CONNECTION
     fi
 
-
-    # 5. Known hosts güncelle
+    # Tekrar tekrar sorulmaması için known_hosts dosyasını güncelle
     if ! update_known_hosts "$remote_ip" "$local_ip"; then
         echo "Hata: Known hosts güncellenemedi"
         return $ERROR_UPDATE_KNOWN_HOSTS
     fi
 
-    # 6. Uzak sunucu anahtarını yerel makineye kopyala
+    # Şifresiz SSH bağlantısı için anahtarı yerel makineye kopyala
     echo "Uzak sunucu anahtarı yerel makineye kopyalanıyor..."
     if ! ssh "$remote_user@$remote_ip" "cat ~/.ssh/${GLUSTERFS_KEY_NAME}.pub" >> ~/.ssh/authorized_keys 2>&1; then
         echo "Hata: Uzak anahtar yerel makineye kopyalanamadı"
