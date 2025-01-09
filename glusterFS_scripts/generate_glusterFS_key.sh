@@ -101,22 +101,25 @@ update_remote_ssh_config() {
     local remote_user="$2"
     local remote_ip="$3"
     local local_user="$4"
-    local remote_ssh_config_file="/home/$remote_user/.ssh/config"
 
-    # Uzak sunucuda .ssh dizinini oluştur
-    ssh "$remote_user@$remote_ip" "mkdir -p ~/.ssh && chmod 700 ~/.ssh"
+    # Uzak sunucuda dinamik olarak genişletilecek yollar
+    local remote_ssh_dir="\$HOME/.ssh"
+    local remote_ssh_config_file="\$HOME/.ssh/config"
 
-    # Uzak sunucuda SSH config dosyasını oluştur
-    ssh "$remote_user@$remote_ip" "if [ ! -f $remote_ssh_config_file ]; then touch $remote_ssh_config_file && chmod 600 $remote_ssh_config_file; fi"
+    # Uzak sunucuda .ssh dizinini oluştur (eğer yoksa)
+    ssh "$remote_user@$remote_ip" "if [ ! -d \"$remote_ssh_dir\" ]; then mkdir -p \"$remote_ssh_dir\" && chmod 700 \"$remote_ssh_dir\"; fi"
+
+    # Uzak sunucuda SSH config dosyasını oluştur (eğer yoksa)
+    ssh "$remote_user@$remote_ip" "if [ ! -f \"$remote_ssh_config_file\" ]; then touch \"$remote_ssh_config_file\" && chmod 600 \"$remote_ssh_config_file\"; fi"
 
     # Uzak sunucuda yapılandırmayı kontrol et ve ekle
-    ssh "$remote_user@$remote_ip" "if ! grep -q 'Host $local_ip' $remote_ssh_config_file; then
+    ssh "$remote_user@$remote_ip" "if ! grep -q 'Host $local_ip' \"$remote_ssh_config_file\"; then
         echo 'Uzak SSH yapılandırması ekleniyor...'
-        cat <<EOF >> $remote_ssh_config_file
+        cat <<EOF >> \"$remote_ssh_config_file\"
 
 Host $local_ip
     User $local_user
-    IdentityFile ~/.ssh/glusterfs_key
+    IdentityFile \$HOME/.ssh/glusterfs_key
     IdentitiesOnly yes
 EOF
         echo 'Uzak SSH yapılandırması tamamlandı: $local_ip'
