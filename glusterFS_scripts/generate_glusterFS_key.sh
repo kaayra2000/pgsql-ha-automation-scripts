@@ -143,42 +143,46 @@ create_remote_ssh_key() {
     local remote_user="$1"
     local remote_ip="$2"
     local key_type="ed25519"
-    local key_bits="4096"
     local key_comment="glusterfs_$(hostname)_remote_$(date +%Y%m%d)"
-    
+    local ssh_dir="~/.ssh"
+    local key_path="$ssh_dir/${GLUSTERFS_KEY_NAME}"
+
     echo "Uzak sunucuda SSH anahtarı oluşturuluyor..."
-    if ! ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "$remote_user@$remote_ip" "
-        mkdir -p ~/.ssh
-        chmod 700 ~/.ssh
-        
-        if [ ! -f ~/.ssh/${GLUSTERFS_KEY_NAME} ]; then
-            # Eski anahtarları yedekle
-            if [ -f ~/.ssh/${GLUSTERFS_KEY_NAME} ]; then
-                mv ~/.ssh/${GLUSTERFS_KEY_NAME} ~/.ssh/${GLUSTERFS_KEY_NAME}.backup.\$(date +%Y%m%d_%H%M%S)
-                mv ~/.ssh/${GLUSTERFS_KEY_NAME}.pub ~/.ssh/${GLUSTERFS_KEY_NAME}.pub.backup.\$(date +%Y%m%d_%H%M%S)
-            fi
-            
-            # Önce ED25519 dene, başarısız olursa RSA kullan
-            if ! ssh-keygen -t ed25519 -N \"\" -C \"$key_comment\" -f ~/.ssh/${GLUSTERFS_KEY_NAME} 2>/dev/null; then
-                ssh-keygen -t rsa -b $key_bits -N \"\" -C \"$key_comment\" -f ~/.ssh/${GLUSTERFS_KEY_NAME}
-            fi
-            
-            chmod 600 ~/.ssh/${GLUSTERFS_KEY_NAME}
-            chmod 644 ~/.ssh/${GLUSTERFS_KEY_NAME}.pub
-            
-            # Anahtarı SSH agent'a ekle
+
+    # Uzak sunucuda SSH anahtarı oluşturma işlemi
+    if ! ssh "$remote_user@$remote_ip" "
+        # .ssh dizinini kontrol et ve oluştur
+        if [ ! -d $ssh_dir ]; then
+            mkdir -p $ssh_dir
+            chmod 700 $ssh_dir
+        fi
+
+        # Anahtar dosyası mevcutsa yedekle
+        if [ -f $key_path ]; then
+            mv $key_path ${key_path}.backup.\$(date +%Y%m%d_%H%M%S)
+            mv ${key_path}.pub ${key_path}.pub.backup.\$(date +%Y%m%d_%H%M%S)
+        fi
+
+        # Anahtar oluşturma işlemi
+        if ! ssh-keygen -t $key_type -N \"\" -C \"$key_comment\" -f $key_path; then
+            echo 'Hata: SSH anahtarı oluşturulamadı. Lütfen sistem rastgelelik kaynağını kontrol edin.'
+            exit 1
+        fi
+        # Anahtarı SSH agent'a ekle
+        if command -v ssh-agent >/dev/null; then
             eval \"\$(ssh-agent -s)\" >/dev/null
-            ssh-add ~/.ssh/${GLUSTERFS_KEY_NAME} 2>/dev/null
+            ssh-add $key_path 2>/dev/null
         else
-            echo 'Anahtar zaten mevcut'
+            echo 'SSH agent bulunamadı, anahtar eklenemedi.'
         fi
     "; then
-        echo "Hata detayı: $?"
+        echo "Hata: Uzak sunucuda SSH anahtarı oluşturulamadı."
         return 1
     fi
+
+    echo "SSH anahtarı başarıyla oluşturuldu."
     return 0
 }
-
 update_known_hosts() {
     local remote_ip="$1"
     local local_ip="$2"
@@ -234,27 +238,28 @@ setup_ssh_keys() {
         return $ERROR_SSH_KEY_GENERATION
     fi
 
+    echo "Yerel SSH yapılandırması güncelleniyor..."
+    update_local_ssh_config "$local_ip" "$remote_user" "$remote_ip"
+
     # 3. Yerel anahtarı uzak sunucuya kopyala (şifre ile bağlantı zorla)
     echo "Yerel anahtar uzak sunucuya kopyalanıyor..."
     if ! cat ~/.ssh/$GLUSTERFS_KEY_NAME.pub | ssh -o PreferredAuthentications=password -o PubkeyAuthentication=no "$remote_user@$remote_ip" '
         mkdir -p ~/.ssh
         cat >> ~/.ssh/authorized_keys
-        chmod 600 ~/.ssh/authorized_keys
     ' 2>&1; then
         echo "Hata: Yerel anahtar uzak sunucuya kopyalanamadı"
         return $ERROR_KEY_EXCHANGE
     fi
+
+    echo "Uzak SSH yapılandırması güncelleniyor..."
+    update_remote_ssh_config "$local_ip" "$remote_user" "$remote_ip" "$local_user"
 
     # 4. Uzak sunucuda anahtar oluştur
     if ! create_remote_ssh_key "$remote_user" "$remote_ip"; then
         echo "Hata: Uzak sunucuda SSH anahtarı oluşturulamadı"
         return $ERROR_REMOTE_CONNECTION
     fi
-    echo "Yerel SSH yapılandırması güncelleniyor..."
-    update_local_ssh_config "$local_ip" "$remote_user" "$remote_ip"
 
-    echo "Uzak SSH yapılandırması güncelleniyor..."
-    update_remote_ssh_config "$local_ip" "$remote_user" "$remote_ip" "$local_user"
 
     # 5. Known hosts güncelle
     if ! update_known_hosts "$remote_ip" "$local_ip"; then
@@ -268,7 +273,6 @@ setup_ssh_keys() {
         echo "Hata: Uzak anahtar yerel makineye kopyalanamadı"
         return $ERROR_KEY_EXCHANGE
     fi
-    chmod 600 ~/.ssh/authorized_keys
 
     echo "SSH anahtar kurulumu başarıyla tamamlandı"
     return 0
