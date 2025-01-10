@@ -1,10 +1,8 @@
 #!/bin/bash
 
-INSTALL_GLUSTERFS_PACKAGES="glusterfs-server glusterfs-client"
-
 install_glusterfs() {
     echo "Yerel makinede GlusterFS kurulumu kontrol ediliyor..."
-    
+    local INSTALL_GLUSTERFS_PACKAGES="glusterfs-server glusterfs-client"
     # 1) GlusterFS kurulu mu?
     if dpkg -l $INSTALL_GLUSTERFS_PACKAGES &>/dev/null; then
         echo "GlusterFS zaten kurulu. Kurulum aşaması atlanıyor."
@@ -71,29 +69,44 @@ add_to_trusted_storage_pool() {
 }
 
 
-create_redundant_folder() {
-    local volume_name="$1"       # GlusterFS volume adı
-    local brick_path="$2"        # Yerel sunucuda brick için kullanılacak dizin
-    local mount_point="$3"       # Volume'ün mount edileceği dizin
-    local remote_ip="$4"         # Uzak node'un IP adresi
+check_and_prepare_brick_path() {
+    local brick_path="$1"
 
-    # Yerel IP adresini al
-    local local_ip
-    local_ip=$(hostname -I | awk '{print $1}') # İlk IP adresini alır
-
-    # Gerekli kontrol
-    if [[ -z "$volume_name" || -z "$brick_path" || -z "$mount_point" || -z "$remote_ip" ]]; then
-        echo "Hata: Eksik parametreler."
-        echo "Kullanım: create_redundant_folder <volume_name> <brick_path> <mount_point> <remote_ip>"
+    if [[ -z "$brick_path" ]]; then
+        echo "Hata: Brick dizini belirtilmedi."
         return 1
     fi
 
-    # Yerel brick dizinini oluştur
-    echo "Yerel brick dizini oluşturuluyor: $brick_path"
-    sudo mkdir -p "$brick_path"
-    sudo chmod 755 "$brick_path"
+    if [[ -d "$brick_path" ]]; then
+        echo "$brick_path dizini zaten mevcut ve boş."
+    else
+        echo "$brick_path dizini oluşturuluyor..."
+        sudo mkdir -p "$brick_path"
+        sudo chmod 755 "$brick_path"
+        echo "$brick_path dizini başarıyla oluşturuldu."
+    fi
 
-    # GlusterFS volume oluştur
+    return 0
+}
+
+create_gluster_volume() {
+    local volume_name="$1"
+    local local_ip="$2"
+    local brick_path="$3"
+    local remote_ip="$4"
+
+    if [[ -z "$volume_name" || -z "$local_ip" || -z "$brick_path" || -z "$remote_ip" ]]; then
+        echo "Hata: Eksik parametreler."
+        echo "Kullanım: create_gluster_volume <volume_name> <local_ip> <brick_path> <remote_ip>"
+        return 1
+    fi
+
+    # Volume'un zaten mevcut olup olmadığını kontrol et
+    if sudo gluster volume info "$volume_name" &>/dev/null; then
+        echo "Uyarı: GlusterFS volume '$volume_name' zaten mevcut. İşlem yapılmadı."
+        return 0
+    fi
+
     echo "GlusterFS volume oluşturuluyor: $volume_name"
     sudo gluster volume create "$volume_name" replica 2 \
         "$local_ip:$brick_path" \
@@ -103,7 +116,27 @@ create_redundant_folder() {
         return 1
     fi
 
-    # Volume'ü başlat
+    echo "GlusterFS volume başarıyla oluşturuldu: $volume_name"
+    return 0
+}
+
+start_gluster_volume() {
+    local volume_name="$1"
+
+    if [[ -z "$volume_name" ]]; then
+        echo "Hata: Volume adı belirtilmedi."
+        return 1
+    fi
+
+    # Volume durumunu kontrol et
+    local volume_status
+    volume_status=$(sudo gluster volume info "$volume_name" | grep -i "Status:" | awk '{print $2}')
+
+    if [[ "$volume_status" == "Started" ]]; then
+        echo "Uyarı: GlusterFS volume '$volume_name' zaten başlatılmış. İşlem yapılmadı."
+        return 0
+    fi
+
     echo "GlusterFS volume başlatılıyor: $volume_name"
     sudo gluster volume start "$volume_name"
     if [[ $? -ne 0 ]]; then
@@ -111,14 +144,94 @@ create_redundant_folder() {
         return 1
     fi
 
-    # Yerel sunucuda volume'ü mount et
-    echo "Yerel sunucuda volume mount ediliyor: $mount_point"
-    sudo mkdir -p "$mount_point"
+    echo "GlusterFS volume başarıyla başlatıldı: $volume_name"
+    return 0
+}
+
+
+mount_gluster_volume() {
+    local volume_name="$1"
+    local mount_point="$2"
+    local local_ip="$3"
+
+    if [[ -z "$volume_name" || -z "$mount_point" || -z "$local_ip" ]]; then
+        echo "Hata: Eksik parametreler."
+        echo "Kullanım: mount_gluster_volume <volume_name> <mount_point> <local_ip>"
+        return 1
+    fi
+
+    # Mount edilmiş mi kontrol et
+    if mount | grep -q "$mount_point"; then
+        echo "Uyarı: $mount_point zaten mount edilmiş. Önce unmount ediliyor..."
+        sudo umount "$mount_point"
+        if [[ $? -ne 0 ]]; then
+            echo "Hata: $mount_point unmount edilemedi. Lütfen kontrol edin."
+            return 1
+        fi
+        echo "$mount_point başarıyla unmount edildi."
+    fi
+
+    # Mount point dizinini kontrol et
+    if [[ -d "$mount_point" ]]; then
+        if [[ "$(ls -A "$mount_point")" ]]; then
+            echo "Hata: $mount_point dizini dolu. Lütfen boş bir dizin belirtin ya da dizini temizleyin."
+            return 1
+        fi
+    else
+        echo "$mount_point dizini oluşturuluyor..."
+        sudo mkdir -p "$mount_point"
+    fi
+
+    echo "GlusterFS volume mount ediliyor: $volume_name -> $mount_point"
     sudo mount -t glusterfs "$local_ip:$volume_name" "$mount_point"
     if [[ $? -ne 0 ]]; then
         echo "Hata: GlusterFS volume mount edilemedi. Lütfen logları kontrol edin."
         return 1
     fi
+
+    echo "GlusterFS volume başarıyla mount edildi: $mount_point"
+    return 0
+}
+
+configure_node_variables() {
+    # Düğüm durumuna göre değişkenleri ayarla
+    if [[ "$IS_NODE_1" == "true" ]]; then
+        echo "Bu düğüm NODE1 olarak yapılandırılıyor..."
+        local_ip="$NODE1_IP"
+        remote_ip="$NODE2_IP"
+    else
+        echo "Bu düğüm NODE2 olarak yapılandırılıyor..."
+        local_ip="$NODE2_IP"
+        remote_ip="$NODE1_IP"
+    fi
+    # Ayarların çıktısını göster
+    echo "Yerel IP: $local_ip"
+    echo "Uzak IP: $remote_ip"
+    return 0
+}
+
+create_redundant_folder() {
+    local volume_name="$1"       # GlusterFS volume adı
+    local brick_path="$2"        # Yerel sunucuda brick için kullanılacak dizin
+    local mount_point="$3"       # Volume'ün mount edileceği dizin
+    local remote_ip="$4"         # Uzak sunucunun IP adresi
+    local local_ip="$5"          # Yerel sunucunun IP adresi
+
+    # Gerekli kontrol
+    if [[ -z "$volume_name" || -z "$brick_path" || -z "$mount_point" || -z "$remote_ip" || -z "$local_ip" ]]; then
+        echo "Hata: Eksik parametreler."
+        echo "Kullanım: create_redundant_folder <volume_name> <brick_path> <mount_point> <remote_ip> <local_ip>"
+        return 1
+    fi
+
+    # Volume oluştur
+    create_gluster_volume "$volume_name" "$local_ip" "$brick_path" "$remote_ip" || return 1
+
+    # Volume başlat
+    start_gluster_volume "$volume_name" || return 1
+
+    # Volume mount et
+    mount_gluster_volume "$volume_name" "$mount_point" "$local_ip" || return 1
 
     echo "GlusterFS yedekli klasör başarıyla oluşturuldu ve mount edildi."
     return 0
