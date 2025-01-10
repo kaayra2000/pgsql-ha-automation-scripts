@@ -30,7 +30,8 @@ if ! check_and_prepare_brick_path_local_and_remote "/data/glusterfs/brick1"; the
     exit 1
 fi
 
-if create_redundant_folder_local_and_remote "my_volume" "/data/glusterfs/brick1" "/mnt/glusterfs" "$local_ip" "$remote_ip"; then
+# local_ip ve remote_ip değişkenleri set_node_variables fonksiyonunda tanımlanmıştır
+if ! create_redundant_folder_local_and_remote "my_volume" "/data/glusterfs/brick1" "/mnt/glusterfs" "$local_ip" "$remote_ip"; then
     echo "Hata: Yedekli GlusterFS volume oluşturma işlemi başarısız oldu."
     exit 1
 fi

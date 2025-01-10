@@ -24,6 +24,7 @@ check_and_prepare_brick_path_local_and_remote() {
     local brick_path="$1"
     echo "Yerel sunucuda brick dosya yolu kontrol edilip oluşturuluyor..."
     check_and_prepare_brick_path "$brick_path" || return 1
+    echo "Uzak sunucuda brick dosya yolu kontrol edilip oluşturuluyor..."
     ssh -t "$remote_user@$remote_ip" "$(declare -f check_and_prepare_brick_path); check_and_prepare_brick_path $brick_path" || return 1
     return 0
 }
