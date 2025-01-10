@@ -1,10 +1,5 @@
 #!/bin/bash
 
-# Scriptin bulunduğu dizini alma
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source $SCRIPT_DIR/../argument_parser.sh
-source $SCRIPT_DIR/../general_functions.sh
-
 # Hata kodları
 readonly ERROR_SSH_KEY_GENERATION=1
 readonly ERROR_REMOTE_CONNECTION=2

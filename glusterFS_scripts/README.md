@@ -4,4 +4,6 @@
 
 # Ne içerir?
 
-- `generate_glusterDS_ssh_key.sh`: Sunucular arasında şifresiz ssh bağlantı kurulabilmesi için gerekli olan ssh-key oluşturur. Tek bir fonksiyon çalıştığında her iki sunucu için de karşılıklı anahtarları oluşturur ve herkese açık anahtarları sunucular arasında değiş tokuş yapar.
+- `ssh_key_setup_functions.sh`: Sunucular arasında şifresiz ssh bağlantı kurulabilmesi için gerekli olan ssh-key oluşturur. Tek bir fonksiyon çalıştığında her iki sunucu için de karşılıklı anahtarları oluşturur ve herkese açık anahtarları sunucular arasında değiş tokuş yapar.
+
+- `ssh_key_setup`: `ssh_key_setup_functions.sh` dosyasındaki fonksiyonlar yardımıyla sunucular arasında şifresiz ssh bağlantısının altyapısını oluşturur.
