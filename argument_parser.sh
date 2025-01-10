@@ -10,9 +10,9 @@ ARGUMENT_CFG_FILE="$ROOT_DIR/arguments.cfg"
 define_constants() {
     constants=(
         "ROOT_LOG_DIR=/var/log"                                             # log dosyalarının kök dizini
-        "PATRONI_LOG_VOLUME_NAME=patroni_log"                                   # log dosyalarının tutulacağı kök dizin için docker volume adı
+        "PATRONI_LOG_VOLUME_NAME=patroni_log"                               # log dosyalarının tutulacağı kök dizin için docker volume adı
         "POSTGRES_DATA_ROOT_DIR=/var/lib/postgresql"                        # postgresql verilerinin tutulacağı kök dizin
-        "POSTGRES_DATA_ROOT_VOLUME_NAME=pgdata"                              # postgresql verilerinin tutulacağı kök dizin için docker volume adı
+        "POSTGRES_DATA_ROOT_VOLUME_NAME=pgdata"                             # postgresql verilerinin tutulacağı kök dizin için docker volume adı
         "BOOTSTRAP_SQL_FILE=\$POSTGRES_DATA_ROOT_DIR/patroni_bootstrap.sql" # patroni'nin ilk ayağa kalkarken oluşturacağı kullanıcıları içeren dosya yolu
         "DOCKER_BINARY_PATH=/usr/local/bin"                                 # docker içindeki binary dosyaların yolu
         "DOCKERFILE_PATH=../docker_files"                                   # dockerfile'ların bulunduğu klasörün göreceli yolu
