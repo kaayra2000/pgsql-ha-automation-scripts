@@ -35,7 +35,7 @@ check_and_prepare_brick_path_local_and_remote() {
     echo "Yerel sunucuda brick dosya yolu kontrol edilip oluşturuluyor..."
     check_and_prepare_brick_path "$brick_path" || return 1
     echo "Uzak sunucuda brick dosya yolu kontrol edilip oluşturuluyor..."
-    ssh -t "$remote_user@$remote_ip" "$(declare -f check_and_prepare_brick_path); check_and_prepare_brick_path $brick_path" || return 1
+    ssh -t "$remote_user@$remote_ip" "$(declare -f check_and_prepare_brick_path change_permissions_if_needed change_ownership_if_needed); check_and_prepare_brick_path $brick_path" || return 1
     return 0
 }
 
@@ -52,6 +52,6 @@ create_redundant_folder_local_and_remote() {
     create_redundant_folder "$volume_name" "$brick_path" "$mount_point" "$remote_ip" "$local_ip" || return 1
 
     echo "Uzak sunucuda yedekli GlusterFS volume oluşturuluyor..."
-    ssh -t "$remote_user@$remote_ip" "$(declare -f create_redundant_folder create_gluster_volume start_gluster_volume mount_gluster_volume); create_redundant_folder $volume_name $brick_path $mount_point $local_ip $remote_ip" || return 1
+    ssh -t "$remote_user@$remote_ip" "$(declare -f create_redundant_folder create_gluster_volume start_gluster_volume mount_gluster_volume change_permissions_if_needed change_ownership_if_needed); create_redundant_folder $volume_name $brick_path $mount_point $local_ip $remote_ip" || return 1
     return 0
 }

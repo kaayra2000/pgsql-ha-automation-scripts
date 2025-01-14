@@ -76,6 +76,18 @@ change_ownership_if_needed() {
     local group="$2"
     local path="$3"
 
+    # Kullanıcı mevcut mu kontrol et
+    if ! id "$user" &>/dev/null; then
+        echo "Hata: Kullanıcı '$user' mevcut değil. Lütfen geçerli bir kullanıcı adı girin."
+        return 1
+    fi
+
+    # Grup mevcut mu kontrol et
+    if ! getent group "$group" &>/dev/null; then
+        echo "Hata: Grup '$group' mevcut değil. Lütfen geçerli bir grup adı girin."
+        return 1
+    fi
+
     # Mevcut sahibi kontrol et
     current_owner=$(stat -c '%U' "$path")
     if [[ "$current_owner" != "$user" ]]; then
@@ -99,6 +111,7 @@ change_permissions_if_needed() {
     else
         echo "$path dizininin izinleri zaten $permissions."
     fi
+    return 0
 }
 
 check_and_prepare_brick_path() {
@@ -124,9 +137,13 @@ check_and_prepare_brick_path() {
         sudo mkdir -p "$brick_path"
         echo "$brick_path dizini başarıyla oluşturuldu."
     fi
-
-    change_ownership_if_needed "$gluster_user" "$gluster_group" "$brick_path"
-    change_permissions_if_needed 777 "$brick_path"
+    if ! change_ownership_if_needed "$gluster_user" "$gluster_group" "$brick_path"; then
+        return 1
+    fi
+    
+    if ! change_permissions_if_needed 777 "$brick_path"; then
+        return 1
+    fi
 
     return 0
 }
@@ -193,11 +210,11 @@ start_gluster_volume() {
 mount_gluster_volume() {
     local volume_name="$1"
     local mount_point="$2"
-    local local_ip="$3"
+    local ip="$3"
     local gluster_user="gluster"
     local gluster_group="gluster"
 
-    if [[ -z "$volume_name" || -z "$mount_point" || -z "$local_ip" ]]; then
+    if [[ -z "$volume_name" || -z "$mount_point" || -z "$ip" ]]; then
         echo "Hata: Eksik parametreler."
         echo "Kullanım: mount_gluster_volume <volume_name> <mount_point> <local_ip>"
         return 1
@@ -228,13 +245,16 @@ mount_gluster_volume() {
         echo "$mount_point dizini oluşturuluyor..."
         sudo mkdir -p "$mount_point"
     fi
-
-    change_ownership_if_needed "$gluster_user" "$gluster_group" "$mount_point"
-
-    change_permissions_if_needed 777 "$mount_point"
+    if ! change_ownership_if_needed "$gluster_user" "$gluster_group" "$mount_point"; then
+        return 1
+    fi
+    
+    if ! change_permissions_if_needed 777 "$mount_point"; then
+        return 1
+    fi
 
     echo "GlusterFS volume mount ediliyor: $volume_name -> $mount_point"
-    sudo mount -t glusterfs "$local_ip:$volume_name" "$mount_point"
+    sudo mount -t glusterfs "$ip:$volume_name" "$mount_point"
     if [[ $? -ne 0 ]]; then
         echo "Hata: GlusterFS volume mount edilemedi. Lütfen logları kontrol edin."
         return 1
