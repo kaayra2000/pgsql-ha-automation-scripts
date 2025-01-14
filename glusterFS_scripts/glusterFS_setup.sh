@@ -71,6 +71,8 @@ add_to_trusted_storage_pool() {
 
 check_and_prepare_brick_path() {
     local brick_path="$1"
+    local gluster_user="gluster"
+    local gluster_group="gluster"
 
     if [[ -z "$brick_path" ]]; then
         echo "Hata: Brick dizini belirtilmedi."
@@ -78,17 +80,30 @@ check_and_prepare_brick_path() {
     fi
 
     if [[ -d "$brick_path" ]]; then
-        echo "$brick_path dizini zaten mevcut ve boş."
+        echo "$brick_path dizini zaten mevcut."
+
+        # Eğer dizin boş değilse hata ver
+        if [[ "$(ls -A "$brick_path")" ]]; then
+            echo "Hata: $brick_path dizini dolu. Lütfen boş bir dizin belirtin ya da dizini temizleyin."
+            return 1
+        fi
+
+        # Eğer dizinin sahibi gluster_user değilse sahipliği değiştir
+        current_owner=$(stat -c '%U' "$brick_path")
+        if [[ "$current_owner" != "$gluster_user" ]]; then
+            echo "$brick_path dizininin sahibi $current_owner. Sahiplik $gluster_user:$gluster_group olarak değiştiriliyor..."
+            sudo chown "$gluster_user:$gluster_group" "$brick_path"
+        fi
     else
         echo "$brick_path dizini oluşturuluyor..."
         sudo mkdir -p "$brick_path"
         sudo chmod 755 "$brick_path"
+        sudo chown "$gluster_user:$gluster_group" "$brick_path"
         echo "$brick_path dizini başarıyla oluşturuldu."
     fi
 
     return 0
 }
-
 create_gluster_volume() {
     local volume_name="$1"
     local local_ip="$2"
@@ -153,6 +168,8 @@ mount_gluster_volume() {
     local volume_name="$1"
     local mount_point="$2"
     local local_ip="$3"
+    local gluster_user="gluster"
+    local gluster_group="gluster"
 
     if [[ -z "$volume_name" || -z "$mount_point" || -z "$local_ip" ]]; then
         echo "Hata: Eksik parametreler."
@@ -165,8 +182,12 @@ mount_gluster_volume() {
         echo "Uyarı: $mount_point zaten mount edilmiş. Önce unmount ediliyor..."
         sudo umount "$mount_point"
         if [[ $? -ne 0 ]]; then
-            echo "Hata: $mount_point unmount edilemedi. Lütfen kontrol edin."
-            return 1
+            echo "Uyarı: $mount_point unmount edilemiyor. Zorla unmount ediliyor..."
+            sudo umount -l "$mount_point"
+            if [[ $? -ne 0 ]]; then
+                echo "Hata: $mount_point unmount edilemedi. Lütfen kontrol edin."
+                return 1
+            fi
         fi
         echo "$mount_point başarıyla unmount edildi."
     fi
@@ -177,9 +198,17 @@ mount_gluster_volume() {
             echo "Hata: $mount_point dizini dolu. Lütfen boş bir dizin belirtin ya da dizini temizleyin."
             return 1
         fi
+
+        # Eğer dizin mevcutsa ve sahibi gluster_user değilse sahipliği değiştir
+        current_owner=$(stat -c '%U' "$mount_point")
+        if [[ "$current_owner" != "$gluster_user" ]]; then
+            echo "$mount_point dizininin sahibi $current_owner. Sahiplik $gluster_user:$gluster_group olarak değiştiriliyor..."
+            sudo chown "$gluster_user:$gluster_group" "$mount_point"
+        fi
     else
         echo "$mount_point dizini oluşturuluyor..."
         sudo mkdir -p "$mount_point"
+        sudo chown "$gluster_user:$gluster_group" "$mount_point"
     fi
 
     echo "GlusterFS volume mount ediliyor: $volume_name -> $mount_point"
