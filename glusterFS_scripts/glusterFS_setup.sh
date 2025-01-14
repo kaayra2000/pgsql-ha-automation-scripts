@@ -62,6 +62,27 @@ sudo gluster peer detach <komşu ip adresi> komutu işinizi görecektir."
         return 1
     fi
 
+    # Peer 'Peer in Cluster' durumuna geçene kadar bekle
+    echo "Peer 'Peer in Cluster' durumuna geçene kadar bekleniyor..."
+    local attempt=0
+    while true; do
+        # Peer durumunu kontrol et
+        peer_state=$(sudo gluster peer status | awk -v ip="$remote_ip" '
+            $0 ~ ip {found=1} 
+            found && /State:/ {print substr($0, index($0, $2)); exit}
+        ')
+        if [[ "$peer_state" == *"Peer in Cluster"* || "$peer_state" == *"Connected"* ]]; then
+            echo -ne "\rPeer durumu uygun: $peer_state. İşlem tamamlandı.                     \n"
+            break
+        fi
+
+
+        # Durumu terminalde aynı satırda göster
+        echo -ne "\rPeer durumu: $peer_state. Bekleniyor... (Deneme: $((attempt + 1)))"
+        sleep 4
+        ((attempt++))
+    done
+
     # Trusted storage pool'u listele
     echo "Trusted storage pool durumu:"
     sudo gluster pool list
@@ -256,7 +277,7 @@ mount_gluster_volume() {
     echo "GlusterFS volume mount ediliyor: $volume_name -> $mount_point"
     sudo mount -t glusterfs "$ip:$volume_name" "$mount_point"
     if [[ $? -ne 0 ]]; then
-        echo "Hata: GlusterFS volume mount edilemedi. Lütfen logları kontrol edin."
+        echo "Hata: GlusterFS volume mount edilemedi. Lütfen logları kontrol edin. (muhtemelen mount point dizininde eski glusterfs konfigürasyonunu tutan gizli klasörler var)"
         return 1
     fi
 
