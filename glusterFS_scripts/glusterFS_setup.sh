@@ -56,7 +56,9 @@ add_to_trusted_storage_pool() {
     echo "Uzak cihaz trusted storage pool'a ekleniyor: $remote_ip"
     sudo gluster peer probe "$remote_ip"
     if [[ $? -ne 0 ]]; then
-        echo "Hata: Uzak cihaz trusted storage pool'a eklenemedi. Lütfen logları kontrol edin."
+        echo "Hata: Uzak cihaz trusted storage pool'a eklenemedi. Lütfen logları kontrol edin. Eğer peer probe: failed: \
+<komşu ip adresi> is either already part of another cluster or having volumes configured hatası alıyorsanız \
+sudo gluster peer detach <komşu ip adresi> komutu işinizi görecektir."
         return 1
     fi
 
