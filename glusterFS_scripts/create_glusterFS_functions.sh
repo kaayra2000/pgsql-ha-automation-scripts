@@ -1,6 +1,9 @@
 #!/bin/bash
 
 install_glusterfs_local_and_remote() {
+    local remote_ip="$1"
+    local remote_user="$2"
+
     echo "Yerel sunucuda GlusterFS kurulumu başlatılıyor..."
     install_glusterfs || return 1
 
@@ -11,6 +14,10 @@ install_glusterfs_local_and_remote() {
 
 # Trusted storage pool'a ekleme işlemleri
 add_to_trusted_storage_pool_local_and_remote() {
+    local local_ip="$1"
+    local remote_ip="$2"
+    local remote_user="$3"
+
     echo "Uzak sunucuda trusted storage pool'a ekleme işlemi başlatılıyor..."
     ssh -t "$remote_user@$remote_ip" "$(declare -f add_to_trusted_storage_pool); add_to_trusted_storage_pool $local_ip" || return 1
 
@@ -22,6 +29,9 @@ add_to_trusted_storage_pool_local_and_remote() {
 
 check_and_prepare_brick_path_local_and_remote() {
     local brick_path="$1"
+    local remote_ip="$2"
+    local remote_user="$3"
+
     echo "Yerel sunucuda brick dosya yolu kontrol edilip oluşturuluyor..."
     check_and_prepare_brick_path "$brick_path" || return 1
     echo "Uzak sunucuda brick dosya yolu kontrol edilip oluşturuluyor..."
@@ -36,6 +46,7 @@ create_redundant_folder_local_and_remote() {
     local mount_point="$3"
     local local_ip="$4"
     local remote_ip="$5"
+    local remote_user="$6"
 
     echo "Yerel sunucuda yedekli GlusterFS volume oluşturuluyor..."
     create_redundant_folder "$volume_name" "$brick_path" "$mount_point" "$remote_ip" "$local_ip" || return 1

@@ -14,24 +14,24 @@ parse_and_read_arguments "$@"
 set_node_variables
 
 # GlusterFS kurulumlarını yap
-if ! install_glusterfs_local_and_remote; then
+if ! install_glusterfs_local_and_remote $remote_ip $remote_user; then
     echo "Hata: GlusterFS kurulumu başarısız oldu."
     exit 1
 fi
 
 # Trusted storage pool'a ekleme işlemlerini yap
-if ! add_to_trusted_storage_pool_local_and_remote; then
+if ! add_to_trusted_storage_pool_local_and_remote "$local_ip" "$remote_ip" "$remote_user"; then
     echo "Hata: Trusted storage pool'a ekleme işlemi başarısız oldu."
     exit 1
 fi
 
-if ! check_and_prepare_brick_path_local_and_remote "/data/glusterfs/brick1"; then
+if ! check_and_prepare_brick_path_local_and_remote "/data/glusterfs/brick1" "$remote_ip" "$remote_user"; then
     echo "Hata: Brick dosya yolu kontrolü ve oluşturma işlemi başarısız oldu."
     exit 1
 fi
 
 # local_ip ve remote_ip değişkenleri set_node_variables fonksiyonunda tanımlanmıştır
-if ! create_redundant_folder_local_and_remote "my_volume" "/data/glusterfs/brick1" "/mnt/glusterfs" "$local_ip" "$remote_ip"; then
+if ! create_redundant_folder_local_and_remote "my_volume" "/data/glusterfs/brick1" "/mnt/glusterfs" "$local_ip" "$remote_ip" "$remote_user"; then
     echo "Hata: Yedekli GlusterFS volume oluşturma işlemi başarısız oldu."
     exit 1
 fi
