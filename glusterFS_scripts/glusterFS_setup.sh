@@ -70,6 +70,36 @@ sudo gluster peer detach <komşu ip adresi> komutu işinizi görecektir."
     return 0
 }
 
+# Kullanıcı ve grup sahipliğini kontrol edip gerekirse değiştirir
+change_ownership_if_needed() {
+    local user="$1"
+    local group="$2"
+    local path="$3"
+
+    # Mevcut sahibi kontrol et
+    current_owner=$(stat -c '%U' "$path")
+    if [[ "$current_owner" != "$user" ]]; then
+        echo "$path dizininin sahibi $current_owner. Sahiplik $user:$group olarak değiştiriliyor..."
+        sudo chown "$user:$group" "$path"
+    else
+        echo "$path dizininin sahibi zaten $user:$group."
+    fi
+}
+
+# İzinleri kontrol edip gerekirse değiştirir
+change_permissions_if_needed() {
+    local permissions="$1"
+    local path="$2"
+
+    # Mevcut izinleri kontrol et
+    current_permissions=$(stat -c '%a' "$path")
+    if [[ "$current_permissions" != "$permissions" ]]; then
+        echo "$path dizininin izinleri $permissions olarak değiştiriliyor..."
+        sudo chmod "$permissions" "$path"
+    else
+        echo "$path dizininin izinleri zaten $permissions."
+    fi
+}
 
 check_and_prepare_brick_path() {
     local brick_path="$1"
@@ -89,20 +119,14 @@ check_and_prepare_brick_path() {
             echo "Hata: $brick_path dizini dolu. Lütfen boş bir dizin belirtin ya da dizini temizleyin."
             return 1
         fi
-
-        # Eğer dizinin sahibi gluster_user değilse sahipliği değiştir
-        current_owner=$(stat -c '%U' "$brick_path")
-        if [[ "$current_owner" != "$gluster_user" ]]; then
-            echo "$brick_path dizininin sahibi $current_owner. Sahiplik $gluster_user:$gluster_group olarak değiştiriliyor..."
-            sudo chown "$gluster_user:$gluster_group" "$brick_path"
-        fi
     else
         echo "$brick_path dizini oluşturuluyor..."
         sudo mkdir -p "$brick_path"
-        sudo chmod 755 "$brick_path"
-        sudo chown "$gluster_user:$gluster_group" "$brick_path"
         echo "$brick_path dizini başarıyla oluşturuldu."
     fi
+
+    change_ownership_if_needed "$gluster_user" "$gluster_group" "$brick_path"
+    change_permissions_if_needed 777 "$brick_path"
 
     return 0
 }
@@ -200,18 +224,14 @@ mount_gluster_volume() {
             echo "Hata: $mount_point dizini dolu. Lütfen boş bir dizin belirtin ya da dizini temizleyin."
             return 1
         fi
-
-        # Eğer dizin mevcutsa ve sahibi gluster_user değilse sahipliği değiştir
-        current_owner=$(stat -c '%U' "$mount_point")
-        if [[ "$current_owner" != "$gluster_user" ]]; then
-            echo "$mount_point dizininin sahibi $current_owner. Sahiplik $gluster_user:$gluster_group olarak değiştiriliyor..."
-            sudo chown "$gluster_user:$gluster_group" "$mount_point"
-        fi
     else
         echo "$mount_point dizini oluşturuluyor..."
         sudo mkdir -p "$mount_point"
-        sudo chown "$gluster_user:$gluster_group" "$mount_point"
     fi
+
+    change_ownership_if_needed "$gluster_user" "$gluster_group" "$mount_point"
+
+    change_permissions_if_needed 777 "$mount_point"
 
     echo "GlusterFS volume mount ediliyor: $volume_name -> $mount_point"
     sudo mount -t glusterfs "$local_ip:$volume_name" "$mount_point"
