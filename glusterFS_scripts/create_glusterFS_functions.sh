@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Scriptin bulunduğu dizini alma
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source $SCRIPT_DIR/glusterFS_setup.sh
+
 install_glusterfs_local_and_remote() {
     local remote_ip="$1"
     local remote_user="$2"
