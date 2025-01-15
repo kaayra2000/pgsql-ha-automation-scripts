@@ -150,8 +150,7 @@ check_and_prepare_brick_path() {
 
         # Eğer dizin boş değilse hata ver
         if [[ "$(ls -A "$brick_path")" ]]; then
-            echo "Hata: $brick_path dizini dolu. Lütfen boş bir dizin belirtin ya da dizini temizleyin."
-            return 1
+            echo "Uyarı: $brick_path dizini dolu. Tutarsız davranışlara yol açabilir."
         fi
     else
         echo "$brick_path dizini oluşturuluyor..."
