@@ -20,12 +20,12 @@ run_container() {
         $DNS_IMAGE_NAME \
         /bin/bash -c "while true; do sleep 30; done"
 
-        docker cp $ARGUMENT_CFG_FILE $DNS_CONTAINER_NAME:$DOCKER_BINARY_PATH
+    docker cp $ARGUMENT_CFG_FILE $DNS_CONTAINER_NAME:$DOCKER_BINARY_PATH
 
-        docker exec -it $DNS_CONTAINER_NAME \
-                /bin/bash -c    "$SHELL_PATH_IN_DOCKER/$DNS_SHELL_SCRIPT_NAME \
-                                && service named start \
-                                && service keepalived start"
+    docker exec -it $DNS_CONTAINER_NAME \
+        /bin/bash -c "$SHELL_PATH_IN_DOCKER/$DNS_SHELL_SCRIPT_NAME \
+                            && service named start \
+                            && service keepalived start"
 }
 
 # Ana fonksiyon
