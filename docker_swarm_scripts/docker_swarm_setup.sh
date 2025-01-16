@@ -1,5 +1,6 @@
 #!/bin/bash
-
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source $SCRIPT_DIR/set_swarm_node_variables.sh
 # Paketleri güncelle ve Docker'ı kur
 update_and_install_docker() {
     # Docker kurulu mu kontrol et
@@ -62,10 +63,11 @@ add_user_to_docker_group() {
 
 # Docker Swarm'ı başlat
 initialize_docker_swarm() {
+    set_swarm_node_variables
     # Docker Swarm zaten başlatılmış mı kontrol et
     if ! docker info | grep -q 'Swarm: active'; then
         echo "Docker Swarm başlatılıyor..."
-        docker swarm init || return 1
+        docker swarm init --advertise-addr $CURRENT_NODE_IP || return 1
         echo "Docker Swarm başarıyla başlatıldı."
     else
         echo "Docker Swarm zaten başlatılmış."
