@@ -2,7 +2,7 @@
 
 # Scriptin bulunduğu dizini alma
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-source $SCRIPT_DIR/docker_swarm_setup.sh
+source $SCRIPT_DIR/swarm_initializer_funcitons.sh
 source $SCRIPT_DIR/set_swarm_node_variables.sh
 source $SCRIPT_DIR/../argument_parser.sh
 source $SCRIPT_DIR/../general_functions.sh
