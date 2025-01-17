@@ -1,0 +1,34 @@
+FROM ubuntu:22.04
+
+# Locale ayarları için gerekli paketleri yükle
+RUN apt-get update && apt-get install -y \
+    locales \
+    sudo \
+    keepalived \
+    bind9 \
+    bind9utils \
+    bind9-doc
+
+# Zaman dilimini işlemleri
+# Tzdata paketini yükleyin
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y tzdata
+# Zaman dilimini Türkiye olarak ayarlayın
+ENV TZ=Europe/Istanbul
+# Zaman dilimi dosyasını linkleyin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+# Türkçe locale'ini oluştur ve varsayılan olarak ayarla
+RUN locale-gen tr_TR.UTF-8
+ENV LANG=tr_TR.UTF-8
+ENV LANGUAGE=tr_TR:tr
+ENV LC_ALL=tr_TR.UTF-8
+
+COPY create_dns_server.sh /usr/local/bin/
+COPY argument_parser.sh /usr/local/bin/
+COPY default_variables.sh /usr/local/bin/
+COPY general_functions.sh /usr/local/bin/
+COPY arguments.cfg /usr/local/bin/
+
+RUN chmod +x /usr/local/bin/create_dns_server.sh
+
+CMD ["bash", "-c", "/usr/local/bin/create_dns_server.sh && service named start && service keepalived start && while true; do sleep 30; done"]
