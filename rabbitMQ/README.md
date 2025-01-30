@@ -585,7 +585,80 @@ rabbitmqctl stop
    - WAN yerine LAN tercih edilmeli
    - Ağ gecikmeleri minimize edilmeli
    - Güvenlik duvarı kuralları düzenlenmeli
-## 10. Sonuç
+
+## 10. Quorum Kuyruklar ve Stream'ler Arasındaki Farklar
+
+### Giriş
+
+**Quorum Kuyruklar** ve **Stream'ler**, RabbitMQ üzerinde farklı amaçlara ve özelliklere sahip iki mesajlaşma mekanizmasıdır. Her ikisi de mesajların güvenilir ve ölçeklenebilir bir şekilde iletilmesini sağlar, ancak kullanım alanları ve çalışma prensipleri açısından önemli farklılıklar gösterirler.
+
+### 1. Quorum Kuyruklar
+
+#### Temel Özellikler
+
+- **Yüksek Güvenilirlik ve Tutarlılık:** Quorum kuyruklar, mesaj kaybını önlemek ve veri bütünlüğünü sağlamak amacıyla tasarlanmıştır. **Raft** gibi çoğunluk tabanlı konsensüs algoritmaları kullanırlar.
+- **Çoğunluk İlkesine Dayalı İşlem:** Mesajlar birden fazla düğüme (node) replike edilir. Bir işlemin başarılı sayılması için düğümlerin çoğunluğunun onayı gereklidir.
+- **Senkron Replikasyon:** Mesajlar, lider düğüm üzerinden diğer replikalara eş zamanlı olarak yazılır, böylece veri tutarlılığı korunur.
+- **FIFO (First In First Out) Garantisi:** Mesajların sıralı bir şekilde işlenmesini sağlar.
+
+#### Kullanım Senaryoları
+
+- **Kritik İş Yükleri:** Finansal işlemler, sipariş yönetimi gibi kritik verilerin işlendiği durumlar.
+- **Veri Kaybının Kabul Edilemez Olduğu Durumlar:** Herhangi bir mesaj kaybının ciddi sonuçlar doğurabileceği senaryolar.
+- **Güvenilirlik Öncelikli Uygulamalar:** Sistem kesintilerine toleransı olmayan, yüksek erişilebilirlik gerektiren uygulamalar.
+
+#### Avantajları
+
+- **Güçlü Veri Tutarlılığı:** Mesajların güvenilir bir şekilde iletilmesi ve saklanması sağlanır.
+- **Otomatik Lider Seçimi:** Lider düğümün arızalanması durumunda, diğer düğümler arasından otomatik olarak yeni bir lider seçilir.
+- **Hata Toleransı:** Düğümlerin bir kısmı devre dışı kalsa bile sistem çalışmaya devam eder.
+
+### 2. Stream'ler
+
+#### Temel Özellikler
+
+- **Yüksek Performans ve Ölçeklenebilirlik:** Büyük hacimli veri akışlarını işlemek için optimize edilmiştir.
+- **Paralel Tüketim Desteği:** Birden fazla tüketicinin aynı anda veri tüketmesine olanak tanır.
+- **Uzun Süreli Veri Saklama:** Mesajlar uzun süre saklanabilir ve geçmişe dönük olarak erişilebilir.
+- **Geriye Dönük Erişim ve Yeniden Oynatma:** Önceden işlenmiş mesajlara tekrar erişip işleme imkanı sunar.
+
+#### Kullanım Senaryoları
+
+- **Büyük Veri İşleme ve Analiz:** Log toplama, gerçek zamanlı analiz, IoT verilerinin işlenmesi gibi durumlar.
+- **Event Sourcing Uygulamaları:** Sistem olaylarının kaydedilip gerektiğinde yeniden oynatılması gereken senaryolar.
+- **Sürekli ve Hızlı Veri Akışı Gerektiren Uygulamalar:** Canlı yayınlar, finansal veri akışları.
+
+#### Avantajları
+
+- **Yüksek Throughput (Verim):** Milyonlarca mesajı hızlı bir şekilde işleyebilir.
+- **Ölçeklenebilir Tüketim:** Tüketici sayısı arttıkça performansı korur.
+- **Mesajları Tekrar Okuyabilme:** Geçmiş mesajlara erişim ve gerektiğinde yeniden işleme olanağı sağlar.
+
+### 3. Hangi Durumlarda Hangisi Tercih Edilmeli?
+
+#### Quorum Kuyrukları Tercih Edilmeli:
+
+- **Veri Kaybının Kritik Olduğu Durumlar:** Mesajların kesinlikle kaybolmaması gerektiğinde.
+- **Sıralı İşlem Garantisi Gerektiğinde:** Mesajların belirli bir sırayla ve tutarlı bir şekilde işlenmesi gerekiyorsa.
+- **Yüksek Güvenilirlik ve Tutarlılık İhtiyacı:** Sistemin sürekli ve kesintisiz çalışmasının önemli olduğu durumlarda.
+
+#### Stream'ler Tercih Edilmeli:
+
+- **Yüksek Hacimli ve Sürekli Veri Akışları:** Büyük miktarda verinin hızlı ve kesintisiz işlenmesi gerektiğinde.
+- **Geçmiş Mesajlara Erişim Önemli Olduğunda:** Veri analizi, raporlama veya hata ayıklama amacıyla eski mesajlara ihtiyaç duyulduğunda.
+- **Paralel Tüketim ve Ölçeklenebilirlik Gereksinimi:** Birden fazla tüketicinin aynı veri setini işlemesi gerektiğinde.
+
+### 4. Özet ve Sonuç
+
+**Quorum Kuyrukları** ve **Stream'ler**, farklı ihtiyaçlara hitap eden güçlü mesajlaşma araçlarıdır:
+
+- **Quorum Kuyrukları**, veri tutarlılığı ve güvenilirliğin kritik olduğu, mesaj kaybının kabul edilemez olduğu durumlar için idealdir.
+- **Stream'ler**, yüksek performans, ölçeklenebilirlik ve geçmiş mesajlara erişimin önemli olduğu büyük veri akışları için uygundur.
+
+Uygulamanızın gereksinimlerine ve önceliklerinize bağlı olarak, bu iki yöntemden birini veya her ikisini birden kullanarak etkili bir mesajlaşma altyapısı oluşturabilirsiniz.
+
+
+## 11. Sonuç
 #### Genel Bakış
 Bu dokümantasyon ile RabbitMQ üzerinde:
 - Yedekli (cluster) bir yapı kurabilirsiniz
