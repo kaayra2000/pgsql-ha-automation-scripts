@@ -648,6 +648,45 @@ rabbitmqctl stop
 - **Geçmiş Mesajlara Erişim Önemli Olduğunda:** Veri analizi, raporlama veya hata ayıklama amacıyla eski mesajlara ihtiyaç duyulduğunda.
 - **Paralel Tüketim ve Ölçeklenebilirlik Gereksinimi:** Birden fazla tüketicinin aynı veri setini işlemesi gerektiğinde.
 
+
+### Raft Consensus Algoritması
+
+![Raft Consensus Akışı](images/raft_consensus.png)
+
+#### 1. Temel Akış
+
+Yukarıdaki diyagramda görülen Raft konsensus akışı şu şekilde çalışır:
+
+1. **İstemci İsteği (1)**
+   - İstemci lider düğüme okuma/yazma isteği gönderir
+   - Lider isteği alır ve işleme koyar
+
+2. **Replikasyon (2)**
+   - Lider, değişikliği tüm takipçilere (follower1 ve follower2) iletir
+   - Her takipçi kendi veri deposuna değişikliği kaydeder
+
+3. **Onaylama (3)**
+   - Takipçiler değişikliği aldıklarını lidere ACK mesajı ile bildirir
+   - Lider en az 1 takipçiden onay bekler (çoğunluk sağlanması için)
+
+4. **Tamamlama (4)**
+   - Çoğunluk onayı alındığında işlem tamamlanır
+   - Lider istemciye başarılı yanıtı gönderir
+
+#### 2. Önemli Noktalar
+
+- **Çoğunluk Tabanlı**: İşlemin tamamlanması için çoğunluk onayı gerekir
+- **Sıralı İşlem**: Tüm değişiklikler sıralı şekilde işlenir
+- **Veri Tutarlılığı**: Tüm takipçiler aynı veri kopyasına sahip olur
+- **Hata Toleransı**: Bazı takipçilerin devre dışı kalması durumunda sistem çalışmaya devam eder
+
+#### 3. Avantajları
+
+- Güçlü tutarlılık garantisi
+- Otomatik lider seçimi
+- Yüksek erişilebilirlik
+- Şeffaf hata yönetimi
+
 ### 4. Özet ve Sonuç
 
 **Quorum Kuyrukları** ve **Stream'ler**, farklı ihtiyaçlara hitap eden güçlü mesajlaşma araçlarıdır:
