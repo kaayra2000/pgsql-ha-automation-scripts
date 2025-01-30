@@ -72,7 +72,7 @@ RabbitMQ node'ları benzersiz bir node ismi ile tanımlanır ve bu isim cluster 
 - Hostname çözümlemesi güvenli bir şekilde yapılmalıdır
 - DNS veya hosts dosyası manipülasyonlarına karşı korunmalıdır
 
-###### 5. Best Practices
+###### 5. En Verimli Uygulama
 - Tutarlı bir isimlendirme standardı kullanın
 - IP adresleri yerine DNS isimlerini tercih edin  
 - Hostname değişikliklerinden kaçının
@@ -114,7 +114,7 @@ Erlang cookie, RabbitMQ node'ları ve CLI araçları arasındaki güvenli ileti�
    - Tüm node'larda aynı değer kullanılmalıdır
    - Değişiklikler node'ların yeniden başlatılmasını gerektirir
 
-4. **Best Practices**
+4. **En Verimli Uygulama**
    - Cookie değerini deployment aşamasında ayarlayın
    - Otomasyon araçları ile yönetin
    - Cookie değerini güvenli şekilde yedekleyin
@@ -155,7 +155,7 @@ Yüksek erişilebilirlik gerektiren yapılarda (örneğin quorum kuyruklar) node
    - Maksimum erişilebilirlik için
    - Üç node'un kaybı tolere edilebilir
 
-#### Best Practices
+#### En Verimli Uygulama
 
 1. **Node Sayısı Seçimi**
    - İhtiyaca göre tek sayıda node seçin
@@ -198,7 +198,7 @@ Yüksek erişilebilirlik gerektiren yapılarda (örneğin quorum kuyruklar) node
 - İç ağda node'lar arası iletişim engellenmelidir
 - Güvenlik duvarı kuralları düzenli kontrol edilmelidir
 
-### 4. Best Practices
+### 4. En Verimli Uygulama
 - Port çakışmalarını önlemek için port planlaması yapın
 - Güvenlik duvarı kurallarını dokümante edin
 - Port erişimlerini düzenli monitör edin
@@ -339,7 +339,7 @@ rabbitmqctl start_app
   - Her node'da ```cluster_status``` komutu çalıştırılarak durum kontrol edilebilir
   - "running_nodes" listesinde üç node görünmelidir
   - Node'lar birbirlerini görebilmelidir
-4. **Best Practices**
+4. **En Verimli Uygulama**
   - Node eklemeden önce cluster durumu kontrol edilmeli
   - İşlemler sırasıyla ve dikkatle yapılmalı
   - Her adımdan sonra doğrulama yapılmalı
@@ -371,7 +371,7 @@ rabbitmqctl stop
 * Node'ların açılış sırası önemlidir
 * Readiness probe'lar düzgün konfigüre edilmelidir
 * Node sağlık kontrolleri doğru yapılandırılmalıdır
-### 4.4 Best Practices
+### 4.4 En Verimli Uygulama
 1. **Sıralı Başlatma**
    - Node'ları sıralı olarak başlatın
    - Senkronizasyon için yeterli süre verin
@@ -384,16 +384,20 @@ rabbitmqctl stop
    - Kritik node'ları belirleyin
    - Yedek node'ları hazır tutun
    - Failover senaryolarını test edin
-   
+
 ## 5. Node Silme, Cluster'dan Çıkarma ve Resetleme
 ### 5.1 Bir Node'u Cluster'dan Çıkarma
-Node çalışıyorken:
+##### Node Çalışırken
 ```bash
 rabbitmqctl stop_app
 rabbitmqctl reset
 rabbitmqctl start_app
 ```
-Bu işlem, node'u bağımsız bir RabbitMQ sunucusuna çevirir. Diğer node'lardan "forget_cluster_node" komutuyla da uzak node'u silmek mümkündür:
+Bu işlem, node'u bağımsız bir RabbitMQ sunucusuna çevirir. 
+
+##### Uzak Node'u Silme
+
+Diğer node'lardan "forget_cluster_node" komutuyla da uzak node'u silmek mümkündür:
 ```bash
 # rabbit2 üzerinden, rabbit1'i unutmak
 rabbitmqctl forget_cluster_node rabbit@rabbit1
@@ -406,45 +410,214 @@ rabbitmqctl stop_app
 rabbitmqctl reset
 rabbitmqctl start_app
 ```
-Bu, söz konusu node'un tüm verilerini (kuyruklar, kullanıcılar vb.) temizler. Eğer cluster'a tekrar eklemeniz gerekirse ```join_cluster``` komutunu kullanın.
+#### Reset İşleminin Etkileri
+1. **Veri Temizliği**
+    - Tüm veriler silinir
+    - Kuyruklar, kullanıcılar, ayarlar vb. kaybolur
+2. **Cluster İlişkisi**
+    - Node cluster'dan çıkar
+    - Bağımsız bir node haline gelir
+3. **Yeniden Cluster'a Katılma**
+    - Reset sonrası cluster'a katılmak için ```join_cluster``` komutu kullanılmalıdır
+    - Yeni bir üye gibi cluster'a eklenmelidir
+4. **En Verimli Uygulama**
+    - Reset öncesi gerekli verilerin yedeği alınmalıdır
+    - Reset işlemi geri alınamaz
+    - Cluster durumu sürekli kontrol edilmelidir
+
 ## 6. Replicas, Quorum Queues ve Dengeleme
-* **Varsayılan Kuyruklar (Classic Queues)**
-Tek bir node'da tutulur, yedeği yoktur. Cluster içinde hep görünür, ama fiziksel mesajlar tek bir node üzerindedir.
-* **Quorum Queues ve Streams**
-Mesajlar birden fazla node'a replikasyonlu olarak yazılır. Node'un devre dışı kalması durumunda, çoğunluk sağlandığı sürece kuyruk çalışmaya devam eder. Klasik kuyruklara göre yüksek erişilebilirlik sağlar.
-* **Lider Replika Yerleşimi**
-Kuyruk (veya stream) oluşturulduğunda lider replikayı hangi node'un üstleneceği, "queue_leader_locator" ayarıyla belirlenebilir:
-    * client-local (varsayılan)
-    * balanced (daha eşit dağıtım)
-Balanced ile, sistem liderleri node'lar arasında daha dengeli dağıtmayı hedefler.
-# 7. İstemciler ve Bağlantı Yönetimi
-* Ağırlıklı olarak **AMQP, MQTT, STOMP** gibi protokollerde istemci tek node'a bağlanır. Node düşerse, istemci yeniden bağlanarak farklı bir node üzerinden devam edebilir.
-* **RabbitMQ Stream** protokolünde istemci birden çok node'a bağlanabilir ve replikalar arasından tüketim yapar.
-* İstemcileriniz mümkünse bir node listesi üzerinden otomatik "failover" entegrasyonu yapmalıdır.
-# 8. Tek Makine Üzerinde Çoklu Node (Opsiyonel)
-Test veya öğrenme amaçlı tek bir makinede çoklu node çalıştırmak istiyorsanız, farklı portlar ve farklı node isimleri belirtmeniz gerekir:
+
+### 1. Varsayılan Kuyruklar (Classic Queues)
+- Tek bir node'da tutulur
+- Yedeği yoktur
+- Cluster içinde her yerden görünür
+- Fiziksel mesajlar tek bir node üzerindedir
+
+### 2. Quorum Queues ve Streams
+- Mesajlar birden fazla node'a replike edilir
+- Node hatalarına karşı dayanıklıdır
+- Çoğunluk sağlandığı sürece çalışmaya devam eder
+- Klasik kuyruklara göre daha yüksek erişilebilirlik sunar
+
+### 3. Lider Replika Yerleşimi
+
+#### Yerleşim Stratejileri
+Kuyruk veya stream oluşturulduğunda lider replikanın yerleşimi `queue_leader_locator` ayarı ile belirlenir:
+
+1. **client-local (varsayılan)**
+   - Lider replika client'ın bağlandığı node'da oluşturulur
+   - Basit ve hızlı erişim sağlar
+
+2. **balanced**
+   - Daha eşit dağıtım hedeflenir
+   - Sistem liderleri node'lar arasında dengeli dağıtır
+   - Yük dengeleme için daha uygundur
+
+### 4. En Verimli Uygulama
+
+1. **Kuyruk Tipi Seçimi**
+   - İş kritikliğine göre kuyruk tipi seçilmeli
+   - Yüksek erişilebilirlik gereken durumlar için Quorum Queue tercih edilmeli
+   - Basit işlemler için Classic Queue kullanılabilir
+
+2. **Yerleşim Stratejisi**
+   - Cluster büyüklüğüne göre strateji seçilmeli
+   - Yük dengeleme ihtiyacı göz önünde bulundurulmalı
+   - Performans gereksinimleri dikkate alınmalı
+
+3. **Monitoring**
+   - Kuyruk dağılımları izlenmeli
+   - Node yükleri kontrol edilmeli
+   - Dengesiz dağılımlar tespit edilmeli
+## 7. İstemciler ve Bağlantı Yönetimi
+#### Protokol Bazlı Bağlantılar
+
+1. **Standart Protokoller**
+   - AMQP, MQTT, STOMP gibi protokollerde istemci tek node'a bağlanır
+   - Node hatası durumunda istemci yeniden bağlanabilir
+   - Farklı bir node üzerinden devam edebilir
+
+2. **RabbitMQ Stream Protokolü**
+   - İstemci birden çok node'a bağlanabilir
+   - Replikalar arasından tüketim yapabilir
+   - Daha yüksek erişilebilirlik sağlar
+
+#### Bağlantı Yönetimi En Verimli Uygulama
+
+1. **Otomatik Failover**
+   - İstemciler node listesi kullanmalı
+   - Otomatik failover entegrasyonu yapılmalı
+   - Bağlantı kopması durumunda alternatif node'lara geçebilmeli
+
+2. **IP Adresi Kullanımı**
+   - IP adreslerinin hard-code edilmesi önerilmez
+   - Cluster yapılandırması değişebilir
+   - Node sayısı değişebilir
+   - Değişiklikler kod değişimi gerektirir
+
+3. **Önerilen Yaklaşımlar**
+   - Dinamik DNS servisi kullanımı (düşük TTL ile)
+   - TCP load balancer kullanımı
+   - Her ikisinin kombinasyonu
+   - Cluster yönetimi için özel teknolojilerin kullanımı
+
+4. **Bağlantı Yönetimi**
+   - Cluster içi bağlantı yönetimi ayrı ele alınmalı
+   - Özel çözümler tercih edilmeli
+   - Ölçeklenebilir yapılar kurulmalı
+## 8. Node'ların Yeniden Başlatılması ve Kritik Durumlar
+
+#### 1. Node'u Durdurmak
 ```bash
-# İlk node
-RABBITMQ_NODE_PORT=5672 \
-RABBITMQ_NODENAME=rabbit \
-rabbitmq-server -detached
-
-# İkinci node
-RABBITMQ_NODE_PORT=5673 \
-RABBITMQ_NODENAME=hare \
-rabbitmq-server -detached
-
-# Sonra, hare node'unu rabbit node'una ekleyin
-rabbitmqctl -n hare stop_app
-rabbitmqctl -n hare join_cluster rabbit@<makine-adı> # Örn. rabbit@hostname
-rabbitmqctl -n hare start_app
+rabbitmqctl stop
 ```
+##### Durdurma Etkileri
+* Quorum Queue / Stream kullanılıyorsa kuyruk lider replikaları diğer node'lara kayabilir
+* Classic Queue'da mesajlar tek node'daysa, o node durduğunda kuyruğa erişim kesilir
+#### 2. Node'u Yeniden Başlatmak
+##### Başlatma Süreci
+* Node tekrar başlatıldığında (rabbitmq-server -detached komutuyla):
+  * Kapanmadan önceki senkronizasyon kaynağını hatırlar
+  * Kaynak node çevrimiçiyse veri senkronize olur
+  * Node cluster'a otomatik katılır
+  * Senkronizasyon kaynağı kapalıysa 5 dakika sonra timeout alabilir
+#### 3. Tüm Cluster'ı Kapama ve Açma
+##### Kapama/Açma Sırası
+* Son kapanan node ilk açıldığında:
+  * Veri senkronizasyonu gerekmez
+  * Kendi veritabanını yükler
+* Diğer node'lar:
+  * Mevcut bir node üzerinden senkronize olur
+  * Herhangi bir aktif node'a bağlanabilir
+* Kubernetes Ortamında
+  * Node'ların açılış sırası önemlidir
+  * Readiness probe'lar düzgün konfigüre edilmelidir
+  * Node sağlık kontrolleri doğru yapılandırılmalıdır
+#### 4. En Verimli Uygulama
+1. **Sıralı İşlemler**
+    * Node'ları kontrollü şekilde başlatın/durdurun
+    * Senkronizasyon için yeterli süre verin
+    * Timeout değerlerini ortama göre ayarlayın
 
-Bu şekilde iki node tek makinede cluster olarak çalışır. Ancak gerçek üretim ortamlarında genellikle fiziksel veya sanal olarak ayrı makineler üzerinde cluster kurulması önerilir.
+2. **İzleme**
+    * Node durumlarını sürekli monitör edin
+    * Senkronizasyon problemlerini hızlı tespit edin
+    * Log'ları düzenli kontrol edin
+3. **Yedeklilik**
+    * Kritik node'ları belirleyin
+    * Yedek node'ları hazır tutun
+    * Failover senaryolarını test edin
 ## 9. Önemli Notlar
-* **2 Node Cluster:** Kesinlikle önerilmez, çoğunluk sağlanamadığında sistem çöker veya kuyruğunuz devre dışı kalır.
-* **Veri Kaybı Riski:** Reset veya yanlış yapılandırma durumunda kalıcı kuyruk mesajları silinebilir. Özellikle production ortamında her adımı dikkatle uygulayın.
-* **WAN Ortamında Cluster:** Farklı veri merkezleri arasında cluster kurulması önerilmez. Bunun yerine Federation veya Shovel gibi eklentiler kullanılmalıdır.
-* **Yükseltme ve Versiyon Uyumluluğu:** Mümkünse tüm node'larda aynı Erlang/OTP ana sürümünü ve aynı RabbitMQ sürümünü kullanın.
+#### 1. İki Node'lu Cluster Kullanımı
+- Kesinlikle önerilmez
+- Çoğunluk sağlanamadığında sistem çöker
+- Kuyruklar devre dışı kalabilir
+
+#### 2. Veri Kaybı Riskleri
+- Reset işlemlerinde kalıcı kuyruk mesajları silinebilir
+- Yanlış yapılandırma veri kaybına neden olabilir
+- Production ortamında her adım dikkatle uygulanmalı
+
+#### 3. WAN Ortamında Cluster
+- Farklı veri merkezleri arasında cluster önerilmez
+- Bunun yerine kullanılabilecek alternatifler:
+  - Federation eklentisi
+  - Shovel eklentisi
+
+#### 4. Yükseltme ve Versiyon Uyumluluğu
+- Tüm node'larda aynı Erlang/OTP ana sürümü kullanılmalı
+- Tüm node'larda aynı RabbitMQ sürümü kullanılmalı
+- Versiyon uyumsuzlukları sorunlara yol açabilir
+
+#### 5. En Verimli Uygulama
+
+1. **Cluster Planlaması**
+   - Node sayısı dikkatli belirlenmeli
+   - Tek sayıda node tercih edilmeli
+   - Yedeklilik planlanmalı
+
+2. **Versiyon Yönetimi**
+   - Sürüm geçişleri planlanmalı
+   - Uyumluluk kontrol edilmeli
+   - Yükseltmeler test edilmeli
+
+3. **Network Yapılandırması**
+   - WAN yerine LAN tercih edilmeli
+   - Ağ gecikmeleri minimize edilmeli
+   - Güvenlik duvarı kuralları düzenlenmeli
 ## 10. Sonuç
-Yukarıdaki adımları izleyerek RabbitMQ üzerinde yedekli (cluster) bir yapı kurabilir, node'ları ekleyip çıkarabilir, veri bütünlüğünü koruyabilir ve yüksek erişilebilirlik senaryolarını yönetebilirsiniz. Özellikle quorum queues veya RabbitMQ stream gibi özellikler kullanarak mesajlarınızı birden fazla node'a çoğaltabilir, node hatalarında dahi veri kaybını minimuma indirebilirsiniz.
+#### Genel Bakış
+Bu dokümantasyon ile RabbitMQ üzerinde:
+- Yedekli (cluster) bir yapı kurabilirsiniz
+- Node'ları ekleyip çıkarabilirsiniz  
+- Veri bütünlüğünü koruyabilirsiniz
+- Yüksek erişilebilirlik senaryolarını yönetebilirsiniz
+
+#### Yüksek Erişilebilirlik Özellikleri
+
+1. **Quorum Queues**
+   - Mesajları birden fazla node'a çoğaltabilir
+   - Node hatalarında veri kaybını minimize eder
+   - Çoğunluk tabanlı konsensüs sağlar
+
+2. **RabbitMQ Stream**
+   - Yüksek performanslı replikasyon
+   - Ölçeklenebilir mesaj akışı
+   - Dayanıklı veri saklama
+
+#### En Verimli Uygulama
+
+1. **Cluster Yönetimi**
+   - Node sayısını dikkatli planlayın
+   - Yedeklilik stratejisi belirleyin
+   - Monitoring çözümü kurun
+
+2. **Veri Güvenliği**
+   - Düzenli yedekleme yapın
+   - Felaket kurtarma planı oluşturun
+   - Veri tutarlılığını kontrol edin
+
+3. **Performans**
+   - Node'ları dengeli dağıtın
+   - Kaynak kullanımını izleyin
+   - Darboğazları tespit edin
