@@ -1,10 +1,10 @@
 # RabbitMQ Cluster ve Peer Discovery Rehberi
 
-Bu klasörde iki Markdown dosyası bulunmaktadır. Aşağıdaki bağlantılara tıklayarak dosyaların içeriklerini görüntüleyebilirsiniz:
+Bu klasörde üç Markdown dosyası bulunmaktadır. Aşağıdaki bağlantılara tıklayarak dosyaların içeriklerini görüntüleyebilirsiniz:
 
 1. [RabbitMQ Yedeklilik (Cluster) Yapısı](clustering.md)
 2. [Cluster Formation ve Peer Discovery](cluster_formation.md)
-
+3. [Ağ Bölünmeleri (Network Partitions) ve Yönetimi](network_partitions.md)
 
 ## RabbitMQ Yedeklilik (Cluster) Yapısı
 
@@ -17,3 +17,9 @@ Aşağıdaki bağlantıya tıklayarak `clustering.md` dosyasının içeriğini g
 Aşağıdaki bağlantıya tıklayarak `cluster_formation.md` dosyasının içeriğini görüntüleyebilirsiniz:
 
 [Cluster Formation ve Peer Discovery](cluster_formation.md)
+
+## Ağ Bölünmeleri (Network Partitions) ve Yönetimi
+
+Aşağıdaki bağlantıya tıklayarak `network_partitions.md` dosyasının içeriğini görüntüleyebilirsiniz:
+
+[Ağ Bölünmeleri (Network Partitions) ve Yönetimi](network_partitions.md)
